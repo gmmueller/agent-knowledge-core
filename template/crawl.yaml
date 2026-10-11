@@ -1,0 +1,12 @@
+# Optional platform settings. Copy the brain skeleton into a private workspace first.
+platform: kajabi              # kajabi | skool | youtube | files
+site: https://courses.example.com
+cdp_port: 9222                # choose a distinct port for each login-based brain
+products:
+  - {code: main, slug: my-course, source_id: my-course}
+whisper:
+  model: large-v3-turbo
+  prompt: "Expert Name, Company, Course Name, product names."
+multi_speaker:
+  products: []                # product codes whose recordings contain multiple speakers
+  lessons: []                 # lesson ids containing multiple speakers

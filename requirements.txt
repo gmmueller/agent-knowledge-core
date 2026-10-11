@@ -1,0 +1,16 @@
+# Core (wiki tools, merge, index, persona generator, reminders)
+pyyaml>=6
+
+# Crawling logged-in sites over CDP (Kajabi and other course platforms)
+playwright>=1.45
+
+# Attachments: PDF text and rendering image-only pages
+pypdf>=4
+pymupdf>=1.24
+
+# Local transcription when a video has no captions (GPU recommended)
+numpy>=1.26
+faster-whisper>=1.0
+# On Windows with an NVIDIA GPU also install the CUDA runtime wheels:
+#   nvidia-cublas-cu12  "nvidia-cudnn-cu12==9.*"
+# whisper_transcribe.py adds their DLL folders to the search path itself.

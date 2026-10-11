@@ -1,0 +1,17 @@
+# One entry per crawlable unit (course, channel, blog, book...). Fill in per brain.
+sources:
+  - id: my-course            # matches crawl.yaml products[].source_id
+    product: main            # matches the outline product code and wiki source-page product
+    title: My Course
+    type: course             # course | youtube-channel | blog | podcast | book | social
+    url: https://courses.example.com/products/my-course
+    access: login-browser    # public | login-browser | api
+    platform: kajabi         # kajabi | skool | youtube | files
+    video_host: wistia       # wistia | vimeo | youtube | unknown
+    captions: unknown        # quote "yes" / "no" to keep them strings in YAML
+    status: todo             # todo | mapped | crawled | transcribed | ingested
+    counts: {modules: 0, lessons: 0, attachments: 0, words: 0}
+    refresh: manual          # daily | weekly | monthly | quarterly | yearly | manual | never
+    last_crawled: null
+    cursor: null
+    notes: ""

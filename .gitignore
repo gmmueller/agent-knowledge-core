@@ -1,0 +1,18 @@
+# Brains are private: they live in your own workspace, never in this repo.
+/brains/
+/workspace/
+.secrets/
+
+# Python / tooling
+__pycache__/
+.venv/
+*.pyc
+node_modules/
+
+# media
+*.mp4
+*.m4a
+*.webm
+*.mkv
+*.wav
+*.mp3
