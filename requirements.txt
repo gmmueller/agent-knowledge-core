@@ -14,3 +14,23 @@ faster-whisper>=1.0
 # On Windows with an NVIDIA GPU also install the CUDA runtime wheels:
 #   nvidia-cublas-cu12  "nvidia-cudnn-cu12==9.*"
 # whisper_transcribe.py adds their DLL folders to the search path itself.
+
+# Optional: library web import
+trafilatura>=2
+beautifulsoup4>=4
+requests>=2
+
+# Optional: library speaker diarization (choose matching torch/torchaudio wheels for your hardware)
+torch>=2.8
+torchaudio>=2.8
+speechbrain>=1
+scikit-learn>=1
+# Speaker finalization preserves people.yaml formatting and locks concurrent writes.
+ruamel.yaml>=0.18
+filelock>=3
+
+# Optional: measured example frames and contact sheets
+opencv-python>=4
+scenedetect>=0.6
+pillow>=10
+# Video/audio fetchers also require yt-dlp and ffmpeg executables on PATH (install separately).
