@@ -36,9 +36,31 @@ def workspace(brain: pathlib.Path) -> pathlib.Path:
     return brain.parent
 
 
+def workspace_dir(path: str | pathlib.Path) -> pathlib.Path:
+    """Resolve and validate a workspace folder (holds brains and/or the shared library/)."""
+    p = pathlib.Path(path).expanduser().resolve()
+    if not p.is_dir() or not ((p / "library").is_dir() or any(p.glob("*/brain.md"))):
+        raise SystemExit(f"not a workspace (no library/ and no brain folders): {p}")
+    return p
+
+
+def add_workspace_arg(ap: argparse.ArgumentParser) -> None:
+    ap.add_argument("--workspace", required=True, help="path to the private workspace (holds library/ and the brains)")
+
+
+def library_dir(ws: pathlib.Path) -> pathlib.Path:
+    """<workspace>/library: shared expert sources for topic brains (docs/library.md)."""
+    return ws / "library"
+
+
 def secrets_dir(brain: pathlib.Path, *parts: str) -> pathlib.Path:
     """<workspace>/.secrets/<parts...>, created on demand. Never inside the brain, never committed."""
-    d = workspace(brain).joinpath(".secrets", *parts)
+    return workspace_secrets(workspace(brain), *parts)
+
+
+def workspace_secrets(ws: pathlib.Path, *parts: str) -> pathlib.Path:
+    """<workspace>/.secrets/<parts...>, created on demand (for workspace-level tools such as the library ones)."""
+    d = ws.joinpath(".secrets", *parts)
     d.mkdir(parents=True, exist_ok=True)
     return d
 
