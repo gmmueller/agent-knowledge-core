@@ -1,0 +1,12 @@
+# Library items this brain uses. triage_merge.py builds it from ingest/triage/*.tsv and keeps hand overrides.
+# Tiers: A deep ingest | B raw + search only | C skip | X example (annotate).
+brain: my-topic
+triage_version: 1
+items: []
+# - item: example-publisher/yt-abc123
+#   tier: A
+#   scores: {relevance: 3, density: 2, voice: 3, unique: 2, fresh: 1}
+#   speakers: [The Expert]
+#   why: "explains the framework with two worked examples"
+#   override: A                  # set by selection_override.py; survives re-merges
+#   override_why: "guest appearance, added by hand"

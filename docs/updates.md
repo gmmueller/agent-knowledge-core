@@ -27,7 +27,17 @@ Once a brain is `active` and its refresh script runs unattended, schedule it wit
 
 - **Per brain:** `refresh: { reminders: false }` in the brain's `brain.md` frontmatter switches reminders off for that whole brain (default: on). Use it for brains you don't plan to update.
 - **Per source:** the `refresh` cadence in `sources.yaml`. `manual` or `never` means no reminder for that source.
-- **Check:** `python -I <framework>/tools/refresh_due.py --root <workspace> [--all]` lists sources whose `last_crawled` + cadence has passed. It reads files only (no browser, no network).
+- **Check:** `python -I <framework>/tools/refresh_due.py --workspace <workspace> [--all]` (`--root` also works) lists sources whose `last_crawled` + cadence has passed. It reads files only (no browser, no network).
 - **Schedule:** a weekly scheduled reminder runs the check and reports the list to the user. It only reminds; the refresh itself is started by the user, because most sources need the logged-in browser.
 
 The reminder check also reads `library/*/sources.yaml` and flags `type: tool` wiki pages whose `recheck_by` date has passed.
+
+## Topic brains
+
+A topic brain refreshes through the library, then through the brain:
+
+1. Re-catalogue the publisher (`library_yt.py catalogue`, `web_to_raw.py list`). New items append to `catalogue.tsv`.
+2. Score only the new rows. `triage_inputs.py` skips items already scored; then run `triage_merge.py` again. Hand overrides survive.
+3. Fetch the new tier A, B and X items, run the speaker pass on the multi-speaker ones, and ingest them as a new wave.
+4. Re-run `merge_topic.py` and the concept-page writers for the concepts the new wave touched. Re-run `rule_status.py` to recount rule status.
+5. Re-check dated pages: `type: tool` pages carry a `recheck_by` date, and `refresh_due.py` flags them when it passes.
