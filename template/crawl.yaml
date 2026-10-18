@@ -10,3 +10,17 @@ whisper:
 multi_speaker:
   products: []                # product codes whose recordings contain multiple speakers
   lessons: []                 # lesson ids containing multiple speakers
+
+# Skool alternative (replace the settings above; attach only to this brain's Chrome session):
+# platform: skool
+# site: https://www.skool.com/my-community
+# cdp_port: 9224
+# profile: chrome-my-community # directory under <workspace>/.secrets/; user launches/login first
+# scratch: my-community        # cache directory under <workspace>/.secrets/scratch/
+# source_prefix: mc            # keep stable: existing raw, state and wiki pages use these ids
+# courses: []                  # classroom course codes; empty means all, --only overrides
+# priority_categories: [Help, Tutorials, Announcements] # category suffixes for replied tier
+# member_role_code: 4          # feed stats only; staff membership comes from state/staff.json
+# whisper:
+#   model: large-v3-turbo
+#   prompt: "Expert Name, Community Name, product names."
