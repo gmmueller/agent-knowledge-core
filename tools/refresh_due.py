@@ -39,7 +39,7 @@ def as_date(v) -> dt.date | None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--root", required=True, help="workspace containing brain folders")
+    ap.add_argument("--root", "--workspace", required=True, help="workspace containing brain folders")
     ap.add_argument("--all", action="store_true")
     a = ap.parse_args()
     show_all = a.all

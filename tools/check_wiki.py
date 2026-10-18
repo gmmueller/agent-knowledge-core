@@ -7,7 +7,11 @@ Citation forms (paths relative to the brain folder, `.md` optional):
   ([[raw/main/m02-x/l01-y]] @ 1:07)       transcript block timestamp
   ([[raw/_attachments/z]] @ p. 3)         PDF page
   ([[raw/main/m01-x/l04-y]] @ page text)   lesson page text (or a text-only lesson)
+  ([[raw/community/2026-10/x]] @ post)   a Skool thread's opening post
+  ([[raw/community/2026-10/x]] @ c:9d9bf4b9)  one comment in a Skool thread (its `c:<id8>` anchor)
 Library paths resolve from the workspace root; @ ¶N addresses web blocks.
+For `post` / `c:` cites the quote's speaker (or the persona's default_speaker when unnamed) must be the
+author of that post or comment, so a member's words can't pass as the expert's.
 Persona quotes may omit the brain's default_speaker; topic quotes always name a speaker.
 A quote must appear verbatim (whitespace and curly quotes normalised, case-sensitive) in the cited block,
 allowing it to run into the next block or start in the previous one. Exit code 1 if anything fails.
@@ -24,10 +28,15 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I drops the script dir
 import brainlib
 
-CITE = re.compile(r"\[\[((?:raw/|library/)[^\]|#]+?)(?:\.md)?(?:\|[^\]]*)?\]\]\s*@\s*(\d+:\d{2}(?::\d{2})?|p\.\s*\d+|¶\d+|page text)")
+CITE = re.compile(r"\[\[((?:raw/|library/)[^\]|#]+?)(?:\.md|\.yaml)?(?:\|[^\]]*)?\]\]\s*@\s*(\d+:\d{2}(?::\d{2})?|p\.\s*\d+|¶\d+|page text|post|c:[0-9a-f]{8}|\d+(?:\.\d+)?s)")
+EXAMPLE = re.compile(r"^library/[^/]+/examples/[^/]+$")  # measured example facts (docs/library.md); cited @ <seconds>s
 QUOTE_LINE = re.compile(r'''^>\s*["“](.+?)["”]\s*[—–-]*\s*(.*?)\s*\(?\s*(\[\[(?:raw/|library/).*)$''')
+# quotes that contain inner quote marks: the closing mark is the one followed by "— Speaker"; tried first
+QUOTE_LINE_DASHED = re.compile(r'''^>\s*["“](.+?)["”]\s*[—–]\s*(.*?)\s*\(?\s*(\[\[(?:raw/|library/).*)$''')
 TS_BLOCK = re.compile(r"^\*\*\[(\d+:\d{2}(?::\d{2})?|¶\d+)\]\*\*\s?(.*)$")
 PAGE_BLOCK = re.compile(r"^\*\*\[p\. (\d+)\]\*\*\s*$")
+THREAD_HEAD = re.compile(r"^((?:> )*)\*\*(.+?)\*\* \(@[^)]*\)(?: · \*\*\w+\*\*)? · [\d-]+ [\d:]+ · c:([0-9a-f]{8})\s*$")
+POST_HEAD = re.compile(r"^\*\*(.+?)\*\* \(@[^)]*\) · [\d-]+ [\d:]+\s*$")
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 TYPES = {"source", "topic", "principle", "method", "framework", "rule", "glossary", "example", "rubric", "tool", "debate"}
 
@@ -48,8 +57,11 @@ def display_path(brain, path):
 
 
 def check_schema(brain, fm, body, where, errors):
-    for key, values in (("evidence", {"research", "official", "practitioner", "example", "inference"}),
-                        ("freshness", {"evergreen", "platform", "tool-version"})):
+    # brain.md may set its own `evidence_types:` (e.g. rulebook, expert, vendor); "inference" is always allowed
+    evidence = set(frontmatter(brain / "brain.md").get("evidence_types") or
+                   {"research", "synthesis", "official", "practitioner", "example"}) | {"inference"}
+    for key, values in (("evidence", evidence),
+                        ("freshness", {"evergreen", "platform", "tool-version", "dated"})):
         if key in fm and fm[key] not in values:
             errors.append(f"{where}: {key} must be one of {sorted(values)}")
     if fm.get("type") == "tool":
@@ -75,6 +87,7 @@ def check_schema(brain, fm, body, where, errors):
 def norm(s: str) -> str:
     s = s.replace("’", "'").replace("‘", "'").replace("“", '"').replace("”", '"').replace("…", "...")
     s = re.sub(r"\*\*|__", "", s)
+    s = re.sub(r"\\([()\[\]*_#.!+-])", r"\1", s)  # markdown escapes (Skool exports write \( \) \*)
     return re.sub(r"\s+", " ", s).strip()
 
 
@@ -117,9 +130,33 @@ def raw_index(brain: pathlib.Path, rel: str) -> dict | None:
         elif cur is not None:
             cur[1] += " " + line
     idx = {"blocks": [(b[0], norm(b[1])) for b in blocks], "block_speakers": [b[2] for b in blocks],
-           "speakers": speakers, "page_text": norm(" ".join(page_text)), "all": norm(body)}
+           "speakers": speakers, "page_text": norm(" ".join(page_text)), "all": norm(body),
+           "anchors": thread_anchors(body) if frontmatter(path).get("method") == "skool-api" else {}}
     _raw_cache[key] = idx
     return idx
+
+
+def thread_anchors(body: str) -> dict:
+    """Skool thread (tools/skool_thread.py format): {'post' | 'c:<id8>': (author, normalised text)}."""
+    anchors, key, author, buf, prefix = {}, None, None, [], ""
+    def close():
+        if key:
+            anchors[key] = (author, norm(" ".join(buf)))
+    for line in body.splitlines():
+        h, ph = THREAD_HEAD.match(line), POST_HEAD.match(line)
+        if key is None and ph:
+            key, author, buf, prefix = "post", ph.group(1), [], ""
+        elif h:
+            close()
+            prefix, author, key, buf = h.group(1), h.group(2), "c:" + h.group(3), []
+        elif line.startswith("## Comments"):
+            close()
+            key = "comments"
+        elif key and key != "comments":
+            buf.append(line[len(prefix):] if line.startswith(prefix) else line.lstrip("> "))
+    close()
+    anchors.pop("comments", None)
+    return anchors
 
 
 def ts_seconds(label: str) -> int:
@@ -128,11 +165,44 @@ def ts_seconds(label: str) -> int:
 
 
 def check_cite(brain, rel, at, quote, where, errors, speaker=None) -> None:
+    rel = re.sub(r"\.yaml$", "", rel)
+    if EXAMPLE.match(rel):
+        # examples/<id>.yaml holds measurements and frames, not text: the time must lie inside the video, no quotes
+        path = brainlib.workspace(brain) / (rel + ".yaml")
+        if not path.exists():
+            errors.append(f"{where}: example file not found: {rel}.yaml")
+            return
+        if not at.endswith("s") or ":" in at:
+            errors.append(f"{where}: cite an example as '@ <seconds>s', got '{at}'")
+            return
+        duration = float((yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("duration_s") or 0)
+        if float(at[:-1]) > duration + 0.5:
+            errors.append(f"{where}: {at} is past the end of {rel} ({duration:.1f}s)")
+        if quote:
+            errors.append(f"{where}: quotes must cite a raw transcript, not {rel}")
+        return
+    if re.fullmatch(r"\d+(?:\.\d+)?s", at):
+        errors.append(f"{where}: '@ {at}' (seconds) is only for examples/ files")
+        return
     idx = raw_index(brain, rel)
     if idx is None:
         errors.append(f"{where}: raw file not found: {rel}")
         return
     at = re.sub(r"p\.\s*", "p. ", at)
+    if at == "post" or at.startswith("c:"):
+        anchor = idx["anchors"].get(at)
+        if anchor is None:
+            errors.append(f"{where}: no '{at}' in {rel}" + ("" if idx["anchors"] else " (not a Skool thread file)"))
+            return
+        author, text = anchor
+        if quote:
+            if norm(quote) not in text:
+                other = [k for k, (_, t) in idx["anchors"].items() if norm(quote) in t]
+                errors.append(f"{where}: quote not in {at} of {rel}{f' (found at {other[0]}: fix the anchor)' if other else ''}: \"{quote[:70]}\"")
+            who = speaker or frontmatter(brain / "brain.md").get("default_speaker")
+            if who and not (author.startswith(who) or who.startswith(author)):
+                errors.append(f"{where}: quote attributed to '{who}' but {at} was written by '{author}': name the speaker")
+        return
     if at == "page text":
         if quote and topic(brain):
             check_speaker(brain, idx, None, speaker, where, errors)
@@ -173,7 +243,7 @@ def check_speaker(brain, idx, block_speaker, speaker, where, errors):
     if not speaker:
         errors.append(f"{where}: topic quote missing speaker")
         return
-    people_file = brainlib.workspace(brain) / "library" / "people.yaml"
+    people_file = brainlib.library_dir(brainlib.workspace(brain)) / "people.yaml"
     people = yaml.safe_load(people_file.read_text(encoding="utf-8")) or {} if people_file.exists() else {}
     allowed = [block_speaker] if block_speaker else list(idx["speakers"])
     if not block_speaker and len(allowed) > 1:
@@ -210,12 +280,15 @@ def check_page(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None:
                 errors.append(f"{where}: source page missing '{k}'")
     check_schema(brain, fm, text[m.end():], where, errors)
     for s in fm.get("sources") or []:
-        if raw_index(brain, re.sub(r"\.md$", "", str(s))) is None:
+        if EXAMPLE.match(re.sub(r"\.yaml$", "", str(s))):
+            if not (brainlib.workspace(brain) / str(s)).with_suffix(".yaml").exists():
+                errors.append(f"{where}: frontmatter source not found: {s}")
+        elif raw_index(brain, re.sub(r"\.md$", "", str(s))) is None:
             errors.append(f"{where}: frontmatter source not found: {s}")
     body = text[m.end():]
     n_quotes = 0
     for ln, line in enumerate(body.splitlines(), 1):
-        q = QUOTE_LINE.match(line)
+        q = QUOTE_LINE_DASHED.match(line) or QUOTE_LINE.match(line)
         cites = CITE.findall(line)
         if line.lstrip().startswith(">") and any(ch in line for ch in ('"', '“')) and not q:
             errors.append(f"{where}:{ln}: quote line without a parsable citation")
@@ -276,6 +349,11 @@ def check_staging(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None
                     continue
                 check_cite(brain, re.sub(r"\.md$", "", cite["raw"]), str(cite["at"]),
                            item.get("text") if kind == "quotes" else None, f"{cw} {kind}[{j}]", errors, item.get("speaker"))
+    for key in ("findings", "tropes", "equipment", "examples"):  # cites must resolve to a real block
+        for j, e in enumerate(data.get(key) or []):
+            cite = e.get("cite") if isinstance(e, dict) else None
+            if cite and cite.get("raw") and cite.get("at"):
+                check_cite(brain, re.sub(r"\.md$", "", cite["raw"]), str(cite["at"]), None, f"{where}: {key}[{j}]", errors, None)
     for j, v in enumerate(data.get("voice") or []):
         cite = v.get("cite") or {}
         if cite.get("raw") and cite.get("at"):

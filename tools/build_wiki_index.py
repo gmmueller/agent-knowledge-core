@@ -18,7 +18,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I dr
 import brainlib
 
 TYPES = [("topic", "Topics"), ("principle", "Principles"), ("framework", "Frameworks"), ("method", "Methods"),
-         ("rule", "Rules"), ("glossary", "Glossary")]
+         ("rule", "Rules"), ("rubric", "Rubrics"), ("debate", "Debates"), ("tool", "Tools and platform facts"),
+         ("glossary", "Glossary"), ("example", "Examples")]
 
 
 def product_names(brain: pathlib.Path) -> dict[str, str]:
@@ -90,24 +91,35 @@ def main() -> None:
         fm, body = split(p.read_text(encoding="utf-8"))
         n = len(fm.get("sources") or [])
         title = (re.search(r"^# (.+)$", body, re.M) or [None, p.stem])[1]
-        if fm.get("type") == "source":
+        if fm.get("type") == "source" and fm.get("publisher"):  # topic brain: group by publisher
+            sources[str(fm["publisher"])][str(fm.get("published") or "")[:4] or "undated"].append((p.stem, title))
+        elif fm.get("type") == "source":
             product = fm.get("product") or ("attachments" if p.stem.startswith("att-") else "other")
-            sources[product][str(fm.get("module") or "Attachments")].append((p.stem, title))
+            module = str(fm.get("module") or "Attachments")
+            if not fm.get("product") and str(fm.get("module", "")).startswith("Community"):
+                # Skool brains: community threads and Q&A digests grouped by month, lessons by course
+                product, module = "community", str(fm.get("published") or "")[:7] or "undated"
+            elif not fm.get("product") and not p.stem.startswith("att-"):
+                product = "classroom"
+            sources[product][module].append((p.stem, title))
         else:
             extra = f" `{fm.get('status')}`" if fm.get("type") == "rule" else ""
+            if fm.get("type") in ("tool", "topic", "principle", "method") and fm.get("freshness") in ("platform", "tool-version"):
+                extra += f" _{fm['freshness']}_"
             by_type[fm.get("type")].append(f"- [[{p.stem}]]{extra}: {one_line(body)} ({n} sources)")
     out = ["# Index", "",
            "Catalog of every wiki page: link, one-line summary, source count. Read this first on every query. "
            "Rebuilt by `tools/build_wiki_index.py` after every ingest.", ""]
-    extra_types = [("example", "Examples"), ("rubric", "Rubrics"), ("tool", "Tools"), ("debate", "Debates")]
-    for t, heading in TYPES + [(t, h) for t, h in extra_types if by_type.get(t)]:
-        out += [f"## {heading}", ""] + sorted(by_type.get(t, []), key=str.lower) + [""]
+    for t, heading in TYPES:
+        if by_type.get(t) or t in ("topic", "principle", "framework", "method", "rule", "glossary"):
+            out += [f"## {heading}", ""] + sorted(by_type.get(t, []), key=str.lower) + [""]
     out += ["## Sources", ""]
-    for product in dict.fromkeys([*products, *sorted(sources)]):
+    for product in dict.fromkeys([*products, "attachments", "other", *sorted(sources)]):
         if product not in sources:
             continue
-        out += [f"### {products.get(product, product.title())}", ""]
-        for module, items in sources[product].items():
+        out += [f"### {products.get(product, product.replace('-', ' ').title())}", ""]
+        mods = sources[product].items()
+        for module, items in (mods if product in products or product in ("attachments", "other") else sorted(mods, reverse=True)):
             out.append(f"- **{module}**: " + " · ".join(f"[[{s}|{t}]]" for s, t in sorted(items)))
         out.append("")
     (wiki / "index.md").write_text("\n".join(out), encoding="utf-8", newline="\n")

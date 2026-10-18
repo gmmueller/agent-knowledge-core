@@ -6,7 +6,8 @@ Usage:
 
 Reads <brain>/ingest/staging/*.yaml and the optional <brain>/ingest/slug-map.yaml ({old-slug: canonical-slug}).
 A bundle holds every point, quote and voice line about one canonical concept, each tagged with the lesson id and
-presenter, plus the count of distinct lessons (rules: 1 lesson = bench, 2+ = active).
+presenter, plus the count of distinct lessons (rules: 1 lesson = bench, 2+ = active). Entries also carry `date` (the raw
+file's published/created date, when it has one) and the worker's `freshness` tag (evergreen | tool-version), if given.
 """
 import argparse
 import collections
@@ -20,6 +21,22 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I dr
 import brainlib
 
 
+_dates: dict = {}
+
+
+def raw_date(brain: pathlib.Path, raw: str) -> str | None:
+    """Content date of a raw file: `published`, else a thread's `created`, else `lesson_updated` (YYYY-MM-DD)."""
+    key = (brain, raw)
+    if key not in _dates:
+        p = brain / (raw + ".md")
+        fm = {}
+        if p.exists():
+            m = re.match(r"^---\n(.*?)\n---", p.read_text(encoding="utf-8"), re.S)
+            fm = (yaml.safe_load(m.group(1)) or {}) if m else {}
+        d = fm.get("published") or fm.get("created") or fm.get("lesson_updated")
+        _dates[key] = str(d)[:10] if d and str(d) != "unknown" else None
+    return _dates[key]
+
 
 def lesson_of(raw: str, raw_to_lesson: dict) -> str:
     return raw_to_lesson.get(re.sub(r"\.md$", "", raw), raw)
@@ -30,8 +47,10 @@ def load(brain: pathlib.Path):
     sm = brain / "ingest" / "slug-map.yaml"
     if sm.exists():
         slug_map = yaml.safe_load(sm.read_text(encoding="utf-8")) or {}
-    batches = yaml.safe_load((brain / "ingest" / "batches.yaml").read_text(encoding="utf-8"))
-    raw_to_lesson = {re.sub(r"\.md$", "", it["raw"]): it["id"] for b in batches.values() for it in b["items"]}
+    raw_to_lesson = {}  # batches.yaml plus incremental batches-<date>.yaml files
+    for bp in sorted((brain / "ingest").glob("batches*.yaml")):
+        for b in (yaml.safe_load(bp.read_text(encoding="utf-8")) or {}).values():
+            raw_to_lesson.update({re.sub(r"\.md$", "", it["raw"]): it["id"] for it in b["items"]})
     presenters, concepts, voice, conflicts = {}, collections.defaultdict(lambda: {
         "types": collections.Counter(), "names": collections.Counter(), "aliases": set(), "summaries": [],
         "points": [], "quotes": [], "batches": set(), "orig_slugs": set()}), [], []
@@ -54,9 +73,13 @@ def load(brain: pathlib.Path):
                     cite = it.get("cite") or {}
                     raw = re.sub(r"\.md$", "", str(cite.get("raw", "")))
                     entry = {"text": it.get("text"), "raw": raw, "at": str(cite.get("at")),
-                             "lesson": lesson_of(raw, raw_to_lesson)}
+                             "lesson": lesson_of(raw, raw_to_lesson), "batch": f.stem}
                     if it.get("speaker"):
                         entry["speaker"] = it["speaker"]
+                    if it.get("freshness"):
+                        entry["freshness"] = it["freshness"]
+                    if raw_date(brain, raw):
+                        entry["date"] = raw_date(brain, raw)
                     k[kind].append(entry)
         for v in data.get("voice") or []:
             cite = v.get("cite") or {}

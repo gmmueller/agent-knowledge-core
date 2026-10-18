@@ -50,8 +50,8 @@ def main() -> None:
             if target.startswith("raw/"):
                 continue
             if target.startswith("library/"):
-                raw = brainlib.workspace(brain) / (target if target.endswith(".md") else target + ".md")
-                if not raw.is_file():
+                raw = brainlib.workspace(brain) / (target if target.endswith((".md", ".yaml")) else target + ".md")
+                if not raw.is_file() and not (brainlib.workspace(brain) / (target + ".yaml")).is_file():
                     broken[target].add(name)
                 continue
             if target in all_pages:

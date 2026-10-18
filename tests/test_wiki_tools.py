@@ -1,6 +1,5 @@
 """Targeted port checks. Run with python -I tests/test_wiki_tools.py --scratch <private-scratch-dir>."""
 import argparse
-import locale
 import os
 from pathlib import Path
 import subprocess
@@ -34,8 +33,8 @@ class WikiTools(unittest.TestCase):
         brainlib.write_text(self.brain / rel, text)
 
     def run_tool(self, tool, *args, env=None):
-        return subprocess.run([sys.executable, "-I", "-B", str(TOOLS / tool), *map(str, args)], cwd=self.root,
-                              capture_output=True, text=True, encoding=locale.getencoding(), env=env)
+        return subprocess.run([sys.executable, "-X", "utf8", "-I", "-B", str(TOOLS / tool), *map(str, args)], cwd=self.root,
+                              capture_output=True, text=True, encoding="utf-8", env=env)
 
     def test_help_and_required_paths(self):
         for name in ("check_wiki", "lint_wiki", "build_wiki_index", "requote", "merge_staging", "generate_persona", "refresh_due"):
@@ -98,6 +97,51 @@ class WikiTools(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("slug map applied to 1 pages", result.stdout)
 
+    def test_incremental_merge_carries_batch_date_and_freshness(self):
+        self.write("ingest/batches-2026-01-02.yaml", "update:\n  items: [{id: update-lesson, raw: raw/update}]\n")
+        self.write("raw/update.md", "---\ncreated: 2026-01-02T12:00:00\n---\nUpdated words.\n")
+        self.write("ingest/staging/update.yaml", "lessons: [{id: update-lesson, presenter: The Expert}]\nconcepts:\n  - slug: update-rule\n    type: rule\n    name: Update\n    quotes:\n      - text: Updated words.\n        freshness: tool-version\n        speaker: The Expert\n        cite: {raw: raw/update.md, at: '0:00'}\n")
+        result = self.run_tool("merge_staging.py", "--brain", self.brain, "bundles")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        quote = brainlib.load_yaml(self.brain / "ingest/bundles/update-rule.yaml")["quotes"][0]
+        self.assertEqual({k: quote[k] for k in ("lesson", "batch", "date", "freshness", "speaker")},
+                         {"lesson": "update-lesson", "batch": "update", "date": "2026-01-02",
+                          "freshness": "tool-version", "speaker": "The Expert"})
+
+    def test_topic_index_grouping_and_skill_counts(self):
+        path = self.brain / "brain.md"
+        path.write_text(path.read_text(encoding="utf-8").replace("kind: course", "kind: topic\nexperts: [The Expert, Other Expert]"), encoding="utf-8")
+        self.write("wiki/sources/article-old.md", "---\ntype: source\npublisher: example-publisher\npublished: 2024-01-01\n---\n# Older Article\n")
+        self.write("wiki/sources/article-new.md", "---\ntype: source\npublisher: example-publisher\npublished: 2026-01-01\n---\n# Newer Article\n")
+        self.write("wiki/rules/shared-rule.md", "---\ntype: rule\nstatus: consensus\n---\n# Shared Rule\n")
+        self.write("wiki/tools/platform-fact.md", "---\ntype: tool\nfreshness: platform\n---\n# Platform Fact\n")
+        result = self.run_tool("build_wiki_index.py", "--brain", self.brain)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        index = (self.brain / "wiki/index.md").read_text(encoding="utf-8")
+        self.assertIn("## Tools and platform facts", index)
+        self.assertIn("[[platform-fact]] _platform_", index)
+        self.assertLess(index.index("**2026**"), index.index("**2024**"))
+        result = self.run_tool("generate_persona.py", "--brain", self.brain, "--out", self.root / "skills")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        skill = (self.root / "skills/my-course/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("The Expert, Other Expert", skill)
+        self.assertIn("1 consensus, 0 active, 1 bench", skill)
+        self.assertIn(str(self.root / "library"), skill)
+        self.assertIn("if you paraphrase, drop the quote marks", skill)
+
+    def test_community_index_groups_threads_by_month_and_courses(self):
+        for slug, module, published in (("thread-old", "Community threads", "2024-01-01"),
+                                        ("thread-new", "Community digest", "2026-01-01"),
+                                        ("lesson", "Example Course", "2025-01-01")):
+            self.write(f"wiki/sources/{slug}.md", f"---\ntype: source\nmodule: {module}\npublished: {published}\n---\n# {slug}\n")
+        result = self.run_tool("build_wiki_index.py", "--brain", self.brain)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        index = (self.brain / "wiki/index.md").read_text(encoding="utf-8")
+        self.assertIn("### Classroom", index)
+        self.assertIn("### Community", index)
+        self.assertIn("**Example Course**", index)
+        self.assertLess(index.index("**2026-01**"), index.index("**2024-01**"))
+
     def test_persona_explicit_or_environment_output(self):
         env = os.environ.copy()
         env.pop("CREATE_A_BRAIN_SKILLS_DIR", None)
@@ -119,6 +163,8 @@ class WikiTools(unittest.TestCase):
         self.write("wiki/tools/example-tool.md", "---\ntype: tool\nrecheck_by: 2000-01-01\n---\n")
         result = self.run_tool("refresh_due.py", "--root", self.root, "--all")
         self.assertEqual(result.returncode, 0, result.stderr)
+        alias = self.run_tool("refresh_due.py", "--workspace", self.root, "--all")
+        self.assertEqual((alias.returncode, alias.stdout), (result.returncode, result.stdout))
         self.assertIn("Due for refresh (3)", result.stdout)
         self.assertIn("library/publisher / Example Feed", result.stdout)
         path = self.brain / "brain.md"
