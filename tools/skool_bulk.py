@@ -1,12 +1,14 @@
 """Run a brain's Skool crawl phases one after another, unattended (one Skool process at a time).
 
 Usage: tools/.venv/Scripts/python -I tools/skool_bulk.py --phases lessons,attachments,recache,expert,replied
-         --brain <brain> [--replied-since YYYY-MM-DD] [--recache-until YYYY-MM-DD] [--cooldown 1800]
+         --brain <brain> [--replied-since YYYY-MM-DD] [--recache-until YYYY-MM-DD] [--cooldown 1800] [--whisper auto|on|off]
 
 Each phase is one of the incremental crawlers; re-running a finished phase is cheap (it skips what's in state).
 - A phase that stops on RateLimited (Skool's WAF) is re-run after --cooldown seconds, up to 8 times.
 - NotLoggedIn (or any crash) stops the whole run with status NEEDS_USER / FAILED.
-- `lessons` adds --whisper only when the GPU looks idle (Loom videos stay `needs_whisper` otherwise).
+- `lessons` adds --whisper with `--whisper on`, never with `off`, and by default (`auto`) only when the GPU looks idle
+  (Loom videos stay `needs_whisper` otherwise). Desktop apps can keep `auto` from firing on an idle card, so pass `on`
+  when you know the GPU is free.
 Progress: <scratch>/logs/bulk-<phase>.log (crawler output) and <scratch>/logs/bulk_status.json.
 """
 import sys
@@ -44,6 +46,8 @@ def main():
     ap.add_argument("--replied-since", default=None)
     ap.add_argument("--recache-until", default=None)
     ap.add_argument("--cooldown", type=int, default=1800)
+    ap.add_argument("--whisper", choices=["auto", "on", "off"], default="auto",
+                    help="transcribe Loom lessons: auto = only if the GPU looks idle")
     args = ap.parse_args()
     brain, config = configure(args)
     ROOT = brainlib.workspace(brain)
@@ -56,10 +60,15 @@ def main():
         status.update(kw)
         status_p.write_text(json.dumps(status, indent=1), encoding="utf-8")
 
+    def use_whisper():
+        on = args.whisper == "on" or (args.whisper == "auto" and gpu_idle())
+        print(f"lessons: whisper {'on' if on else 'off'} (--whisper {args.whisper})", flush=True)
+        return on
+
     t = Path(__file__).resolve().parent
     common = ["--brain", str(brain)]
     cmds = {
-        "lessons": lambda: [*PY, str(t / "skool_classroom_crawl.py"), *common] + (["--whisper"] if gpu_idle() else []),
+        "lessons": lambda: [*PY, str(t / "skool_classroom_crawl.py"), *common] + (["--whisper"] if use_whisper() else []),
         "attachments": lambda: [*PY, str(t / "skool_attachments.py"), *common],
         "recache": lambda: [*PY, str(t / "skool_feed_index.py"), "--mode", "recache", "--until", args.recache_until,
                             *common],
