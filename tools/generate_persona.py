@@ -1,7 +1,7 @@
 """Generate a thin persona skill from a brain's brain.md (pipeline step 8).
 
 Usage: python -I tools/generate_persona.py --brain <brain-folder> --out <skills-directory>
-The output root can instead be supplied by CREATE_A_BRAIN_SKILLS_DIR.
+The output root can instead be supplied by AGENT_KNOWLEDGE_CORE_SKILLS_DIR.
 Optional <workspace>/workspace.yaml `user_persona_skills: [name, ...]` names the user's own persona skills,
 so the generated skill can point at them ("e.g. ...") when it says to keep the two views apart.
 Writes <out>/<name>/SKILL.md and <out>/<name>/agents/openai.yaml.
@@ -87,10 +87,10 @@ A topic specialist compiled from several experts' own material ({experts}) plus 
 def main() -> None:
     ap = argparse.ArgumentParser()
     brainlib.add_brain_arg(ap)
-    ap.add_argument("--out", default=os.environ.get("CREATE_A_BRAIN_SKILLS_DIR"), help="root directory for generated skills")
+    ap.add_argument("--out", default=os.environ.get("AGENT_KNOWLEDGE_CORE_SKILLS_DIR"), help="root directory for generated skills")
     a = ap.parse_args()
     if not a.out:
-        ap.error("--out or CREATE_A_BRAIN_SKILLS_DIR is required")
+        ap.error("--out or AGENT_KNOWLEDGE_CORE_SKILLS_DIR is required")
     brain = brainlib.brain_dir(a.brain)
     text = (brain / "brain.md").read_text(encoding="utf-8")
     fm = yaml.safe_load(re.match(r"^---\n(.*?)\n---\n", text, re.S).group(1))

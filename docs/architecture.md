@@ -30,7 +30,7 @@ Library layout and formats: `docs/library.md`. Item selection: `docs/triage.md`.
 | Hooks (optional) | Private workspace | Enforce a non-negotiable workflow rule |
 | Dedicated persona agent (future) | User's agent directory | Optional named agent wrapper if the user's tooling needs one |
 
-The generator writes `SKILL.md` and `agents/openai.yaml` from `brain.md`. Give `tools/generate_persona.py --brain <path> --out <skills-directory>`, or set `CREATE_A_BRAIN_SKILLS_DIR`. `--out` is the skills **parent** folder: the generator creates `<name>/` inside it, so passing the skill folder itself writes a nested copy. Distribution into the user's agent tooling is a separate workspace concern. Regenerate after changing `brain.md`; edit the source, never the generated loader.
+The generator writes `SKILL.md` and `agents/openai.yaml` from `brain.md`. Give `tools/generate_persona.py --brain <path> --out <skills-directory>`, or set `AGENT_KNOWLEDGE_CORE_SKILLS_DIR`. `--out` is the skills **parent** folder: the generator creates `<name>/` inside it, so passing the skill folder itself writes a nested copy. Distribution into the user's agent tooling is a separate workspace concern. Regenerate after changing `brain.md`; edit the source, never the generated loader.
 
 ## Flow
 

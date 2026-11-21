@@ -24,11 +24,11 @@ if (-not (Test-Path $entry)) { throw "qmd entry not found: $entry" }
 
 $utf8 = New-Object Text.UTF8Encoding $false
 [IO.File]::WriteAllText((Join-Path $npmDir 'qmd.cmd'),
-  "@ECHO off`r`nREM Patched by create-a-brain tools\install_qmd.ps1: run qmd under Bun (Node crashes loading sqlite-vec on Windows)`r`nbun `"%~dp0node_modules\@tobilu\qmd\dist\cli\qmd.js`" %*`r`n", $utf8)
+  "@ECHO off`r`nREM Patched by agent-knowledge-core tools\install_qmd.ps1: run qmd under Bun (Node crashes loading sqlite-vec on Windows)`r`nbun `"%~dp0node_modules\@tobilu\qmd\dist\cli\qmd.js`" %*`r`n", $utf8)
 [IO.File]::WriteAllText((Join-Path $npmDir 'qmd.ps1'),
-  "# Patched by create-a-brain tools\install_qmd.ps1: run qmd under Bun`r`n& bun `"`$PSScriptRoot\node_modules\@tobilu\qmd\dist\cli\qmd.js`" @args`r`nexit `$LASTEXITCODE`r`n", $utf8)
+  "# Patched by agent-knowledge-core tools\install_qmd.ps1: run qmd under Bun`r`n& bun `"`$PSScriptRoot\node_modules\@tobilu\qmd\dist\cli\qmd.js`" @args`r`nexit `$LASTEXITCODE`r`n", $utf8)
 [IO.File]::WriteAllText((Join-Path $npmDir 'qmd'),
-  "#!/bin/sh`n# Patched by create-a-brain tools/install_qmd.ps1: run qmd under Bun`nbasedir=`$(dirname `"`$(echo `"`$0`" | sed -e 's,\\\\,/,g')`")`nexec bun `"`$basedir/node_modules/@tobilu/qmd/dist/cli/qmd.js`" `"`$@`"`n", $utf8)
+  "#!/bin/sh`n# Patched by agent-knowledge-core tools/install_qmd.ps1: run qmd under Bun`nbasedir=`$(dirname `"`$(echo `"`$0`" | sed -e 's,\\\\,/,g')`")`nexec bun `"`$basedir/node_modules/@tobilu/qmd/dist/cli/qmd.js`" `"`$@`"`n", $utf8)
 
 & qmd --version
 Write-Host "qmd shims in $npmDir now run under Bun."

@@ -15,7 +15,7 @@ Run Python tools with `python -I <framework>/tools/<tool>.py …`. Tools that wo
 | 5 | **Verify crawl.** Compare counts against the outline, check for empty or short transcripts, retry failures | `crawl-log.md` | Mechanical worker / script |
 | 6 | **Ingest.** Apply the LLM Wiki pattern, one module per task in parallel, then a merge pass | `wiki/` | Volume workers; orchestrator merges |
 | 7 | **Extract rules.** Principles, frameworks and rules with quotes; bench vs active | `brain.md`, `wiki/rules/` | orchestrator |
-| 8 | **Generate.** Skill from `brain.md` into the explicit output directory (`--out` or `CREATE_A_BRAIN_SKILLS_DIR`) | agent files | orchestrator |
+| 8 | **Generate.** Skill from `brain.md` into the explicit output directory (`--out` or `AGENT_KNOWLEDGE_CORE_SKILLS_DIR`) | agent files | orchestrator |
 | 9 | **Evaluate.** 5–10 questions with known answers; check citations, drift and inference labels | `evals.md` | orchestrator + user |
 | 10 | **Search.** Index `raw/` + `wiki/` with qmd once the brain is past about 100 sources | qmd collection | script |
 

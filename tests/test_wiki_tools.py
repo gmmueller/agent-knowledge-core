@@ -144,10 +144,10 @@ class WikiTools(unittest.TestCase):
 
     def test_persona_explicit_or_environment_output(self):
         env = os.environ.copy()
-        env.pop("CREATE_A_BRAIN_SKILLS_DIR", None)
+        env.pop("AGENT_KNOWLEDGE_CORE_SKILLS_DIR", None)
         self.assertEqual(self.run_tool("generate_persona.py", "--brain", self.brain, env=env).returncode, 2)
         out = self.root / "skills"
-        env["CREATE_A_BRAIN_SKILLS_DIR"] = str(out)
+        env["AGENT_KNOWLEDGE_CORE_SKILLS_DIR"] = str(out)
         result = self.run_tool("generate_persona.py", "--brain", self.brain, env=env)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(str(self.brain / "brain.md"), (out / "my-course/SKILL.md").read_text(encoding="utf-8"))

@@ -1,6 +1,8 @@
-# Create a Brain
+# Agent Knowledge Core
 
-Turn experts' own material (a course, a community or a video library) into a **brain**: a cited, LLM-maintained wiki plus a card that an AI agent can consult. Every claim traces back to a timestamped transcript, every quote is checked word for word, and anything the material doesn't support is labelled **Inference:**.
+**A central, cited knowledge core your agents consult, built from experts' own words.**
+
+Turn experts' own material (a course, a community, a video library, blogs or books) into **brains**: cited, LLM-maintained wikis, each with a skill card that an AI agent can load. All your brains live in one private workspace on one shared source library, so every agent in every project consults the same knowledge instead of keeping its own copy. Every claim traces back to a timestamped transcript, every quote is checked word for word, and anything the material doesn't support is labelled **Inference:**.
 
 There are two kinds of brain:
 

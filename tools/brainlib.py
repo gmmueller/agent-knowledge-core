@@ -1,4 +1,4 @@
-"""Shared helpers for create-a-brain tools: locating a brain, reading its files and its config.
+"""Shared helpers for Agent Knowledge Core tools: locating a brain, reading its files and its config.
 
 A **brain** is a folder holding `brain.md`, `sources.yaml`, `raw/`, `wiki/` and optionally `crawl.yaml`.
 A **workspace** is the (private) folder that holds one or more brains; it also holds `.secrets/`
