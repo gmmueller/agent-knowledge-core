@@ -16,6 +16,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # -I drops the
 import brainlib
 from check_wiki import norm, raw_index
 
+LOCATOR = r"(?:\d+:\d{2}(?::\d{2})?|¶\d+|p\.\s*\d+)"
+
 
 def _key(w: str) -> str:
     return re.sub(r"[^\w']", "", w.lower())
@@ -70,7 +72,7 @@ def main() -> None:
     if idx is None:
         sys.exit(f"raw file not found: {raw}")
     esc = re.escape(raw)
-    page_q = re.compile(r'^(>\s*")(.+?)("\s*[—–-]*\s*(?:[A-Z][\w.\'-]*(?: [A-Z][\w.\'-]*){0,3}\s+)?\(\[\[' + esc + r'(?:\.md)?\]\]\s*@\s*)([\d:]+)(\))', re.M)
+    page_q = re.compile(r'^(>\s*")(.+?)("\s*[—–-]*\s*[^\n(]*\(\[\[' + esc + r'(?:\.md)?\]\]\s*@\s*)(' + LOCATOR + r')(\))', re.M)
     for f in a.files:
         path = pathlib.Path(f)
         text = path.read_text(encoding="utf-8")
@@ -94,7 +96,7 @@ def main() -> None:
             quote_texts = {str(q.get("text")) for c in data.get("concepts") or [] for q in c.get("quotes") or []}
             quote_texts |= {str(v.get("text")) for v in data.get("voice") or []}
             # edit textually ("- text: <quote>" followed by cite raw/at lines) to keep the file's formatting
-            pat = re.compile(r'(text:\s*)(["\']?)(.+?)\2(\n\s+cite:\s*\n\s+raw:\s*' + esc + r'(?:\.md)?\s*\n\s+at:\s*[\'"]?)([\d:]+)([\'"]?)')
+            pat = re.compile(r'(text:\s*)(["\']?)(.+?)\2(\n\s+cite:\s*\n\s+raw:\s*' + esc + r'(?:\.md)?\s*\n\s+at:\s*[\'"]?)(' + LOCATOR + r')([\'"]?)')
             def fix(m):
                 quote, at = m.group(3), m.group(5)
                 if quote.replace('\\"', '"') not in quote_texts or quote_ok(idx, quote, at):

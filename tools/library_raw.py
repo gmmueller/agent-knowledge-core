@@ -74,6 +74,15 @@ def clean_field(s) -> str:
     return re.sub(r"\s+", " ", str(s or "")).strip()
 
 
+def publication_date(value: str) -> str:
+    """Validate an ISO publication date without adding unknown month/day precision."""
+    value = str(value)
+    if not re.fullmatch(r"\d{4}(?:-\d{2}(?:-\d{2})?)?", value):
+        raise ValueError("publication date must be YYYY, YYYY-MM or YYYY-MM-DD")
+    dt.date.fromisoformat(value + {4: "-01-01", 7: "-01", 10: ""}[len(value)])
+    return value
+
+
 # --- catalogue.tsv ---------------------------------------------------------------------------------
 
 def read_catalogue(publisher: str) -> dict[str, dict]:
@@ -123,7 +132,7 @@ def merge_catalogue(publisher: str, new_rows: list[dict]) -> tuple[int, int]:
 
 def raw_path(publisher: str, sub: str, published: str, slug_source: str, item_id: str = "") -> pathlib.Path:
     """library/<publisher>/raw/<sub>/<YYYYMMDD>-[<videoid>-]<slug>.md (sub: yt | pod | web | book)."""
-    date = (published or "").replace("-", "") or "00000000"
+    date = publication_date(published).replace("-", "").ljust(8, "0") if published else "00000000"
     if sub == "book":
         return pub_dir(publisher) / "raw" / "book" / f"{slugify(slug_source)}.md"
     vid = f"{item_id.split('-', 1)[1]}-" if sub == "yt" and item_id.startswith("yt-") else ""

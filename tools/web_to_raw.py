@@ -96,6 +96,8 @@ def log(publisher, message):
 
 def date(value):
     value = str(value or "")
+    if re.fullmatch(r"\d{4}(?:-\d{2}(?:-\d{2})?)?", value):
+        return lr.publication_date(value)
     match = re.match(r"\d{4}-\d{2}-\d{2}", value)
     if match:
         return match[0]
@@ -202,6 +204,24 @@ def paragraphs(html, url):
 def render_paragraphs(blocks):
     # Shared render_paragraphs collapses whitespace; fenced code needs its original newlines.
     return "\n\n".join(f"**[¶{i}]** {p if p.startswith('```') else p.strip()}" for i, p in enumerate(blocks, 1) if p.strip()) + "\n"
+
+
+def select_sections(blocks, from_heading=None, to_heading=None):
+    """Include the exact start heading; stop before the exact end heading."""
+    start, end = 0, len(blocks)
+    for heading, is_start in ((from_heading, True), (to_heading, False)):
+        if heading is None:
+            continue
+        matches = [i for i, block in enumerate(blocks) if block == "## " + heading]
+        if len(matches) != 1:
+            raise ValueError(f"heading {heading!r} must match exactly once (found {len(matches)})")
+        if is_start:
+            start = matches[0]
+        else:
+            end = matches[0]
+    if start >= end:
+        raise ValueError("--to-heading must follow --from-heading")
+    return blocks[start:end]
 
 
 def transcript(html):
@@ -388,10 +408,16 @@ def fetch(args, cfg, client):
                 else:
                     body = "\n\n".join(f"**[{x['stamp'] or '¶' + str(i)}]** {x['speaker']}: {lr.clean_field(x['text'])}" for i, x in enumerate(lines, 1)) + "\n"
             else:
-                body = render_paragraphs(paragraphs(html, final))
+                body = render_paragraphs(select_sections(paragraphs(html, final),
+                                         getattr(args, "from_heading", None), getattr(args, "to_heading", None)))
             front = dict(source_id=r["id"], publisher=args.publisher, title=r["title"], url=url, kind=r["kind"], published=r["published"],
                          method="transcript-page" if args.transcript else "page-text", speakers=speakers,
                          speaker_method="transcript" if args.transcript else "single")
+            if len(r["published"]) in (4, 7):
+                front["publication_precision"] = "year" if len(r["published"]) == 4 else "month"
+            for key in ("from_heading", "to_heading"):
+                if getattr(args, key, None) is not None:
+                    front[key] = getattr(args, key)
             if final != url:
                 front["fetched_url"] = final
             lr.write_raw(path, front, body)
@@ -466,6 +492,8 @@ def main():
     group.add_argument("--catalogue", action="store_true")
     fetching.add_argument("--limit", type=int)
     fetching.add_argument("--transcript", action="store_true")
+    fetching.add_argument("--from-heading", help="capture from this exact heading (inclusive); paragraph captures only")
+    fetching.add_argument("--to-heading", help="stop before this exact heading (exclusive); paragraph captures only")
     fetching.add_argument("--recapture", action="store_true", help="write a dated new capture, preserving existing raw files")
     fetching.add_argument("--host", help="transcript host name (or set host in sources.yaml)")
     fetching.add_argument("--browser", action="store_true", help="render pages in headless Chrome (JS-built or bot-blocked pages)")
@@ -481,6 +509,8 @@ def main():
         parser.error("choose list or fetch")
     if args.command == "list" and args.index and not args.link_match:
         parser.error("--index requires --link-match")
+    if args.command == "fetch" and args.transcript and (args.from_heading is not None or args.to_heading is not None):
+        parser.error("heading selection cannot be used with --transcript")
     cfg, client = config(args.publisher), Client(browser=getattr(args, "browser", False))
     if args.command == "list":
         listings(args, cfg, client)
