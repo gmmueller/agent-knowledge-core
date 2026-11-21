@@ -21,7 +21,7 @@ class WikiTools(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="wiki-tools-", dir=SCRATCH)
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.brain = self.root / "my-course"
         self.write("brain.md", "---\nname: my-course\ndisplay_name: My Course (The Expert)\nkind: course\nupdated: 2026-01-01\nskill:\n  description: Consult the expert.\n  short_description: Cited expert teachings\n  default_prompt: Use $my-course with citations.\n---\n# My Course\n")
         self.write("sources.yaml", "sources:\n  - {id: my-course, product: main, title: My Course}\n")

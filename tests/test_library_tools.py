@@ -16,7 +16,7 @@ class LibraryTools(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="library-tools-", dir=SCRATCH)
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         (self.root / "library").mkdir()
         lr.init(self.root)
 

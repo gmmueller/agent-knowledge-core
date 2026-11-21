@@ -22,7 +22,7 @@ class ExampleFixes(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="example-fixes-")
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         (self.root / "library").mkdir()
         lr.init(self.root)
         self.brain = self.root / "my-topic"

@@ -89,7 +89,7 @@ class ConfigurationAndCaptions(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="skool-tools-", dir=SCRATCH)
         self.addCleanup(self.temp.cleanup)
-        self.brain = Path(self.temp.name) / "my-course"
+        self.brain = Path(self.temp.name).resolve() / "my-course"
         brainlib.write_text(self.brain / "brain.md", "# My course\n")
         brainlib.write_text(self.brain / "crawl.yaml", "platform: skool\nsite: https://www.skool.com/my-community\ncdp_port: 9333\nprofile: chrome-my-community\nscratch: my-cache\nsource_prefix: mc\n")
 

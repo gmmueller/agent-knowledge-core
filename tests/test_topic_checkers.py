@@ -34,7 +34,7 @@ class TopicCheckers(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="topic-checkers-", dir=SCRATCH)
         self.addCleanup(self.temp.cleanup)
-        self.root = pathlib.Path(self.temp.name)
+        self.root = pathlib.Path(self.temp.name).resolve()
         self.brain = self.root / "topic-fixture"
         self.write("topic-fixture/brain.md", "---\nkind: topic\ntriage: {weight_fresh: false}\n---\n")
         self.write(BOOK + ".md", "---\nspeakers: [Alex Author, Blair Author]\n---\n**[p. 2]**\nOther words.\n**[p. 3]**\nA buffer page.\n**[p. 15]**\n" + QUOTE + "\n")
