@@ -1,0 +1,15 @@
+publisher: quiller-couch
+display_name: Arthur Quiller-Couch
+default_speaker: Arthur Quiller-Couch
+sources:
+- id: quiller-couch-book
+  type: book
+  url: https://archive.org/details/onartofwriting00qui
+  title: On the Art of Writing (1916)
+  format: solo
+  refresh: never
+  last_crawled: '2026-11-20'
+  cursor: complete-selected-edition
+  rights: Public domain in the United States; original publication before 1931.
+  published: '1916'
+  publication_precision: year

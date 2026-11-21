@@ -1,0 +1,150 @@
+slug: revision-pass
+type: method
+names:
+- A revision pass
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+summaries:
+- batch: fowler
+  text: Review meaning, structure and expression in a deliberate sequence.
+- batch: quiller-couch
+  text: Review meaning, structure and expression in a deliberate sequence.
+- batch: quiller-couch
+  text: Review meaning, structure and expression in a deliberate sequence.
+- batch: strunk
+  text: Review meaning, structure and expression in a deliberate sequence.
+- batch: strunk
+  text: Review meaning, structure and expression in a deliberate sequence.
+- batch: strunk
+  text: Review meaning, structure and expression in a deliberate sequence.
+- batch: strunk
+  text: Review meaning, structure and expression in a deliberate sequence.
+points:
+- text: The Fowlers say heavily abstract sentences often need restructuring rather than word substitution.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶10
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch wants literary study to include active writing practice.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 42
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch argues that precise words help writers define and clarify their own thoughts.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 56
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch’s revision removes a clause that repeats the meaning already stated.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 131
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk selects frequently violated essentials to lighten instruction and correction.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶2
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk recommends instruction based on the problems in the student’s own work after the essentials.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶3
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk warns that rewriting an indefinite statement can require guessing the writer’s intention.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶118
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk sometimes combines step-by-step sentences to express one complex idea more efficiently.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶172
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk chooses varied structures to represent the actual relations of the thought.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶180
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: We will now proceed to a few examples of how not to write, roughly classified under the five headings, though, after
+    what has been said, it will cause no surprise that most of them might
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶10
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: a part—and no small part—of our business is to practise it.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 42
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: the more accurately we use words the closer defini-tion we shall give to our thoughts?
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 56
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: the second clause but repeats the first without adding one jot.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 131
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: This book is intended for use in English courses in which the practice of composition is combined with the study of
+    literature.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶2
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: The book covers only a small portion of the field of English style, but the experience of its writer has been that
+    once past the essentials, students profit most by individual instruction based on the
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶3
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: The last example, before correction, is indefinite as well as negative.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶118
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: A common violation of conciseness is the presentation of a single complex idea, step by step, in a series of sentences
+    which might to advantage be combined into one.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶172
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: If the writer finds that he has written a series of sentences of the type described, he should recast enough of them
+    to remove the monotony, replacing them by simple sentences, by sentences of two
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶180
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

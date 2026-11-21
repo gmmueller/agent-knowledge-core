@@ -1,0 +1,60 @@
+slug: concrete-language
+type: glossary
+names:
+- Concrete language
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+summaries:
+- batch: fowler
+  text: Concrete language names the particulars behind an abstraction.
+- batch: quiller-couch
+  text: Concrete language names the particulars behind an abstraction.
+points:
+- text: The Fowlers prefer concrete to abstract words.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch identifies vague abstract nouns as jargon’s other central vice.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 121
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch explains how a concrete image can make an abstraction visible.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 138
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+quotes:
+- text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single word to the
+    circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The first is that it uses circumlocution rather than short straight speech.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 121
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: he solidifies it in tangible stone.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 138
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch

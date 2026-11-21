@@ -1,0 +1,700 @@
+batch: quiller-couch
+items:
+- item: quiller-couch/book-on-the-art-of-writing-selected
+  page: quiller-couch-practice
+  kind: source
+  speakers:
+    Arthur Quiller-Couch: author
+  pages: 42-60
+- item: quiller-couch/book-on-the-art-of-writing-selected
+  page: quiller-couch-jargon
+  kind: source
+  speakers:
+    Arthur Quiller-Couch: author
+  pages: 118-142
+- item: quiller-couch/book-on-the-art-of-writing-selected
+  page: quiller-couch-prose
+  kind: source
+  speakers:
+    Arthur Quiller-Couch: author
+  pages: 144-168
+- item: quiller-couch/book-on-the-art-of-writing-selected
+  page: quiller-couch-style
+  kind: source
+  speakers:
+    Arthur Quiller-Couch: author
+  pages: 297-313
+concepts:
+- slug: clear-prose
+  type: topic
+  name: Clear prose
+  evidence: practitioner
+  freshness: evergreen
+  summary: Practical clarity is a teachable aim, bounded by purpose and genre.
+  points:
+  - text: Quiller-Couch wants literary study to include active writing practice.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 42
+  - text: Quiller-Couch identifies accuracy, perspicuity, persuasion and appropriateness as his chosen aims.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 52
+  quotes:
+  - text: a part—and no small part—of our business is to practise it.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 42
+  - text: since the first aim of speech is to be under-stood.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 52
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Quiller-Couch asks writers to observe the occasion and avoid ill-timed excess.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 49
+  - text: Quiller-Couch makes appropriateness fundamental to his teaching.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 50
+  quotes:
+  - text: whenyou talk or write, youwould wish to observe the occasion;
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 49
+  - text: this desire of yours to be appropriate is really the root of the matter.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 50
+- slug: economy-without-compression
+  type: principle
+  name: Economy without compression
+  evidence: practitioner
+  freshness: evergreen
+  summary: Concision removes wasted work while retaining necessary detail.
+  points:
+  - text: Quiller-Couch connects the highest persuasion with beauty and proposes verse practice.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 60
+  quotes:
+  - text: the highest form of persuasion at any rate cannot be achieved without a sense of beauty.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 60
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: Quiller-Couch attacks antibody as a hybrid coinage; this is his historical linguistic judgment.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 58
+  quotes:
+  - text: It is, in fact, a bar-barism, and a mongrel at that.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 58
+- slug: meaning-before-etymology
+  type: principle
+  name: Meaning before etymology
+  evidence: practitioner
+  freshness: evergreen
+  summary: Reader understanding takes priority over the ancestry of a word.
+  points:
+  - text: Quiller-Couch attacks antibody as a hybrid coinage; this is his historical linguistic judgment.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 58
+  quotes:
+  - text: It is, in fact, a bar-barism, and a mongrel at that.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 58
+- slug: reader-attention
+  type: principle
+  name: Reader attention
+  evidence: practitioner
+  freshness: evergreen
+  summary: The writer’s choices should reduce the reader’s avoidable interpretive work.
+  points:
+  - text: Quiller-Couch treats being understood as the first aim of speech.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 52
+  quotes:
+  - text: since the first aim of speech is to be under-stood.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 52
+- slug: revision-pass
+  type: method
+  name: A revision pass
+  evidence: practitioner
+  freshness: evergreen
+  summary: Review meaning, structure and expression in a deliberate sequence.
+  points:
+  - text: Quiller-Couch wants literary study to include active writing practice.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 42
+  - text: Quiller-Couch argues that precise words help writers define and clarify their own thoughts.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 56
+  quotes:
+  - text: a part—and no small part—of our business is to practise it.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 42
+  - text: the more accurately we use words the closer defini-tion we shall give to our thoughts?
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 56
+- slug: circumlocution
+  type: glossary
+  name: Circumlocution
+  evidence: practitioner
+  freshness: evergreen
+  summary: A roundabout expression can conceal a thought that direct speech would reveal.
+  points:
+  - text: Quiller-Couch identifies circumlocution as a central vice of jargon.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: Quiller-Couch singles out as regards and similar connective padding for removal.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 130
+  quotes:
+  - text: The first is that it uses circumlocution rather than short straight speech.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: They are all dodges of jargon, circumlocutions for evad-ing this or that simple statement;
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 130
+- slug: concrete-language
+  type: glossary
+  name: Concrete language
+  evidence: practitioner
+  freshness: evergreen
+  summary: Concrete language names the particulars behind an abstraction.
+  points:
+  - text: Quiller-Couch identifies vague abstract nouns as jargon’s other central vice.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: Quiller-Couch explains how a concrete image can make an abstraction visible.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 138
+  quotes:
+  - text: The first is that it uses circumlocution rather than short straight speech.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: he solidifies it in tangible stone.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 138
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Quiller-Couch rejects timid variation that keeps replacing a person’s name with elaborate descriptions.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 129
+  quotes:
+  - text: I expect, nay exact, that Byron shall be mentioned again and again.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 129
+- slug: jargon-audit
+  type: method
+  name: Audit jargon
+  evidence: practitioner
+  freshness: evergreen
+  summary: Look for circumlocution and empty abstraction, then express the actual thought.
+  points:
+  - text: Quiller-Couch distinguishes the cautious, effort-saving motives of jargon from ornamental journalese.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 118
+  - text: Quiller-Couch diagnoses roundabout wording as shirking the actual statement.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 124
+  - text: Quiller-Couch explicitly draws an abstract-language example from the Fowlers; this is acknowledged borrowing.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 125
+  quotes:
+  - text: Caution is its father; the instinct to save everything and especially trouble; its mother, Indolence.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 118
+  - text: the writer was using Jargon to shirk prose, palming off periphrases upon us
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 124
+  - text: Here is a pretty little nest of specimens, found in The Times newspaper by Messrs. H. W. and F. G. Fowler,
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 125
+- slug: revision-pass
+  type: method
+  name: A revision pass
+  evidence: practitioner
+  freshness: evergreen
+  summary: Review meaning, structure and expression in a deliberate sequence.
+  points:
+  - text: Quiller-Couch’s revision removes a clause that repeats the meaning already stated.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 131
+  quotes:
+  - text: the second clause but repeats the first without adding one jot.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 131
+- slug: rule-omit-needless-words
+  type: rule
+  name: Omit needless words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Keep the detail that earns its place and remove empty verbal padding.
+  status: bench
+  points:
+  - text: Quiller-Couch identifies circumlocution as a central vice of jargon.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: Quiller-Couch singles out as regards and similar connective padding for removal.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 130
+  - text: Quiller-Couch’s revision removes a clause that repeats the meaning already stated.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 131
+  quotes:
+  - text: The first is that it uses circumlocution rather than short straight speech.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: They are all dodges of jargon, circumlocutions for evad-ing this or that simple statement;
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 130
+  - text: the second clause but repeats the first without adding one jot.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 131
+- slug: rule-prefer-active-voice
+  type: rule
+  name: Prefer the active voice when it suits the subject
+  evidence: practitioner
+  freshness: evergreen
+  summary: Use the active voice as a useful default while preserving justified passive constructions.
+  status: bench
+  points:
+  - text: Quiller-Couch recommends the active verb and concrete noun against padded recipient constructions.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 133
+  quotes:
+  - text: The first virtue, the touchstone of masculine style, is its use of the active verb and the concrete noun.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 133
+- slug: rule-prefer-concrete-words
+  type: rule
+  name: Prefer concrete words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Prefer concrete expression when an abstraction hides the actual subject.
+  status: bench
+  points:
+  - text: Quiller-Couch identifies vague abstract nouns as jargon’s other central vice.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: Quiller-Couch recommends the active verb and concrete noun against padded recipient constructions.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 133
+  - text: Quiller-Couch connects concrete words with thinking about the things themselves.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 142
+  quotes:
+  - text: The first is that it uses circumlocution rather than short straight speech.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 121
+  - text: The first virtue, the touchstone of masculine style, is its use of the active verb and the concrete noun.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 133
+  - text: concrete ones which lie as near as can be reached to things themselves
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 142
+- slug: clear-prose
+  type: topic
+  name: Clear prose
+  evidence: practitioner
+  freshness: evergreen
+  summary: Practical clarity is a teachable aim, bounded by purpose and genre.
+  points:
+  - text: Quiller-Couch locates a harder prose task in expressing thought beyond straightforward narrative.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 149
+  quotes:
+  - text: It is when prose attempts to philosophise, to express thoughts as well as to relate simple sayings and
+      doings—it is then that the trouble begins.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 149
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Quiller-Couch warns that literature cannot be classified as though it were a science.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 144
+  - text: Quiller-Couch says living artistic practice can defeat a neat formula.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 146
+  quotes:
+  - text: In studying literature, and still more in studying to write it, distrust all classification !
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 144
+  - text: genius uses our best-laid logic to explode it.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 146
+- slug: economy-without-compression
+  type: principle
+  name: Economy without compression
+  evidence: practitioner
+  freshness: evergreen
+  summary: Concision removes wasted work while retaining necessary detail.
+  points:
+  - text: Quiller-Couch values a high moment in which thought and emotion work together.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 150
+  - text: Quiller-Couch refuses to set a fixed boundary to prose’s range of thought or music.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 168
+  quotes:
+  - text: there you have emotion im-pregnated with thought.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 150
+  - text: Or who shall determine its range, whether of thought or of music?
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 168
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: Quiller-Couch treats literary-period labels as handy approximations rather than precise scientific terms.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 145
+  quotes:
+  - text: such terms at best cannot be scientific, precise, determinate,
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 145
+- slug: jargon-audit
+  type: method
+  name: Audit jargon
+  evidence: practitioner
+  freshness: evergreen
+  summary: Look for circumlocution and empty abstraction, then express the actual thought.
+  points:
+  - text: Quiller-Couch distinguishes early prose fumbling to make meaning from modern jargon dodging meaning.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 163
+  quotes:
+  - text: It is not, like modern jargon, trying to dodge something.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 163
+- slug: meaning-before-etymology
+  type: principle
+  name: Meaning before etymology
+  evidence: practitioner
+  freshness: evergreen
+  summary: Reader understanding takes priority over the ancestry of a word.
+  points:
+  - text: Quiller-Couch describes borrowing and extending vocabulary as resources for new intellectual work.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 156
+  quotes:
+  - text: give our English words new contents, new connotations, new meanings;
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 156
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Quiller-Couch sees literature as personal and therefore various.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 299
+  - text: Quiller-Couch justifies slang and new words by speaker, audience, mood and occasion.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 302
+  - text: Quiller-Couch encourages a wide vocabulary and distinguishes good material from the origin of its coinage.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 305
+  quotes:
+  - text: Literature, being by its nature personal, must be by its nature almost infinitely various.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 299
+  - text: so much must ever depend on who speaks, and to whom, in what mood and upon what occa-sion;
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 302
+  - text: rejecting no coin for its minting but only if its metal be base.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 305
+- slug: economy-without-compression
+  type: principle
+  name: Economy without compression
+  evidence: practitioner
+  freshness: evergreen
+  summary: Concision removes wasted work while retaining necessary detail.
+  points:
+  - text: Quiller-Couch rejects style as extraneous ornament and targets exceptionally fine writing for deletion.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 297
+  quotes:
+  - text: Murder your darlings.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 297
+- slug: meaning-before-etymology
+  type: principle
+  name: Meaning before etymology
+  evidence: practitioner
+  freshness: evergreen
+  summary: Reader understanding takes priority over the ancestry of a word.
+  points:
+  - text: Quiller-Couch prefers liberty to censorship while retaining an objection to hybrid technical coinages.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 303
+  - text: Quiller-Couch encourages a wide vocabulary and distinguishes good material from the origin of its coinage.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 305
+  quotes:
+  - text: 'it is better to err on the side of liberty than on the side of the censor:'
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 303
+  - text: rejecting no coin for its minting but only if its metal be base.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 305
+- slug: paragraph-plan
+  type: method
+  name: Plan a paragraph
+  evidence: practitioner
+  freshness: evergreen
+  summary: Develop and finish the thought announced by a paragraph.
+  points:
+  - text: Quiller-Couch derives duties of order and arrangement from the reader’s sequential reception of words.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 309
+  quotes:
+  - text: what an obligation we owe to him of order and arrangement;
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 309
+- slug: reader-attention
+  type: principle
+  name: Reader attention
+  evidence: practitioner
+  freshness: evergreen
+  summary: The writer’s choices should reduce the reader’s avoidable interpretive work.
+  points:
+  - text: Quiller-Couch makes the reader’s comfort and interpretive effort a writer’s responsibility.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 308
+  - text: Quiller-Couch derives duties of order and arrangement from the reader’s sequential reception of words.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 309
+  - text: Quiller-Couch describes style as thinking for others with heart as well as head.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 313
+  quotes:
+  - text: we have an obligation to put ourselves into the hearer's or reader's place?
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 308
+  - text: what an obligation we owe to him of order and arrangement;
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 309
+  - text: thinking for them rather than for yourself
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 313
+- slug: rule-omit-needless-words
+  type: rule
+  name: Omit needless words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Keep the detail that earns its place and remove empty verbal padding.
+  status: bench
+  points:
+  - text: Quiller-Couch rejects style as extraneous ornament and targets exceptionally fine writing for deletion.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 297
+  quotes:
+  - text: Murder your darlings.
+    speaker: Arthur Quiller-Couch
+    cite:
+      raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+      at: p. 297
+conflicts: []
+speaker_doubts: []

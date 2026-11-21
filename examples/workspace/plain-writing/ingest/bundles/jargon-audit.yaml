@@ -1,0 +1,186 @@
+slug: jargon-audit
+type: method
+names:
+- Audit jargon
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+- strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+summaries:
+- batch: fowler
+  text: Look for circumlocution and empty abstraction, then express the actual thought.
+- batch: quiller-couch
+  text: Look for circumlocution and empty abstraction, then express the actual thought.
+- batch: quiller-couch
+  text: Look for circumlocution and empty abstraction, then express the actual thought.
+- batch: strunk
+  text: Look for circumlocution and empty abstraction, then express the actual thought.
+- batch: strunk
+  text: Look for circumlocution and empty abstraction, then express the actual thought.
+- batch: strunk
+  text: Look for circumlocution and empty abstraction, then express the actual thought.
+- batch: strunk
+  text: Look for circumlocution and empty abstraction, then express the actual thought.
+points:
+- text: The Fowlers say heavily abstract sentences often need restructuring rather than word substitution.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶10
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch distinguishes the cautious, effort-saving motives of jargon from ornamental journalese.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 118
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch diagnoses roundabout wording as shirking the actual statement.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 124
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch explicitly draws an abstract-language example from the Fowlers; this is acknowledged borrowing.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 125
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch distinguishes early prose fumbling to make meaning from modern jargon dodging meaning.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 163
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk recommends Quiller-Couch’s discussion of jargon for further study; their overlap is acknowledged literary influence.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶12
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk criticizes nominalized actions whose verbs merely complete the sentence.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶102
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk targets the fact that as a repeatedly removable phrase.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶152
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk directs readers to his discussions of case, character, nature and system for related padding.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶165
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk distinguishes bad style from bad English and calls for definite statement in place of vague generality.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶2
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Strunk considers case usually unnecessary in two common senses.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶14
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Strunk calls character often redundant padding.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶23
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+quotes:
+- text: We will now proceed to a few examples of how not to write, roughly classified under the five headings, though, after
+    what has been said, it will cause no surprise that most of them might
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶10
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Caution is its father; the instinct to save everything and especially trouble; its mother, Indolence.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 118
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: the writer was using Jargon to shirk prose, palming off periphrases upon us
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 124
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Here is a pretty little nest of specimens, found in The Times newspaper by Messrs. H. W. and F. G. Fowler,
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 125
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: It is not, like modern jargon, trying to dodge something.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 163
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Sir Arthur Quiller-Couch, The Art of Writing (Putnams), especially the chapter, Interlude on Jargon;
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶12
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: A common fault is to use as the subject of a passive construction a noun which expresses the entire action, leaving
+    to the verb no function beyond that of completing the sentence.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶102
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: In especial the expression the fact that should be revised out of every sentence in which it occurs.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶152
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: See also under case, character, nature, system in Chapter V.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶165
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: (Many of the words and expressions here listed are not so much bad English as bad style, the commonplaces of careless
+    writing.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶2
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: 'The Concise Oxford Dictionary begins its definition of this word: "instance of a thing''s occurring; usual state
+    of affairs." In these two senses, the word is usually unnecessary.'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶14
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Often simply redundant, used from a mere habit of wordiness.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶23
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk

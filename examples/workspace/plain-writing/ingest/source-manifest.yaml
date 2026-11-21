@@ -1,0 +1,28 @@
+captured: '2026-11-20'
+word_count_method: Whitespace-separated source-body tokens, excluding frontmatter
+  and locator labels.
+raw_files:
+- file: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120.md
+  words: 16829
+  sha256: 16b2d77f88f999cac062799c2e223972bc65ce456acbc82febf6ed9a7b9911b2
+- file: library/quiller-couch/raw/book/on-the-art-of-writing-selected.md
+  words: 21725
+  sha256: 48d5c1cd97bfc19c5ae9e1a40e8fa6ccf7acf715c2f816927f139e8d4b82c4c9
+- file: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar.md
+  words: 568
+  sha256: 4582c9cdbde330950c061278b13dba7dd72c2c0e1965badf5f5300bb0ad1f41f
+- file: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin.md
+  words: 400
+  sha256: 23cfce81ed57e72d3a43dc449387238ba43897bf35de947f95bac0b56c2d0455
+- file: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online.md
+  words: 89
+  sha256: 6e886d08a388e198bdfe6c2e704bd00d5485def9b9af3e11eb605eb8975d805e
+- file: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr.md
+  words: 2634
+  sha256: 95171da46b236bb1b9ae29090c9e6185ef153c94700d4815f53904b83200718b
+- file: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online.md
+  words: 4755
+  sha256: 1e8e393a5329c74f874d28f306d9005287aada81f84a4405bfc6c5f6fa87bd8a
+- file: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra.md
+  words: 1843
+  sha256: ad923542bd0622c0c6efa0aebae4f3becb739770438fb83474e1fd0d3462b787

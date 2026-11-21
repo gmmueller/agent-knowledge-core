@@ -1,0 +1,87 @@
+slug: sentence-emphasis
+type: topic
+names:
+- Sentence emphasis
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+- strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+experts:
+- William Strunk Jr.
+speakers:
+- William Strunk Jr.
+summaries:
+- batch: strunk
+  text: Order and deliberate variation distribute a sentence’s emphasis.
+- batch: strunk
+  text: Order and deliberate variation distribute a sentence’s emphasis.
+- batch: strunk
+  text: Order and deliberate variation distribute a sentence’s emphasis.
+points:
+- text: Strunk allows occasional loose sentences to give relief from uniformly compact and periodic prose.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶54
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk permits a detached word or expression when it earns the emphatic sentence treatment.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶81
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk objects to a succession of similar loose sentences because the pattern becomes monotonous.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶176
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk chooses varied structures to represent the actual relations of the thought.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶180
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk generally gives the sentence’s prominent end position to its new element.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶248
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: But a writer may err by making his sentences too uniformly compact and periodic, and an occasional loose sentence
+    prevents the style from becoming too formal and gives the reader a certain relief.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶54
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: 'It is permissible to make an emphatic word or expression serve the purpose of a sentence and to punctuate it accordingly:'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶81
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: This rule refers especially to loose sentences of a particular type, those consisting of two co-ordinate clauses,
+    the second introduced by a conjunction or relative.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶176
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: If the writer finds that he has written a series of sentences of the type described, he should recast enough of them
+    to remove the monotony, replacing them by simple sentences, by sentences of two
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶180
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: The word or group of words entitled to this position of prominence is usually the logical predicate, that is, the
+    new element in the sentence, as it is in the second example.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶248
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

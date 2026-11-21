@@ -1,0 +1,80 @@
+slug: paragraph-unity
+type: topic
+names:
+- Paragraph unity
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- William Strunk Jr.
+speakers:
+- William Strunk Jr.
+summaries:
+- batch: strunk
+  text: Paragraphs expose the steps of a thought to the reader.
+points:
+- text: Strunk allows a slight subject to occupy one paragraph and recommends checking whether subdivision helps.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶3
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk makes a new paragraph signal a new step in the subject’s development.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶4
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk normally discourages single-sentence paragraphs but excepts useful transitions.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶27
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk starts a new paragraph at each change of speaker in dialogue.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶28
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk recognizes narrative paragraphs whose rhetorical pause replaces a topic-sentence structure.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶74
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: If the subject on which you are writing is of slight extent, or if you intend to treat it very briefly, there may
+    be no need of subdividing it into topics.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶3
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Ordinarily, however, a subject requires subdivision into topics, each of which should be made the subject of a paragraph.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶4
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: As a rule, single sentences should not be written or printed as paragraphs.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶27
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: In dialogue, each speech, even if only a single word, is a paragraph by itself; that is, a new paragraph begins with
+    each change of speaker.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶28
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: The brief paragraphs of animated narrative, however, are often without even this semblance of a topic sentence.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶74
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

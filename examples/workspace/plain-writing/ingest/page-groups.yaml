@@ -1,0 +1,36 @@
+groups:
+- name: plain-writing-concepts
+  slugs:
+  - clear-prose
+  - paragraph-unity
+  - sentence-emphasis
+  - voice-and-agency
+  - diction-and-register
+  - punctuation-and-attachment
+  - historical-usage
+  - economy-without-compression
+  - meaning-before-etymology
+  - reader-attention
+  - revision-pass
+  - paragraph-plan
+  - jargon-audit
+  - circumlocution
+  - concrete-language
+  - parallelism
+  - rule-prefer-familiar-words
+  - rule-prefer-concrete-words
+  - rule-omit-needless-words
+  - rule-prefer-active-voice
+  - rule-preserve-parallel-form
+  - rule-keep-related-words-together
+debates:
+- slug: debate-economy-and-beauty
+  title: Does clear prose have to be short?
+  concepts:
+  - economy-without-compression
+  - rule-omit-needless-words
+- slug: debate-technical-coinages
+  title: Should etymology veto a useful technical word?
+  concepts:
+  - meaning-before-etymology
+  - diction-and-register

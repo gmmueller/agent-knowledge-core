@@ -1,0 +1,69 @@
+slug: parallelism
+type: glossary
+names:
+- Parallelism
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- William Strunk Jr.
+speakers:
+- William Strunk Jr.
+summaries:
+- batch: strunk
+  text: Similar grammatical form makes related content easier to recognize.
+points:
+- text: Strunk uses parallel form to make a likeness of content and function recognizable.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶182
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk gives matching grammatical constructions after correlative expressions.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶192
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk applies an article or preposition consistently across a series.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶187
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk suggests grouping a large set of co-ordinate ideas or using a table.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶202
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: This principle, that of parallel construction, requires that expressions of similar content and function should be
+    outwardly similar.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶182
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Correlative expressions (both, and; not, but; not only, but also; either, or; first, second, third; and the like)
+    should be followed by the same grammatical construction.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶192
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: an article or a preposition applying to all the members of a series must either be used only before the first term
+    or else be repeated before each term.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶187
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Otherwise he had best avoid the difficulty by putting his statements in the form of a table.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶202
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

@@ -1,0 +1,69 @@
+slug: voice-and-agency
+type: topic
+names:
+- Voice and agency
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- William Strunk Jr.
+speakers:
+- William Strunk Jr.
+summaries:
+- batch: strunk
+  text: Voice choices determine which participant the sentence treats as its subject.
+points:
+- text: Strunk describes active voice as usually more direct and vigorous.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶76
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk warns that deleting the agent from a passive can make the intended actor indefinite.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶82
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk explicitly says his active-voice advice does not discard passives.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶83
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk lets the subject needed by the paragraph determine the voice.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶86
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: 'The active voice is usually more direct and vigorous than the passive:'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶76
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: 'it becomes indefinite: is it the writer, or some person undisclosed, or the world at large, that will always remember
+    this visit?'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶82
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: This rule does not, of course, mean that the writer should entirely discard the passive voice, which is frequently
+    convenient and sometimes necessary.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶83
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: The first would be the right form in a paragraph on the dramatists of the Restoration; the second, in a paragraph
+    on the tastes of modern readers.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶86
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

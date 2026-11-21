@@ -1,0 +1,70 @@
+slug: rule-keep-related-words-together
+type: rule
+names:
+- Keep related words together
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+- strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+experts:
+- William Strunk Jr.
+speakers:
+- William Strunk Jr.
+status: bench
+summaries:
+- batch: strunk
+  text: Place related sentence elements near one another so their connection is clear.
+- batch: strunk
+  text: Place related sentence elements near one another so their connection is clear.
+points:
+- text: Strunk requires the reader to attach an introductory participle to the intended subject.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶87
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk makes word position the principal signal of relationships inside a sentence.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶204
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk allows interruptions that deliberately create suspense rather than applying proximity mechanically.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶210
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk puts modifiers near the expressions they modify to prevent a false relationship.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶227
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: The word walking refers to the subject of the sentence, not to the woman.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶87
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: The position of the words in a sentence is the principal means of showing their relationship.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶204
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: The objection is that the interposed phrase or clause needlessly interrupts the natural order of the main clause.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶210
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Modifiers should come, if possible next to the word they modify.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶227
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

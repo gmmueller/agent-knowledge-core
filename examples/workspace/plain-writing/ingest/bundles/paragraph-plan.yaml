@@ -1,0 +1,71 @@
+slug: paragraph-plan
+type: method
+names:
+- Plan a paragraph
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- William Strunk Jr.
+summaries:
+- batch: quiller-couch
+  text: Develop and finish the thought announced by a paragraph.
+- batch: strunk
+  text: Develop and finish the thought announced by a paragraph.
+points:
+- text: Quiller-Couch derives duties of order and arrangement from the reader’s sequential reception of words.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 309
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk varies the extent of subdivision with the length of the composition.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶5
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk’s opening-topic practice is meant to help readers recognize and retain a paragraph’s purpose.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶30
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk warns against ending a paragraph on a digression or unimportant detail.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶34
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: what an obligation we owe to him of order and arrangement;
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 309
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: The extent of subdivision will vary with the length of the composition.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶5
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Again, the object is to aid the reader.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶30
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Ending with a digression, or with an unimportant detail, is particularly to be avoided.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶34
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

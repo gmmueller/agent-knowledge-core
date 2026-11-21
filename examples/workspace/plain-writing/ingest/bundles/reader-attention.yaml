@@ -1,0 +1,114 @@
+slug: reader-attention
+type: principle
+names:
+- Reader attention
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+summaries:
+- batch: fowler
+  text: The writer’s choices should reduce the reader’s avoidable interpretive work.
+- batch: quiller-couch
+  text: The writer’s choices should reduce the reader’s avoidable interpretive work.
+- batch: quiller-couch
+  text: The writer’s choices should reduce the reader’s avoidable interpretive work.
+- batch: strunk
+  text: The writer’s choices should reduce the reader’s avoidable interpretive work.
+points:
+- text: The Fowlers select words the probable reader understands without wasted time or thought.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶9
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch treats being understood as the first aim of speech.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 52
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch makes the reader’s comfort and interpretive effort a writer’s responsibility.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 308
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch derives duties of order and arrangement from the reader’s sequential reception of words.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 309
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch describes style as thinking for others with heart as well as head.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 313
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk makes a new paragraph signal a new step in the subject’s development.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶4
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk’s opening-topic practice is meant to help readers recognize and retain a paragraph’s purpose.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶30
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: It is now perhaps clear that the Saxon oracle is not infallible; it will sometimes be dumb, and sometimes lie.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶9
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: since the first aim of speech is to be under-stood.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 52
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: we have an obligation to put ourselves into the hearer's or reader's place?
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 308
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: what an obligation we owe to him of order and arrangement;
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 309
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: thinking for them rather than for yourself
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 313
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Ordinarily, however, a subject requires subdivision into topics, each of which should be made the subject of a paragraph.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶4
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Again, the object is to aid the reader.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶30
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

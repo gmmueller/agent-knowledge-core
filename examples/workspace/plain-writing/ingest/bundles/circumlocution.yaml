@@ -1,0 +1,90 @@
+slug: circumlocution
+type: glossary
+names:
+- Circumlocution
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+summaries:
+- batch: fowler
+  text: A roundabout expression can conceal a thought that direct speech would reveal.
+- batch: quiller-couch
+  text: A roundabout expression can conceal a thought that direct speech would reveal.
+- batch: strunk
+  text: A roundabout expression can conceal a thought that direct speech would reveal.
+points:
+- text: The Fowlers prefer a single word to a circumlocution.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch identifies circumlocution as a central vice of jargon.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 121
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch singles out as regards and similar connective padding for removal.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 130
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk reduces as to whether to whether.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶10
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Strunk considers case usually unnecessary in two common senses.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶14
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+quotes:
+- text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single word to the
+    circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The first is that it uses circumlocution rather than short straight speech.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 121
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: They are all dodges of jargon, circumlocutions for evad-ing this or that simple statement;
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 130
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Whether is sufficient; see under Rule 13.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶10
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: 'The Concise Oxford Dictionary begins its definition of this word: "instance of a thing''s occurring; usual state
+    of affairs." In these two senses, the word is usually unnecessary.'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶14
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk

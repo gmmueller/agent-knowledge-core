@@ -1,0 +1,91 @@
+brain: plain-writing
+triage_version: 1
+items:
+- item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - H. W. Fowler and F. G. Fowler
+  why: Selected public-domain edition directly teaches the scoped writing methods.
+- item: quiller-couch/book-on-the-art-of-writing-selected
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - Arthur Quiller-Couch
+  why: Selected public-domain edition directly teaches the scoped writing methods.
+- item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - William Strunk Jr.
+  why: Selected public-domain edition directly teaches the scoped writing methods.
+- item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - William Strunk Jr.
+  why: Selected public-domain edition directly teaches the scoped writing methods.
+- item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - William Strunk Jr.
+  why: Selected public-domain edition directly teaches the scoped writing methods.
+- item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - William Strunk Jr.
+  why: Selected public-domain edition directly teaches the scoped writing methods.
+- item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - William Strunk Jr.
+  why: Selected public-domain edition directly teaches the scoped writing methods.
+- item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  tier: A
+  scores:
+    relevance: 3
+    density: 3
+    voice: 3
+    unique: 2
+    fresh: 0
+  speakers:
+  - William Strunk Jr.
+  why: Selected public-domain edition directly teaches the scoped writing methods.

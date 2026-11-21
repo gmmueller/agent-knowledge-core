@@ -1,0 +1,73 @@
+slug: rule-prefer-active-voice
+type: rule
+names:
+- Prefer the active voice when it suits the subject
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- William Strunk Jr.
+status: consensus
+summaries:
+- batch: quiller-couch
+  text: Use the active voice as a useful default while preserving justified passive constructions.
+- batch: strunk
+  text: Use the active voice as a useful default while preserving justified passive constructions.
+points:
+- text: Quiller-Couch recommends the active verb and concrete noun against padded recipient constructions.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 133
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk describes active voice as usually more direct and vigorous.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶76
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk explicitly says his active-voice advice does not discard passives.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶83
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk uses transitive active verbs to strengthen tame description and exposition.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶87
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: The first virtue, the touchstone of masculine style, is its use of the active verb and the concrete noun.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 133
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: 'The active voice is usually more direct and vigorous than the passive:'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶76
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: This rule does not, of course, mean that the writer should entirely discard the passive voice, which is frequently
+    convenient and sometimes necessary.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶83
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: The habitual use of the active voice, however, makes for forcible writing.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶87
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

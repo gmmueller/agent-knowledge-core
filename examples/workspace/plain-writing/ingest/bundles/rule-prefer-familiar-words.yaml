@@ -1,0 +1,58 @@
+slug: rule-prefer-familiar-words
+type: rule
+names:
+- Prefer familiar words
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+experts:
+- H. W. Fowler and F. G. Fowler
+speakers:
+- H. W. Fowler and F. G. Fowler
+status: bench
+summaries:
+- batch: fowler
+  text: Prefer the word a reader understands readily when it expresses the intended meaning.
+- batch: fowler
+  text: Prefer the word a reader understands readily when it expresses the intended meaning.
+points:
+- text: The Fowlers prefer familiar to far-fetched vocabulary.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers select words the probable reader understands without wasted time or thought.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶9
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers criticize foreign ornament used where suitable English can be found.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶101
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+quotes:
+- text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single word to the
+    circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: It is now perhaps clear that the Saxon oracle is not infallible; it will sometimes be dumb, and sometimes lie.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶9
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: '1.'
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶101
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler

@@ -1,0 +1,17 @@
+- text: Quiller-Couch objects to hybrid technical coinages; the Fowlers subordinate impeccable formation to practical qualities
+    in necessary scientific names.
+  cites:
+  - raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+    at: p. 58
+  - raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+    at: ¶51
+  batch: fowler
+- text: 'Different emphasis, not opposition: Strunk preserves detail while teaching economy; Quiller-Couch also defends beauty
+    and expressive range.'
+  kind: different-emphasis
+  cites:
+  - raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+    at: ¶136
+  - raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+    at: p. 60
+  batch: strunk

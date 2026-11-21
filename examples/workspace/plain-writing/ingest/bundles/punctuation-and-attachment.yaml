@@ -1,0 +1,233 @@
+slug: punctuation-and-attachment
+type: topic
+names:
+- Punctuation and attachment
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+- strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+experts:
+- William Strunk Jr.
+speakers:
+- William Strunk Jr.
+summaries:
+- batch: strunk
+  text: Punctuation and word order express grammatical relationships.
+- batch: strunk
+  text: Punctuation and word order express grammatical relationships.
+- batch: strunk
+  text: Punctuation and word order express grammatical relationships.
+points:
+- text: Strunk applies singular possessive apostrophe-s regardless of the final consonant, subject to his named exceptions.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶3
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk gives pronominal possessives without an apostrophe.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶12
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk uses a comma after each term except the last in a series with one conjunction.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶13
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk permits omission for a slight parenthetic interruption but rejects retaining just one of the pair of commas.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶24
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk sets off non-restrictive relative clauses with commas.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶29
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk gives restrictive relative clauses without surrounding commas.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶38
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk joins independent clauses without a conjunction by a semicolon.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶60
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk also permits separate sentences instead of a semicolon.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶63
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk distinguishes a joining adverb from a conjunction when selecting punctuation.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶69
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk allows a comma between very short clauses alike in form.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶73
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk repairs accidental sentence fragments by replacing an inappropriate period with a comma.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶80
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk requires the reader to attach an introductory participle to the intended subject.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶87
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk punctuates the sentence outside a parenthesis as if its contents were absent.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶11
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk puts a detached parenthetical sentence’s final stop inside the closing mark.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶14
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk introduces formal documentary quotations with a colon.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶16
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk precedes appositive or direct-object quotations with a comma.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶18
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk treats quotations introduced by that as indirect discourse without quotation marks.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶25
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+quotes:
+- text: Follow this rule whatever the final consonant.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶3
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: The pronominal possessives hers, its, theirs, yours, and oneself have no apostrophe.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶12
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: '2.'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶13
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: This rule is difficult to apply; it is frequently hard to decide whether a single word, such as however, or a brief
+    phrase, is or is not parenthetic.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶24
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Non-restrictive relative clauses are, in accordance with this rule, set off by commas.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶29
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Restrictive relative clauses are not set off by commas.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶38
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: If two or more clauses, grammatically complete and not joined by a conjunction, are to form a single compound sentence,
+    the proper mark of punctuation is a semicolon.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶60
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: It is of course equally correct to write the above as two sentences each, replacing the semicolons by periods.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶63
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Note that if the second clause is preceded by an adverb, such as accordingly, besides, so, then, therefore, or thus,
+    and not by a conjunction, the semicolon is still required.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶69
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: 'If the clauses are very short, and are alike in form, a comma is usually permissible:'
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶73
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: In both these examples, the first period should be replaced by a comma, and the following word begun with a small
+    letter.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶80
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: The word walking refers to the subject of the sentence, not to the woman.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶87
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: A sentence containing an expression in parenthesis is punctuated, outside of the marks of parenthesis, exactly as
+    if the expression in parenthesis were absent.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶11
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: (When a wholly detached expression or sentence is parenthesized, the final stop comes before the last mark of parenthesis.)
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶14
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Formal quotations, cited as documentary evidence, are introduced by a colon and enclosed in quotation marks.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶16
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Quotations grammatically in apposition or the direct objects of verbs are preceded by a comma and enclosed in quotation
+    marks.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶18
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Quotations introduced by that are regarded as in indirect discourse and not enclosed in quotation marks.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶25
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk

@@ -1,0 +1,102 @@
+slug: meaning-before-etymology
+type: principle
+names:
+- Meaning before etymology
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+summaries:
+- batch: fowler
+  text: Reader understanding takes priority over the ancestry of a word.
+- batch: fowler
+  text: Reader understanding takes priority over the ancestry of a word.
+- batch: quiller-couch
+  text: Reader understanding takes priority over the ancestry of a word.
+- batch: quiller-couch
+  text: Reader understanding takes priority over the ancestry of a word.
+- batch: quiller-couch
+  text: Reader understanding takes priority over the ancestry of a word.
+points:
+- text: The Fowlers rank the Saxon preference last and reject substituting an unfamiliar native word for familiar English.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶7
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers treat Americanisms as foreign to their British editorial norm, even while praising fall on its merits.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶82
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch attacks antibody as a hybrid coinage; this is his historical linguistic judgment.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 58
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch describes borrowing and extending vocabulary as resources for new intellectual work.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 156
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch prefers liberty to censorship while retaining an objection to hybrid technical coinages.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 303
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch encourages a wide vocabulary and distinguishes good material from the origin of its coinage.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 305
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+quotes:
+- text: These rules are given roughly in order of merit; the last is also the least.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶7
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Though we take these separately from foreign words, which will follow next, the distinction is purely pro forma; Americanisms
+    are foreign words, and should be so treated.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶82
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: It is, in fact, a bar-barism, and a mongrel at that.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 58
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: give our English words new contents, new connotations, new meanings;
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 156
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: 'it is better to err on the side of liberty than on the side of the censor:'
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 303
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: rejecting no coin for its minting but only if its metal be base.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 305
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch

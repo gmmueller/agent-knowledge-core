@@ -1,0 +1,274 @@
+slug: historical-usage
+type: topic
+names:
+- Historical usage
+aliases: []
+evidence: practitioner
+freshness: dated
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+- strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+- strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+- strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+summaries:
+- batch: fowler
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+- batch: quiller-couch
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+- batch: quiller-couch
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+- batch: strunk
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+- batch: strunk
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+- batch: strunk
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+- batch: strunk
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+- batch: strunk
+  text: The sources record early twentieth-century conventions rather than current universal standards.
+points:
+- text: The Fowlers treat Americanisms as foreign to their British editorial norm, even while praising fall on its merits.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶82
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers advocate keeping English and American literary usage apart in their historical setting.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶87
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch attacks antibody as a hybrid coinage; this is his historical linguistic judgment.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 58
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch treats literary-period labels as handy approximations rather than precise scientific terms.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 145
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk lists exceptions for certain ancient names and conventional possessive expressions.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶8
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk gives principles rather than a universal formula for dividing words at line ends.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶101
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Strunk leaves space after a manuscript heading.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶3
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk writes dates and serial numbers in figures or suitable Roman notation.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶5
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk recognizes that periodicals can have different title conventions from scholarly usage.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶39
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk spells all right as two words in the uses he discusses.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶4
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Strunk distinguishes compare to for resemblance from compare with for difference.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶29
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Strunk lists accidentally among the spellings to watch.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶2
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Strunk lists privilege.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶4
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Strunk lists separate.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶28
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Strunk lists necessary.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶36
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Strunk lists occurred.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶39
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Strunk lists parallel.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶42
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Strunk prescribes hyphens in to-day, to-night and to-morrow.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶58
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Strunk prescribes separate words for any one, every one and some one.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶59
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: Though we take these separately from foreign words, which will follow next, the distinction is purely pro forma; Americanisms
+    are foreign words, and should be so treated.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶82
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The words are, as we said, extremely efficient; but the impulse that selects them is in harmony with American, not
+    with English, methods, and we hope it may be developed in America rather than here.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶87
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: It is, in fact, a bar-barism, and a mongrel at that.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 58
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: such terms at best cannot be scientific, precise, determinate,
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 145
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Exceptions are the possessives of ancient proper names in -es and -is, the possessive Jesus' , and such forms as for
+    conscience' sake, for righteousness' sake.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶8
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: If there is room at the end of a line for one or more syllables of a word, but not for the whole word, divide the
+    word, unless this involves cutting off only a single
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+  at: ¶101
+  item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  batch: strunk
+- text: Leave a blank line, or its equivalent in space, after the title or heading of a manuscript.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶3
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Do not spell out dates or other serial numbers.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶5
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: For the titles of literary works, scholarly usage prefers italics with capitalized initials.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶39
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Idiomatic in familiar speech as a detached phrase in the sense, "Agreed," or "Go ahead." In other uses better avoided.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶4
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: To compare to is to point out or imply resemblances, between objects regarded as essentially of different order; to
+    compare with is mainly to point out differences, between objects regarded as essentially of the same
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶29
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: accidentally
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶2
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: privilege
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶4
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: separate
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶28
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: necessary
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶36
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: occurred
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶39
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: parallel
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶42
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Write to-day, to-night, to-morrow (but not together) with hyphen.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶58
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk
+- text: Write any one, every one, some one, some time (except the sense of formerly) as two words.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+  at: ¶59
+  item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  batch: strunk

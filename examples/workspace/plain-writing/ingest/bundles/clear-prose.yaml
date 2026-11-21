@@ -1,0 +1,146 @@
+slug: clear-prose
+type: topic
+names:
+- Clear prose
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+summaries:
+- batch: fowler
+  text: Practical clarity is a teachable aim, bounded by purpose and genre.
+- batch: quiller-couch
+  text: Practical clarity is a teachable aim, bounded by purpose and genre.
+- batch: quiller-couch
+  text: Practical clarity is a teachable aim, bounded by purpose and genre.
+- batch: strunk
+  text: Practical clarity is a teachable aim, bounded by purpose and genre.
+- batch: strunk
+  text: Practical clarity is a teachable aim, bounded by purpose and genre.
+points:
+- text: The Fowlers put directness, simplicity, brevity, vigour and lucidity before showiness.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶4
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch wants literary study to include active writing practice.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 42
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch identifies accuracy, perspicuity, persuasion and appropriateness as his chosen aims.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 52
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch locates a harder prose task in expressing thought beyond straightforward narrative.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 149
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk intends the book for courses combining composition practice with literary study.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶2
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk concentrates on the principal requirements of plain English style.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶2
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk explicitly limits the book to a small portion of English style.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶3
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk recommends learning everyday plain English before studying literary masters for the secrets of style.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶16
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk asks for definite assertions and reserves not for denial or antithesis rather than evasion.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶111
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+quotes:
+- text: Any one who wishes to become a good writer should endeavour, before he allows himself to be tempted by the more showy
+    qualities, to be direct, simple, brief, vigorous, and lucid.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶4
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: a part—and no small part—of our business is to practise it.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 42
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: since the first aim of speech is to be under-stood.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 52
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: It is when prose attempts to philosophise, to express thoughts as well as to relate simple sayings and doings—it is
+    then that the trouble begins.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 149
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: This book is intended for use in English courses in which the practice of composition is combined with the study of
+    literature.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶2
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: This book is intended for use in English courses in which the practice of composition is combined with the study of
+    literature.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶2
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: The book covers only a small portion of the field of English style, but the experience of its writer has been that
+    once past the essentials, students profit most by individual instruction based on the
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶3
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: It is an old observation that the best writers sometimes disregard the rules of rhetoric.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶16
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Make definite assertions.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶111
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk

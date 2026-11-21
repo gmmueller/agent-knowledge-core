@@ -1,0 +1,289 @@
+slug: diction-and-register
+type: topic
+names:
+- Diction and register
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+- strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+- strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+summaries:
+- batch: fowler
+  text: Word choice must fit meaning, audience and occasion.
+- batch: fowler
+  text: Word choice must fit meaning, audience and occasion.
+- batch: quiller-couch
+  text: Word choice must fit meaning, audience and occasion.
+- batch: quiller-couch
+  text: Word choice must fit meaning, audience and occasion.
+- batch: quiller-couch
+  text: Word choice must fit meaning, audience and occasion.
+- batch: quiller-couch
+  text: Word choice must fit meaning, audience and occasion.
+- batch: strunk
+  text: Word choice must fit meaning, audience and occasion.
+- batch: strunk
+  text: Word choice must fit meaning, audience and occasion.
+- batch: strunk
+  text: Word choice must fit meaning, audience and occasion.
+- batch: strunk
+  text: Word choice must fit meaning, audience and occasion.
+points:
+- text: The Fowlers prefer familiar to far-fetched vocabulary.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers preserve important shades of meaning and register, and warn against monotonous application of the preferences.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶47
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers regard new words as a sign of living language while calling for scrutiny of each newcomer.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶50
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers recognize new scientific things require new names.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶51
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers distinguish nonce-word motives such as precision from avoidance of the obvious.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶52
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers allow a foreign expression when it offers the shortest or clearest meaning, or a special association.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶99
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The Fowlers allow slang in conversation and characterization while limiting it in a narrator’s prose.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶259
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch asks writers to observe the occasion and avoid ill-timed excess.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 49
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch makes appropriateness fundamental to his teaching.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 50
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch rejects timid variation that keeps replacing a person’s name with elaborate descriptions.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 129
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch warns that literature cannot be classified as though it were a science.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 144
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch says living artistic practice can defeat a neat formula.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 146
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch sees literature as personal and therefore various.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 299
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch justifies slang and new words by speaker, audience, mood and occasion.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 302
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch encourages a wide vocabulary and distinguishes good material from the origin of its coinage.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 305
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk allows that strong writers break rhetorical rules to gain a compensating merit.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶16
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: Strunk recognizes narrative paragraphs whose rhetorical pause replaces a topic-sentence structure.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶74
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk recognizes that periodicals can have different title conventions from scholarly usage.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶39
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Strunk treats indiscriminate certainly as a mannerism.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶21
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Strunk distinguishes laying claim from declaring, maintaining or charging.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶27
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+quotes:
+- text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single word to the
+    circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: By way of general rules for the choice of words, so much must suffice.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶47
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Most people of literary taste will say on this point 'It must needs be that offences come; but woe to that man by
+    whom the offence cometh'.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶50
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The progress of arts and sciences gives occasion for the large majority of new words; for a new thing we must have
+    a new name; hence, for instance, motor, argon, appendicitis.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶51
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Among other arts and sciences, that of lexicography happens to have found convenient a neologism that may here be
+    used to help in the very slight classification required for the new words we are more
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶52
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The usual protest must be made, to be treated no doubt with the usual disregard.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶99
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The place of slang is in real life.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶259
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: whenyou talk or write, youwould wish to observe the occasion;
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 49
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: this desire of yours to be appropriate is really the root of the matter.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 50
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: I expect, nay exact, that Byron shall be mentioned again and again.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 129
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: In studying literature, and still more in studying to write it, distrust all classification !
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 144
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: genius uses our best-laid logic to explode it.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 146
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Literature, being by its nature personal, must be by its nature almost infinitely various.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 299
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: so much must ever depend on who speaks, and to whom, in what mood and upon what occa-sion;
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 302
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: rejecting no coin for its minting but only if its metal be base.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 305
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: It is an old observation that the best writers sometimes disregard the rules of rhetoric.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+  at: ¶16
+  item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  batch: strunk
+- text: The brief paragraphs of animated narrative, however, are often without even this semblance of a topic sentence.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶74
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: For the titles of literary works, scholarly usage prefers italics with capitalized initials.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+  at: ¶39
+  item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  batch: strunk
+- text: Used indiscriminately by some speakers, much as others use very, to intensify any and every statement.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶21
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: With object-noun, means lay claim to.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶27
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk

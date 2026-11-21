@@ -1,0 +1,34 @@
+strunk:
+  name: William Strunk Jr.
+  aliases: []
+  roles:
+  - writing-teacher
+  appearances:
+  - item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+    role: author
+  - item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+    role: author
+  - item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+    role: author
+  - item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+    role: author
+  - item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+    role: author
+  - item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+    role: author
+quiller-couch:
+  name: Arthur Quiller-Couch
+  aliases: []
+  roles:
+  - writing-teacher
+  appearances:
+  - item: quiller-couch/book-on-the-art-of-writing-selected
+    role: author
+fowler:
+  name: H. W. Fowler and F. G. Fowler
+  aliases: []
+  roles:
+  - writing-teacher
+  appearances:
+  - item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+    role: author

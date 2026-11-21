@@ -1,0 +1,4 @@
+interface:
+  display_name: Plain Writing
+  short_description: Clear prose from three public-domain writing books
+  default_prompt: Use $plain-writing to revise this prose, naming the methods and citing the sources.

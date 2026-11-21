@@ -1,0 +1,16 @@
+publisher: fowler
+display_name: H. W. Fowler and F. G. Fowler
+default_speaker: H. W. Fowler and F. G. Fowler
+sources:
+- id: fowler-book
+  type: book
+  url: https://en.wikisource.org/wiki/The_King%27s_English/Chapter_1/General_Principles
+  title: 'The King’s English (1906), Chapter I: Vocabulary'
+  format: solo
+  refresh: never
+  last_crawled: '2026-11-20'
+  cursor: complete-selected-edition
+  rights: Public domain in the United States; original publication before 1931.
+  published: '1906'
+  publication_precision: year
+  selected_sections: General; Neologisms through chapter end (Malaprops omitted)

@@ -1,0 +1,155 @@
+slug: rule-omit-needless-words
+type: rule
+names:
+- Omit needless words
+aliases: []
+evidence: practitioner
+freshness: evergreen
+items:
+- fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+- quiller-couch/book-on-the-art-of-writing-selected
+- strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+- strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+experts:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+speakers:
+- Arthur Quiller-Couch
+- H. W. Fowler and F. G. Fowler
+- William Strunk Jr.
+status: consensus
+summaries:
+- batch: fowler
+  text: Keep the detail that earns its place and remove empty verbal padding.
+- batch: quiller-couch
+  text: Keep the detail that earns its place and remove empty verbal padding.
+- batch: quiller-couch
+  text: Keep the detail that earns its place and remove empty verbal padding.
+- batch: strunk
+  text: Keep the detail that earns its place and remove empty verbal padding.
+- batch: strunk
+  text: Keep the detail that earns its place and remove empty verbal padding.
+points:
+- text: The Fowlers prefer a single word to a circumlocution.
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: Quiller-Couch identifies circumlocution as a central vice of jargon.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 121
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch singles out as regards and similar connective padding for removal.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 130
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch’s revision removes a clause that repeats the meaning already stated.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 131
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Quiller-Couch rejects style as extraneous ornament and targets exceptionally fine writing for deletion.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 297
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Strunk treats unnecessary words and sentences as wasted parts of a composition.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶136
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk targets the fact that as a repeatedly removable phrase.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶152
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk notes that who is and which was are often superfluous.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶166
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Strunk reduces as to whether to whether.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶10
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Strunk calls character often redundant padding.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶23
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+quotes:
+- text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single word to the
+    circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+  speaker: H. W. Fowler and F. G. Fowler
+  raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+  at: ¶6
+  item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  batch: fowler
+- text: The first is that it uses circumlocution rather than short straight speech.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 121
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: They are all dodges of jargon, circumlocutions for evad-ing this or that simple statement;
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 130
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: the second clause but repeats the first without adding one jot.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 131
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Murder your darlings.
+  speaker: Arthur Quiller-Couch
+  raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+  at: p. 297
+  item: quiller-couch/book-on-the-art-of-writing-selected
+  batch: quiller-couch
+- text: Vigorous writing is concise.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶136
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: In especial the expression the fact that should be revised out of every sentence in which it occurs.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶152
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Who is, which was, and the like are often superfluous.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+  at: ¶166
+  item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  batch: strunk
+- text: Whether is sufficient; see under Rule 13.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶10
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk
+- text: Often simply redundant, used from a mere habit of wordiness.
+  speaker: William Strunk Jr.
+  raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  at: ¶23
+  item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  batch: strunk

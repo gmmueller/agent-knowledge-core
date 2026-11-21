@@ -1,0 +1,15 @@
+publisher: strunk
+display_name: William Strunk Jr.
+default_speaker: William Strunk Jr.
+sources:
+- id: strunk-book
+  type: book
+  url: https://en.wikisource.org/wiki/The_Elements_of_Style
+  title: The Elements of Style (1918)
+  format: solo
+  refresh: never
+  last_crawled: '2026-11-20'
+  cursor: complete-selected-edition
+  rights: Public domain in the United States; original publication before 1931.
+  published: '1918'
+  publication_precision: year

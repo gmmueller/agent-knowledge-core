@@ -1,0 +1,1445 @@
+batch: strunk
+items:
+- item: strunk/web-the-elements-of-style-introduction-wikisource-the-free-onlin
+  page: strunk-introduction
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 2-16
+- item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  page: strunk-possessives-and-commas
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 3-54
+- item: strunk/web-the-elements-of-style-rules-wikisource-the-free-online-libra
+  page: strunk-clauses-and-modifiers
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 60-101
+- item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  page: strunk-paragraphs
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 3-74
+- item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  page: strunk-voice-and-assertion
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 76-118
+- item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  page: strunk-concision
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 136-172
+- item: strunk/web-the-elements-of-style-principles-wikisource-the-free-online
+  page: strunk-order-and-parallelism
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 176-248
+- item: strunk/web-the-elements-of-style-form-wikisource-the-free-online-librar
+  page: strunk-matters-of-form
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 3-39
+- item: strunk/web-the-elements-of-style-misuse-wikisource-the-free-online-libr
+  page: strunk-misused-expressions
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 2-29
+- item: strunk/web-the-elements-of-style-misspelling-wikisource-the-free-online
+  page: strunk-spelling-list
+  kind: source
+  speakers:
+    William Strunk Jr.: author
+  paragraphs: 2-59
+concepts:
+- slug: clear-prose
+  type: topic
+  name: Clear prose
+  evidence: practitioner
+  freshness: evergreen
+  summary: Practical clarity is a teachable aim, bounded by purpose and genre.
+  points:
+  - text: Strunk intends the book for courses combining composition practice with literary study.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶2
+  - text: Strunk concentrates on the principal requirements of plain English style.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶2
+  - text: Strunk explicitly limits the book to a small portion of English style.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶3
+  - text: Strunk recommends learning everyday plain English before studying literary masters for the secrets of
+      style.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶16
+  quotes:
+  - text: This book is intended for use in English courses in which the practice of composition is combined with
+      the study of literature.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶2
+  - text: This book is intended for use in English courses in which the practice of composition is combined with
+      the study of literature.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶2
+  - text: The book covers only a small portion of the field of English style, but the experience of its writer has
+      been that once past the essentials, students profit most by individual instruction based on the
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶3
+  - text: It is an old observation that the best writers sometimes disregard the rules of rhetoric.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶16
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Strunk allows that strong writers break rhetorical rules to gain a compensating merit.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶16
+  quotes:
+  - text: It is an old observation that the best writers sometimes disregard the rules of rhetoric.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶16
+- slug: jargon-audit
+  type: method
+  name: Audit jargon
+  evidence: practitioner
+  freshness: evergreen
+  summary: Look for circumlocution and empty abstraction, then express the actual thought.
+  points:
+  - text: Strunk recommends Quiller-Couch’s discussion of jargon for further study; their overlap is acknowledged
+      literary influence.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶12
+  quotes:
+  - text: Sir Arthur Quiller-Couch, The Art of Writing (Putnams), especially the chapter, Interlude on Jargon;
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶12
+- slug: revision-pass
+  type: method
+  name: A revision pass
+  evidence: practitioner
+  freshness: evergreen
+  summary: Review meaning, structure and expression in a deliberate sequence.
+  points:
+  - text: Strunk selects frequently violated essentials to lighten instruction and correction.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶2
+  - text: Strunk recommends instruction based on the problems in the student’s own work after the essentials.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶3
+  quotes:
+  - text: This book is intended for use in English courses in which the practice of composition is combined with
+      the study of literature.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶2
+  - text: The book covers only a small portion of the field of English style, but the experience of its writer has
+      been that once past the essentials, students profit most by individual instruction based on the
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-introduction-wikisource-the-free-onlin
+      at: ¶3
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: Strunk lists exceptions for certain ancient names and conventional possessive expressions.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶8
+  quotes:
+  - text: Exceptions are the possessives of ancient proper names in -es and -is, the possessive Jesus' , and such
+      forms as for conscience' sake, for righteousness' sake.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶8
+- slug: punctuation-and-attachment
+  type: topic
+  name: Punctuation and attachment
+  evidence: practitioner
+  freshness: evergreen
+  summary: Punctuation and word order express grammatical relationships.
+  points:
+  - text: Strunk applies singular possessive apostrophe-s regardless of the final consonant, subject to his named
+      exceptions.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶3
+  - text: Strunk gives pronominal possessives without an apostrophe.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶12
+  - text: Strunk uses a comma after each term except the last in a series with one conjunction.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶13
+  - text: Strunk permits omission for a slight parenthetic interruption but rejects retaining just one of the pair
+      of commas.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶24
+  - text: Strunk sets off non-restrictive relative clauses with commas.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶29
+  - text: Strunk gives restrictive relative clauses without surrounding commas.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶38
+  quotes:
+  - text: Follow this rule whatever the final consonant.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶3
+  - text: The pronominal possessives hers, its, theirs, yours, and oneself have no apostrophe.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶12
+  - text: '2.'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶13
+  - text: This rule is difficult to apply; it is frequently hard to decide whether a single word, such as however,
+      or a brief phrase, is or is not parenthetic.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶24
+  - text: Non-restrictive relative clauses are, in accordance with this rule, set off by commas.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶29
+  - text: Restrictive relative clauses are not set off by commas.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶38
+- slug: sentence-emphasis
+  type: topic
+  name: Sentence emphasis
+  evidence: practitioner
+  freshness: evergreen
+  summary: Order and deliberate variation distribute a sentence’s emphasis.
+  points:
+  - text: Strunk allows occasional loose sentences to give relief from uniformly compact and periodic prose.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶54
+  quotes:
+  - text: But a writer may err by making his sentences too uniformly compact and periodic, and an occasional loose
+      sentence prevents the style from becoming too formal and gives the reader a certain relief.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶54
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: Strunk gives principles rather than a universal formula for dividing words at line ends.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶101
+  quotes:
+  - text: If there is room at the end of a line for one or more syllables of a word, but not for the whole word,
+      divide the word, unless this involves cutting off only a single
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶101
+- slug: punctuation-and-attachment
+  type: topic
+  name: Punctuation and attachment
+  evidence: practitioner
+  freshness: evergreen
+  summary: Punctuation and word order express grammatical relationships.
+  points:
+  - text: Strunk joins independent clauses without a conjunction by a semicolon.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶60
+  - text: Strunk also permits separate sentences instead of a semicolon.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶63
+  - text: Strunk distinguishes a joining adverb from a conjunction when selecting punctuation.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶69
+  - text: Strunk allows a comma between very short clauses alike in form.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶73
+  - text: Strunk repairs accidental sentence fragments by replacing an inappropriate period with a comma.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶80
+  - text: Strunk requires the reader to attach an introductory participle to the intended subject.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶87
+  quotes:
+  - text: If two or more clauses, grammatically complete and not joined by a conjunction, are to form a single compound
+      sentence, the proper mark of punctuation is a semicolon.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶60
+  - text: It is of course equally correct to write the above as two sentences each, replacing the semicolons by
+      periods.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶63
+  - text: Note that if the second clause is preceded by an adverb, such as accordingly, besides, so, then, therefore,
+      or thus, and not by a conjunction, the semicolon is still required.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶69
+  - text: 'If the clauses are very short, and are alike in form, a comma is usually permissible:'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶73
+  - text: In both these examples, the first period should be replaced by a comma, and the following word begun with
+      a small letter.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶80
+  - text: The word walking refers to the subject of the sentence, not to the woman.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶87
+- slug: rule-keep-related-words-together
+  type: rule
+  name: Keep related words together
+  evidence: practitioner
+  freshness: evergreen
+  summary: Place related sentence elements near one another so their connection is clear.
+  status: bench
+  points:
+  - text: Strunk requires the reader to attach an introductory participle to the intended subject.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶87
+  quotes:
+  - text: The word walking refers to the subject of the sentence, not to the woman.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶87
+- slug: sentence-emphasis
+  type: topic
+  name: Sentence emphasis
+  evidence: practitioner
+  freshness: evergreen
+  summary: Order and deliberate variation distribute a sentence’s emphasis.
+  points:
+  - text: Strunk permits a detached word or expression when it earns the emphatic sentence treatment.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶81
+  quotes:
+  - text: 'It is permissible to make an emphatic word or expression serve the purpose of a sentence and to punctuate
+      it accordingly:'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-rules-wikisource-the-free-online-libra
+      at: ¶81
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Strunk recognizes narrative paragraphs whose rhetorical pause replaces a topic-sentence structure.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶74
+  quotes:
+  - text: The brief paragraphs of animated narrative, however, are often without even this semblance of a topic
+      sentence.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶74
+- slug: paragraph-plan
+  type: method
+  name: Plan a paragraph
+  evidence: practitioner
+  freshness: evergreen
+  summary: Develop and finish the thought announced by a paragraph.
+  points:
+  - text: Strunk varies the extent of subdivision with the length of the composition.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶5
+  - text: Strunk’s opening-topic practice is meant to help readers recognize and retain a paragraph’s purpose.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶30
+  - text: Strunk warns against ending a paragraph on a digression or unimportant detail.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶34
+  quotes:
+  - text: The extent of subdivision will vary with the length of the composition.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶5
+  - text: Again, the object is to aid the reader.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶30
+  - text: Ending with a digression, or with an unimportant detail, is particularly to be avoided.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶34
+- slug: paragraph-unity
+  type: topic
+  name: Paragraph unity
+  evidence: practitioner
+  freshness: evergreen
+  summary: Paragraphs expose the steps of a thought to the reader.
+  points:
+  - text: Strunk allows a slight subject to occupy one paragraph and recommends checking whether subdivision helps.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶3
+  - text: Strunk makes a new paragraph signal a new step in the subject’s development.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶4
+  - text: Strunk normally discourages single-sentence paragraphs but excepts useful transitions.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶27
+  - text: Strunk starts a new paragraph at each change of speaker in dialogue.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶28
+  - text: Strunk recognizes narrative paragraphs whose rhetorical pause replaces a topic-sentence structure.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶74
+  quotes:
+  - text: If the subject on which you are writing is of slight extent, or if you intend to treat it very briefly,
+      there may be no need of subdividing it into topics.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶3
+  - text: Ordinarily, however, a subject requires subdivision into topics, each of which should be made the subject
+      of a paragraph.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶4
+  - text: As a rule, single sentences should not be written or printed as paragraphs.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶27
+  - text: In dialogue, each speech, even if only a single word, is a paragraph by itself; that is, a new paragraph
+      begins with each change of speaker.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶28
+  - text: The brief paragraphs of animated narrative, however, are often without even this semblance of a topic
+      sentence.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶74
+- slug: reader-attention
+  type: principle
+  name: Reader attention
+  evidence: practitioner
+  freshness: evergreen
+  summary: The writer’s choices should reduce the reader’s avoidable interpretive work.
+  points:
+  - text: Strunk makes a new paragraph signal a new step in the subject’s development.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶4
+  - text: Strunk’s opening-topic practice is meant to help readers recognize and retain a paragraph’s purpose.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶30
+  quotes:
+  - text: Ordinarily, however, a subject requires subdivision into topics, each of which should be made the subject
+      of a paragraph.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶4
+  - text: Again, the object is to aid the reader.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶30
+- slug: clear-prose
+  type: topic
+  name: Clear prose
+  evidence: practitioner
+  freshness: evergreen
+  summary: Practical clarity is a teachable aim, bounded by purpose and genre.
+  points:
+  - text: Strunk asks for definite assertions and reserves not for denial or antithesis rather than evasion.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶111
+  quotes:
+  - text: Make definite assertions.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶111
+- slug: jargon-audit
+  type: method
+  name: Audit jargon
+  evidence: practitioner
+  freshness: evergreen
+  summary: Look for circumlocution and empty abstraction, then express the actual thought.
+  points:
+  - text: Strunk criticizes nominalized actions whose verbs merely complete the sentence.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶102
+  quotes:
+  - text: A common fault is to use as the subject of a passive construction a noun which expresses the entire action,
+      leaving to the verb no function beyond that of completing the sentence.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶102
+- slug: revision-pass
+  type: method
+  name: A revision pass
+  evidence: practitioner
+  freshness: evergreen
+  summary: Review meaning, structure and expression in a deliberate sequence.
+  points:
+  - text: Strunk warns that rewriting an indefinite statement can require guessing the writer’s intention.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶118
+  quotes:
+  - text: The last example, before correction, is indefinite as well as negative.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶118
+- slug: rule-prefer-active-voice
+  type: rule
+  name: Prefer the active voice when it suits the subject
+  evidence: practitioner
+  freshness: evergreen
+  summary: Use the active voice as a useful default while preserving justified passive constructions.
+  status: bench
+  points:
+  - text: Strunk describes active voice as usually more direct and vigorous.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶76
+  - text: Strunk explicitly says his active-voice advice does not discard passives.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶83
+  - text: Strunk uses transitive active verbs to strengthen tame description and exposition.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶87
+  quotes:
+  - text: 'The active voice is usually more direct and vigorous than the passive:'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶76
+  - text: This rule does not, of course, mean that the writer should entirely discard the passive voice, which is
+      frequently convenient and sometimes necessary.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶83
+  - text: The habitual use of the active voice, however, makes for forcible writing.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶87
+- slug: voice-and-agency
+  type: topic
+  name: Voice and agency
+  evidence: practitioner
+  freshness: evergreen
+  summary: Voice choices determine which participant the sentence treats as its subject.
+  points:
+  - text: Strunk describes active voice as usually more direct and vigorous.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶76
+  - text: Strunk warns that deleting the agent from a passive can make the intended actor indefinite.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶82
+  - text: Strunk explicitly says his active-voice advice does not discard passives.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶83
+  - text: Strunk lets the subject needed by the paragraph determine the voice.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶86
+  quotes:
+  - text: 'The active voice is usually more direct and vigorous than the passive:'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶76
+  - text: 'it becomes indefinite: is it the writer, or some person undisclosed, or the world at large, that will
+      always remember this visit?'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶82
+  - text: This rule does not, of course, mean that the writer should entirely discard the passive voice, which is
+      frequently convenient and sometimes necessary.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶83
+  - text: The first would be the right form in a paragraph on the dramatists of the Restoration; the second, in
+      a paragraph on the tastes of modern readers.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶86
+- slug: economy-without-compression
+  type: principle
+  name: Economy without compression
+  evidence: practitioner
+  freshness: evergreen
+  summary: Concision removes wasted work while retaining necessary detail.
+  points:
+  - text: Strunk treats unnecessary words and sentences as wasted parts of a composition.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: Strunk’s concision rule does not require every sentence to be short.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: Strunk preserves detail when every word contributes.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: Strunk connects active voice and positive statement with concision.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶171
+  quotes:
+  - text: Vigorous writing is concise.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: Vigorous writing is concise.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: Vigorous writing is concise.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: As positive statement is more concise than negative, and the active voice more concise than the passive,
+      many of the examples given under Rules 11 and 12 illustrate this rule as well.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶171
+- slug: jargon-audit
+  type: method
+  name: Audit jargon
+  evidence: practitioner
+  freshness: evergreen
+  summary: Look for circumlocution and empty abstraction, then express the actual thought.
+  points:
+  - text: Strunk targets the fact that as a repeatedly removable phrase.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶152
+  - text: Strunk directs readers to his discussions of case, character, nature and system for related padding.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶165
+  quotes:
+  - text: In especial the expression the fact that should be revised out of every sentence in which it occurs.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶152
+  - text: See also under case, character, nature, system in Chapter V.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶165
+- slug: revision-pass
+  type: method
+  name: A revision pass
+  evidence: practitioner
+  freshness: evergreen
+  summary: Review meaning, structure and expression in a deliberate sequence.
+  points:
+  - text: Strunk sometimes combines step-by-step sentences to express one complex idea more efficiently.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶172
+  quotes:
+  - text: A common violation of conciseness is the presentation of a single complex idea, step by step, in a series
+      of sentences which might to advantage be combined into one.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶172
+- slug: rule-omit-needless-words
+  type: rule
+  name: Omit needless words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Keep the detail that earns its place and remove empty verbal padding.
+  status: bench
+  points:
+  - text: Strunk treats unnecessary words and sentences as wasted parts of a composition.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: Strunk targets the fact that as a repeatedly removable phrase.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶152
+  - text: Strunk notes that who is and which was are often superfluous.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶166
+  quotes:
+  - text: Vigorous writing is concise.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶136
+  - text: In especial the expression the fact that should be revised out of every sentence in which it occurs.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶152
+  - text: Who is, which was, and the like are often superfluous.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶166
+- slug: parallelism
+  type: glossary
+  name: Parallelism
+  evidence: practitioner
+  freshness: evergreen
+  summary: Similar grammatical form makes related content easier to recognize.
+  points:
+  - text: Strunk uses parallel form to make a likeness of content and function recognizable.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶182
+  - text: Strunk gives matching grammatical constructions after correlative expressions.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶192
+  - text: Strunk applies an article or preposition consistently across a series.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶187
+  - text: Strunk suggests grouping a large set of co-ordinate ideas or using a table.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶202
+  quotes:
+  - text: This principle, that of parallel construction, requires that expressions of similar content and function
+      should be outwardly similar.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶182
+  - text: Correlative expressions (both, and; not, but; not only, but also; either, or; first, second, third; and
+      the like) should be followed by the same grammatical construction.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶192
+  - text: an article or a preposition applying to all the members of a series must either be used only before the
+      first term or else be repeated before each term.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶187
+  - text: Otherwise he had best avoid the difficulty by putting his statements in the form of a table.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶202
+- slug: revision-pass
+  type: method
+  name: A revision pass
+  evidence: practitioner
+  freshness: evergreen
+  summary: Review meaning, structure and expression in a deliberate sequence.
+  points:
+  - text: Strunk chooses varied structures to represent the actual relations of the thought.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶180
+  quotes:
+  - text: If the writer finds that he has written a series of sentences of the type described, he should recast
+      enough of them to remove the monotony, replacing them by simple sentences, by sentences of two
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶180
+- slug: rule-keep-related-words-together
+  type: rule
+  name: Keep related words together
+  evidence: practitioner
+  freshness: evergreen
+  summary: Place related sentence elements near one another so their connection is clear.
+  status: bench
+  points:
+  - text: Strunk makes word position the principal signal of relationships inside a sentence.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶204
+  - text: Strunk allows interruptions that deliberately create suspense rather than applying proximity mechanically.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶210
+  - text: Strunk puts modifiers near the expressions they modify to prevent a false relationship.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶227
+  quotes:
+  - text: The position of the words in a sentence is the principal means of showing their relationship.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶204
+  - text: The objection is that the interposed phrase or clause needlessly interrupts the natural order of the main
+      clause.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶210
+  - text: Modifiers should come, if possible next to the word they modify.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶227
+- slug: rule-preserve-parallel-form
+  type: rule
+  name: Preserve parallel form
+  evidence: practitioner
+  freshness: evergreen
+  summary: Use similar constructions for co-ordinate ideas.
+  status: bench
+  points:
+  - text: Strunk uses parallel form to make a likeness of content and function recognizable.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶182
+  - text: Strunk gives matching grammatical constructions after correlative expressions.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶192
+  - text: Strunk applies an article or preposition consistently across a series.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶187
+  - text: Strunk suggests grouping a large set of co-ordinate ideas or using a table.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶202
+  quotes:
+  - text: This principle, that of parallel construction, requires that expressions of similar content and function
+      should be outwardly similar.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶182
+  - text: Correlative expressions (both, and; not, but; not only, but also; either, or; first, second, third; and
+      the like) should be followed by the same grammatical construction.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶192
+  - text: an article or a preposition applying to all the members of a series must either be used only before the
+      first term or else be repeated before each term.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶187
+  - text: Otherwise he had best avoid the difficulty by putting his statements in the form of a table.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶202
+- slug: sentence-emphasis
+  type: topic
+  name: Sentence emphasis
+  evidence: practitioner
+  freshness: evergreen
+  summary: Order and deliberate variation distribute a sentence’s emphasis.
+  points:
+  - text: Strunk objects to a succession of similar loose sentences because the pattern becomes monotonous.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶176
+  - text: Strunk chooses varied structures to represent the actual relations of the thought.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶180
+  - text: Strunk generally gives the sentence’s prominent end position to its new element.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶248
+  quotes:
+  - text: This rule refers especially to loose sentences of a particular type, those consisting of two co-ordinate
+      clauses, the second introduced by a conjunction or relative.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶176
+  - text: If the writer finds that he has written a series of sentences of the type described, he should recast
+      enough of them to remove the monotony, replacing them by simple sentences, by sentences of two
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶180
+  - text: The word or group of words entitled to this position of prominence is usually the logical predicate, that
+      is, the new element in the sentence, as it is in the second example.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+      at: ¶248
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Strunk recognizes that periodicals can have different title conventions from scholarly usage.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶39
+  quotes:
+  - text: For the titles of literary works, scholarly usage prefers italics with capitalized initials.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶39
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: Strunk leaves space after a manuscript heading.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶3
+  - text: Strunk writes dates and serial numbers in figures or suitable Roman notation.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶5
+  - text: Strunk recognizes that periodicals can have different title conventions from scholarly usage.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶39
+  quotes:
+  - text: Leave a blank line, or its equivalent in space, after the title or heading of a manuscript.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶3
+  - text: Do not spell out dates or other serial numbers.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶5
+  - text: For the titles of literary works, scholarly usage prefers italics with capitalized initials.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶39
+- slug: punctuation-and-attachment
+  type: topic
+  name: Punctuation and attachment
+  evidence: practitioner
+  freshness: evergreen
+  summary: Punctuation and word order express grammatical relationships.
+  points:
+  - text: Strunk punctuates the sentence outside a parenthesis as if its contents were absent.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶11
+  - text: Strunk puts a detached parenthetical sentence’s final stop inside the closing mark.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶14
+  - text: Strunk introduces formal documentary quotations with a colon.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶16
+  - text: Strunk precedes appositive or direct-object quotations with a comma.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶18
+  - text: Strunk treats quotations introduced by that as indirect discourse without quotation marks.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶25
+  quotes:
+  - text: A sentence containing an expression in parenthesis is punctuated, outside of the marks of parenthesis,
+      exactly as if the expression in parenthesis were absent.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶11
+  - text: (When a wholly detached expression or sentence is parenthesized, the final stop comes before the last
+      mark of parenthesis.)
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶14
+  - text: Formal quotations, cited as documentary evidence, are introduced by a colon and enclosed in quotation
+      marks.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶16
+  - text: Quotations grammatically in apposition or the direct objects of verbs are preceded by a comma and enclosed
+      in quotation marks.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶18
+  - text: Quotations introduced by that are regarded as in indirect discourse and not enclosed in quotation marks.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-form-wikisource-the-free-online-librar
+      at: ¶25
+- slug: circumlocution
+  type: glossary
+  name: Circumlocution
+  evidence: practitioner
+  freshness: evergreen
+  summary: A roundabout expression can conceal a thought that direct speech would reveal.
+  points:
+  - text: Strunk reduces as to whether to whether.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶10
+  - text: Strunk considers case usually unnecessary in two common senses.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶14
+  quotes:
+  - text: Whether is sufficient; see under Rule 13.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶10
+  - text: 'The Concise Oxford Dictionary begins its definition of this word: "instance of a thing''s occurring;
+      usual state of affairs." In these two senses, the word is usually unnecessary.'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶14
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: Strunk treats indiscriminate certainly as a mannerism.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶21
+  - text: Strunk distinguishes laying claim from declaring, maintaining or charging.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶27
+  quotes:
+  - text: Used indiscriminately by some speakers, much as others use very, to intensify any and every statement.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶21
+  - text: With object-noun, means lay claim to.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶27
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: Strunk spells all right as two words in the uses he discusses.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶4
+  - text: Strunk distinguishes compare to for resemblance from compare with for difference.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶29
+  quotes:
+  - text: Idiomatic in familiar speech as a detached phrase in the sense, "Agreed," or "Go ahead." In other uses
+      better avoided.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶4
+  - text: To compare to is to point out or imply resemblances, between objects regarded as essentially of different
+      order; to compare with is mainly to point out differences, between objects regarded as essentially of the
+      same
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶29
+- slug: jargon-audit
+  type: method
+  name: Audit jargon
+  evidence: practitioner
+  freshness: evergreen
+  summary: Look for circumlocution and empty abstraction, then express the actual thought.
+  points:
+  - text: Strunk distinguishes bad style from bad English and calls for definite statement in place of vague generality.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶2
+  - text: Strunk considers case usually unnecessary in two common senses.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶14
+  - text: Strunk calls character often redundant padding.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶23
+  quotes:
+  - text: (Many of the words and expressions here listed are not so much bad English as bad style, the commonplaces
+      of careless writing.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶2
+  - text: 'The Concise Oxford Dictionary begins its definition of this word: "instance of a thing''s occurring;
+      usual state of affairs." In these two senses, the word is usually unnecessary.'
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶14
+  - text: Often simply redundant, used from a mere habit of wordiness.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶23
+- slug: rule-omit-needless-words
+  type: rule
+  name: Omit needless words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Keep the detail that earns its place and remove empty verbal padding.
+  status: bench
+  points:
+  - text: Strunk reduces as to whether to whether.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶10
+  - text: Strunk calls character often redundant padding.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶23
+  quotes:
+  - text: Whether is sufficient; see under Rule 13.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶10
+  - text: Often simply redundant, used from a mere habit of wordiness.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶23
+- slug: rule-prefer-concrete-words
+  type: rule
+  name: Prefer concrete words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Prefer concrete expression when an abstraction hides the actual subject.
+  status: bench
+  points:
+  - text: Strunk distinguishes bad style from bad English and calls for definite statement in place of vague generality.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶2
+  quotes:
+  - text: (Many of the words and expressions here listed are not so much bad English as bad style, the commonplaces
+      of careless writing.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misuse-wikisource-the-free-online-libr
+      at: ¶2
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: Strunk lists accidentally among the spellings to watch.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶2
+  - text: Strunk lists privilege.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶4
+  - text: Strunk lists separate.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶28
+  - text: Strunk lists necessary.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶36
+  - text: Strunk lists occurred.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶39
+  - text: Strunk lists parallel.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶42
+  - text: Strunk prescribes hyphens in to-day, to-night and to-morrow.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶58
+  - text: Strunk prescribes separate words for any one, every one and some one.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶59
+  quotes:
+  - text: accidentally
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶2
+  - text: privilege
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶4
+  - text: separate
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶28
+  - text: necessary
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶36
+  - text: occurred
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶39
+  - text: parallel
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶42
+  - text: Write to-day, to-night, to-morrow (but not together) with hyphen.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶58
+  - text: Write any one, every one, some one, some time (except the sense of formerly) as two words.
+    speaker: William Strunk Jr.
+    cite:
+      raw: library/strunk/raw/web/00000000-the-elements-of-style-misspelling-wikisource-the-free-online
+      at: ¶59
+conflicts:
+- text: 'Different emphasis, not opposition: Strunk preserves detail while teaching economy; Quiller-Couch also
+    defends beauty and expressive range.'
+  kind: different-emphasis
+  cites:
+  - raw: library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online
+    at: ¶136
+  - raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+    at: p. 60
+speaker_doubts: []

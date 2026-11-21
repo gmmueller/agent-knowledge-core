@@ -1,0 +1,408 @@
+batch: fowler
+items:
+- item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  page: fowler-general-principles
+  kind: source
+  speakers:
+    H. W. Fowler and F. G. Fowler: author
+  paragraphs: 1-48
+- item: fowler/web-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli
+  page: fowler-vocabulary-in-use
+  kind: source
+  speakers:
+    H. W. Fowler and F. G. Fowler: author
+  paragraphs: 49-342
+concepts:
+- slug: circumlocution
+  type: glossary
+  name: Circumlocution
+  evidence: practitioner
+  freshness: evergreen
+  summary: A roundabout expression can conceal a thought that direct speech would reveal.
+  points:
+  - text: The Fowlers prefer a single word to a circumlocution.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  quotes:
+  - text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single
+      word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+- slug: clear-prose
+  type: topic
+  name: Clear prose
+  evidence: practitioner
+  freshness: evergreen
+  summary: Practical clarity is a teachable aim, bounded by purpose and genre.
+  points:
+  - text: The Fowlers put directness, simplicity, brevity, vigour and lucidity before showiness.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶4
+  quotes:
+  - text: Any one who wishes to become a good writer should endeavour, before he allows himself to be tempted by
+      the more showy qualities, to be direct, simple, brief, vigorous, and lucid.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶4
+- slug: concrete-language
+  type: glossary
+  name: Concrete language
+  evidence: practitioner
+  freshness: evergreen
+  summary: Concrete language names the particulars behind an abstraction.
+  points:
+  - text: The Fowlers prefer concrete to abstract words.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  quotes:
+  - text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single
+      word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: The Fowlers prefer familiar to far-fetched vocabulary.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  - text: The Fowlers preserve important shades of meaning and register, and warn against monotonous application
+      of the preferences.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶47
+  quotes:
+  - text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single
+      word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  - text: By way of general rules for the choice of words, so much must suffice.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶47
+- slug: economy-without-compression
+  type: principle
+  name: Economy without compression
+  evidence: practitioner
+  freshness: evergreen
+  summary: Concision removes wasted work while retaining necessary detail.
+  points:
+  - text: The Fowlers preserve important shades of meaning and register, and warn against monotonous application
+      of the preferences.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶47
+  quotes:
+  - text: By way of general rules for the choice of words, so much must suffice.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶47
+- slug: jargon-audit
+  type: method
+  name: Audit jargon
+  evidence: practitioner
+  freshness: evergreen
+  summary: Look for circumlocution and empty abstraction, then express the actual thought.
+  points:
+  - text: The Fowlers say heavily abstract sentences often need restructuring rather than word substitution.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶10
+  quotes:
+  - text: We will now proceed to a few examples of how not to write, roughly classified under the five headings,
+      though, after what has been said, it will cause no surprise that most of them might
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶10
+- slug: meaning-before-etymology
+  type: principle
+  name: Meaning before etymology
+  evidence: practitioner
+  freshness: evergreen
+  summary: Reader understanding takes priority over the ancestry of a word.
+  points:
+  - text: The Fowlers rank the Saxon preference last and reject substituting an unfamiliar native word for familiar
+      English.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶7
+  quotes:
+  - text: These rules are given roughly in order of merit; the last is also the least.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶7
+- slug: reader-attention
+  type: principle
+  name: Reader attention
+  evidence: practitioner
+  freshness: evergreen
+  summary: The writer’s choices should reduce the reader’s avoidable interpretive work.
+  points:
+  - text: The Fowlers select words the probable reader understands without wasted time or thought.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶9
+  quotes:
+  - text: It is now perhaps clear that the Saxon oracle is not infallible; it will sometimes be dumb, and sometimes
+      lie.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶9
+- slug: revision-pass
+  type: method
+  name: A revision pass
+  evidence: practitioner
+  freshness: evergreen
+  summary: Review meaning, structure and expression in a deliberate sequence.
+  points:
+  - text: The Fowlers say heavily abstract sentences often need restructuring rather than word substitution.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶10
+  quotes:
+  - text: We will now proceed to a few examples of how not to write, roughly classified under the five headings,
+      though, after what has been said, it will cause no surprise that most of them might
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶10
+- slug: rule-omit-needless-words
+  type: rule
+  name: Omit needless words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Keep the detail that earns its place and remove empty verbal padding.
+  status: bench
+  points:
+  - text: The Fowlers prefer a single word to a circumlocution.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  quotes:
+  - text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single
+      word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+- slug: rule-prefer-concrete-words
+  type: rule
+  name: Prefer concrete words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Prefer concrete expression when an abstraction hides the actual subject.
+  status: bench
+  points:
+  - text: The Fowlers prefer concrete to abstract words.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  quotes:
+  - text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single
+      word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+- slug: rule-prefer-familiar-words
+  type: rule
+  name: Prefer familiar words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Prefer the word a reader understands readily when it expresses the intended meaning.
+  status: bench
+  points:
+  - text: The Fowlers prefer familiar to far-fetched vocabulary.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  - text: The Fowlers select words the probable reader understands without wasted time or thought.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶9
+  quotes:
+  - text: Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single
+      word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶6
+  - text: It is now perhaps clear that the Saxon oracle is not infallible; it will sometimes be dumb, and sometimes
+      lie.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶9
+- slug: diction-and-register
+  type: topic
+  name: Diction and register
+  evidence: practitioner
+  freshness: evergreen
+  summary: Word choice must fit meaning, audience and occasion.
+  points:
+  - text: The Fowlers regard new words as a sign of living language while calling for scrutiny of each newcomer.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶50
+  - text: The Fowlers recognize new scientific things require new names.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶51
+  - text: The Fowlers distinguish nonce-word motives such as precision from avoidance of the obvious.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶52
+  - text: The Fowlers allow a foreign expression when it offers the shortest or clearest meaning, or a special association.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶99
+  - text: The Fowlers allow slang in conversation and characterization while limiting it in a narrator’s prose.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶259
+  quotes:
+  - text: Most people of literary taste will say on this point 'It must needs be that offences come; but woe to
+      that man by whom the offence cometh'.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶50
+  - text: The progress of arts and sciences gives occasion for the large majority of new words; for a new thing
+      we must have a new name; hence, for instance, motor, argon, appendicitis.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶51
+  - text: Among other arts and sciences, that of lexicography happens to have found convenient a neologism that
+      may here be used to help in the very slight classification required for the new words we are more
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶52
+  - text: The usual protest must be made, to be treated no doubt with the usual disregard.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶99
+  - text: The place of slang is in real life.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶259
+- slug: historical-usage
+  type: topic
+  name: Historical usage
+  evidence: practitioner
+  freshness: dated
+  summary: The sources record early twentieth-century conventions rather than current universal standards.
+  points:
+  - text: The Fowlers treat Americanisms as foreign to their British editorial norm, even while praising fall on
+      its merits.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶82
+  - text: The Fowlers advocate keeping English and American literary usage apart in their historical setting.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶87
+  quotes:
+  - text: Though we take these separately from foreign words, which will follow next, the distinction is purely
+      pro forma; Americanisms are foreign words, and should be so treated.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶82
+  - text: The words are, as we said, extremely efficient; but the impulse that selects them is in harmony with American,
+      not with English, methods, and we hope it may be developed in America rather than here.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶87
+- slug: meaning-before-etymology
+  type: principle
+  name: Meaning before etymology
+  evidence: practitioner
+  freshness: evergreen
+  summary: Reader understanding takes priority over the ancestry of a word.
+  points:
+  - text: The Fowlers treat Americanisms as foreign to their British editorial norm, even while praising fall on
+      its merits.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶82
+  quotes:
+  - text: Though we take these separately from foreign words, which will follow next, the distinction is purely
+      pro forma; Americanisms are foreign words, and should be so treated.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶82
+- slug: rule-prefer-familiar-words
+  type: rule
+  name: Prefer familiar words
+  evidence: practitioner
+  freshness: evergreen
+  summary: Prefer the word a reader understands readily when it expresses the intended meaning.
+  status: bench
+  points:
+  - text: The Fowlers criticize foreign ornament used where suitable English can be found.
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶101
+  quotes:
+  - text: '1.'
+    speaker: H. W. Fowler and F. G. Fowler
+    cite:
+      raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+      at: ¶101
+conflicts:
+- text: Quiller-Couch objects to hybrid technical coinages; the Fowlers subordinate impeccable formation to practical
+    qualities in necessary scientific names.
+  cites:
+  - raw: library/quiller-couch/raw/book/on-the-art-of-writing-selected
+    at: p. 58
+  - raw: library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120
+    at: ¶51
+speaker_doubts: []
