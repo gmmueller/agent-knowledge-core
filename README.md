@@ -11,7 +11,12 @@ There are two kinds of brain:
 
 It is built on Andrej Karpathy's "LLM wiki" idea, extended with a crawl → transcribe → ingest → merge → persona → eval pipeline, verification tooling, and parallel delegation to cheaper models for the volume work.
 
-> **Use it only on material you have the right to use.** Brains live in your own private workspace, never in this repo. Paid course content is typically licensed for personal use: don't publish brains built from it.
+## Use it responsibly
+
+- **Use it only on material you have the right to use.** That means your own content, openly licensed or public-domain material, or courses and communities you have paid for and may use personally.
+- **The course and community crawlers are personal-use tools.** They drive *your own* logged-in browser session, see only what your account can see, and never handle your password. Read the platform's terms before you crawl it, keep request rates low, and don't use them to get around a paywall or access you don't have.
+- **Keep brains private.** Your brains live in your own private workspace, never in this repo. Paid course content is typically licensed for personal use only: don't publish, share or sell brains built from it.
+- The example brain in [`examples/`](examples/) is built only from public-domain books.
 
 ## How it works
 
@@ -73,6 +78,16 @@ my-brains/
   my-course/            a persona brain: brain.md, sources.yaml, crawl.yaml, outline.yaml, raw/, wiki/, media/ (gitignored)
   my-topic/             a topic brain: brain.md, selection.yaml, evals.md, ingest/, wiki/ (cites library/)
 ```
+
+## One core, every project
+
+The workspace is the single home for everything your agents know from these sources. You build each brain once, there, and every agent in every project consults that same copy.
+
+- **Thin skills, live brains.** `generate_persona.py` writes a small skill (`SKILL.md`, plus `agents/openai.yaml` for Codex) into your agent's **user-level** skills folder, for example `~/.claude/skills/` for Claude Code. The skill holds no knowledge itself. It points by absolute path at the brain's `brain.md`, `wiki/` and sources, and the agent reads them at the moment it uses the skill.
+- **Every project sees the same brain.** A user-level skill is available in every project on the machine. An agent writing a script in one repo and an agent planning content in another consult the same cited pages.
+- **Update once, everywhere current.** Refresh a brain (`refresh_due.py` says when) and the next use in every project reads the new pages. Regenerate the skill only when `brain.md`'s name, description or scope changes.
+- **Search across all of it.** Index `raw/`, `wiki/` and `library/` with [qmd](https://github.com/tobi/qmd) and any agent can search every brain from one local search server (MCP).
+- **Agents that don't read skills** can still use a brain: point them at `brain.md` and `wiki/index.md` and tell them to follow the "How to use it" steps in the generated `SKILL.md`.
 
 ## Quick start: persona brain
 
