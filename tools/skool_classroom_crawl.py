@@ -140,7 +140,7 @@ def main():
                 raise
             except Exception as e:  # one bad item must not stop a long unattended run; it is retried next run
                 errors += 1
-                print(f"{les["source_id"]}: ERROR {type(e).__name__}: {str(e)[:300]}", flush=True)
+                print(f"{les['source_id']}: ERROR {type(e).__name__}: {str(e)[:300]}", flush=True)
         return
 
     def save_state():

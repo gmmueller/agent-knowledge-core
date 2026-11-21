@@ -14,6 +14,7 @@ import re
 import yaml
 from pypdf import PdfReader
 
+TITLE_PREFIX = r"^(DOWNLOAD|AUDIO( FILE)?):\s*"
 
 
 def references(filename: str, brain: pathlib.Path) -> tuple[list[str], str, str]:
@@ -46,7 +47,7 @@ def write_pdf_raw(src: pathlib.Path, ids: list[str], url: str, title: str, *, br
     front = [
         "---",
         f"source_id: att-{src.stem.replace('_', '-')}",
-        f"title: {json.dumps(re.sub(r'^(DOWNLOAD|AUDIO( FILE)?):\s*', '', title or src.stem, flags=re.I), ensure_ascii=False)}",
+        f"title: {json.dumps(re.sub(TITLE_PREFIX, '', title or src.stem, flags=re.I), ensure_ascii=False)}",
         f"file: {src.name}",
         f"url: {url}",
         f"referenced_by: [{', '.join(ids)}]",
