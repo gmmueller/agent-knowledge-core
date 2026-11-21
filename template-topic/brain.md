@@ -23,6 +23,10 @@ skill:
   description: "Consult the my-topic brain: <scope in one sentence>, compiled from the experts' own words into a cited wiki. Use for <tasks>, or when the user says \"consult my-topic\". Answers cite sources and name whose method."
   short_description: "<One line: what the brain knows>"
   default_prompt: "Use $my-topic to answer this, citing sources and naming whose method it is."
+  # guidance:                 # optional: subject-specific rules rendered under "## This brain's guidance"
+  #   - "State the date on time-sensitive claims and prefer the newest official source."
+  # boundaries:               # optional: extra bullets appended to "## Boundaries"
+  #   - "**No promised outcomes.** Apply the experts' methods; never promise results."
 ---
 
 # My Topic

@@ -10,6 +10,10 @@ skill:
   description: "Consult the expert brain for its domain, or when the user says consult my-course. Answer with citations."
   short_description: "The expert's teachings as a cited persona"
   default_prompt: "Use $my-course to answer from the expert's material, with citations."
+  # guidance:                 # optional: subject-specific rules rendered under "## This brain's guidance"
+  #   - "State the date on time-sensitive claims and prefer the newest source."
+  # boundaries:               # optional: extra bullets appended to "## Boundaries"
+  #   - "**No promised outcomes.** Give the expert's method; never promise results."
 ---
 
 # <Name>

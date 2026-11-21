@@ -15,7 +15,7 @@ Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py …` (with 
 | 5 | **Verify crawl.** Compare counts against the outline, check for empty or short transcripts, retry failures | `crawl-log.md` | Mechanical worker / script |
 | 6 | **Ingest.** Apply the LLM Wiki pattern, one module per task in parallel, then a merge pass | `wiki/` | Volume workers; orchestrator merges |
 | 7 | **Extract rules.** Principles, frameworks and rules with quotes; bench vs active | `brain.md`, `wiki/rules/` | orchestrator |
-| 8 | **Generate.** Skill from `brain.md` into the explicit output directory (`--out` or `AGENT_KNOWLEDGE_CORE_SKILLS_DIR`) | agent files | orchestrator |
+| 8 | **Generate.** Skill from `brain.md` into the explicit output directory (`--out` or `AGENT_KNOWLEDGE_CORE_SKILLS_DIR`). Read any `consider skill.guidance:` suggestions, add what fits to `brain.md`, and regenerate | agent files | orchestrator |
 | 9 | **Evaluate.** 5–10 questions with known answers; check citations, drift and inference labels | `evals.md` | orchestrator + user |
 | 10 | **Search.** Index `raw/` + `wiki/` with qmd once the brain is past about 100 sources | qmd collection | script |
 
@@ -36,7 +36,7 @@ library → catalogue → triage → fetch → speaker pass → ingest waves →
 | 9 | **Debates.** One page per question on which sources disagree | `briefs/debates-brief.md` | `wiki/debates/` | volume workers |
 | 10 | **Rule audit.** Recount rule status by independent voice, lint, rebuild the index | `rule_status.py --write`, `lint_wiki.py --fix-slug-map`, `build_wiki_index.py` | `wiki/rules/`, `index.md` | orchestrator |
 | 11 | **Rubrics** (optional). Calibrate scoring checklists with two cold graders | `rubric_agreement.py` | `wiki/rubrics/`, `rubric-calibration/` | volume workers + orchestrator |
-| 12 | **Draft skill and evaluate.** Generate a draft skill, run cold evals with a fresh agent (including traps), check quotes, fix gaps | `generate_persona.py`, `evals.md`, `verify_eval_quotes.py` | draft skill, `evals-run-<date>.md` | orchestrator |
+| 12 | **Draft skill and evaluate.** Generate a draft skill; read any `consider skill.guidance:` suggestions, add what fits to `brain.md`, and regenerate; run cold evals with a fresh agent (including traps), check quotes, fix gaps | `generate_persona.py`, `evals.md`, `verify_eval_quotes.py` | draft skill, `evals-run-<date>.md` | orchestrator |
 | 13 | **Final skill and search.** Regenerate the skill if `brain.md` or rule counts changed; index the wiki and library with qmd | `generate_persona.py`, qmd | skill, qmd collections | orchestrator / script |
 | 14 | **Keep current.** Re-catalogue, triage the new rows, ingest a new wave | `docs/updates.md`, `refresh_due.py` | updated wiki | as above |
 

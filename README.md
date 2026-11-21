@@ -86,9 +86,10 @@ my-brains/
 
 The workspace is the single home for everything your agents know from these sources. You build each brain once, there, and every agent in every project consults that same copy.
 
-- **Thin skills, live brains.** `generate_persona.py` writes a small skill (`SKILL.md`, plus `agents/openai.yaml` for Codex) into your agent's **user-level** skills folder, for example `~/.claude/skills/` for Claude Code. The skill holds no knowledge itself. By default it points by absolute path at the brain's `brain.md`, `wiki/` and sources, and the agent reads them at use time (pass `--relative-to <dir>` for a portable sample skill). Topic-brain skills mention annotated examples and platform evidence only when the brain has them.
+- **Thin skills, live brains.** `generate_persona.py` writes a small skill (`SKILL.md`, plus `agents/openai.yaml` for Codex) into your agent's **user-level** skills folder, for example `~/.claude/skills/` for Claude Code. The skill holds no knowledge itself. By default it points by absolute path at the brain's `brain.md`, `wiki/` and sources, and the agent reads them at use time (pass `--relative-to <dir>` for a portable sample skill).
+- **Subject-neutral core, per-brain rules.** The generated wording is subject-neutral (topic brains link `wiki/examples/` automatically when present). Each brain adds its own guidance and boundaries in `brain.md` (`skill.guidance`, `skill.boundaries`), and the generator prints `consider skill.guidance:` suggestions based on the brain's contents when none are set yet.
 - **Every project sees the same brain.** A user-level skill is available in every project on the machine. An agent writing a script in one repo and an agent planning content in another consult the same cited pages.
-- **Update once, everywhere current.** Refresh a brain (`refresh_due.py` says when) and the next use in every project reads the new pages. Regenerate the skill only when `brain.md`'s name, description or scope changes.
+- **Update once, everywhere current.** Refresh a brain (`refresh_due.py` says when) and the next use in every project reads the new pages. Regenerate the skill when `brain.md` (`skill:` settings, name or scope) or rule counts change.
 - **Search across all of it.** Index `raw/`, `wiki/` and `library/` with [qmd](https://github.com/tobi/qmd) and any agent can search every brain from one local search server (MCP).
 - **Agents that don't read skills** can still use a brain: point them at `brain.md` and `wiki/index.md` and tell them to follow the "How to use it" steps in the generated `SKILL.md`.
 
@@ -259,7 +260,7 @@ See [`examples/README.md`](examples/README.md) for a full text-only topic brain.
 |---|---|
 | `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`); rebuild `index.md` |
 | `verify_eval_quotes.py`, `rubric_agreement.py` | check quotes in eval answers; compare two graders' rubric scores |
-| `generate_persona.py` | `brain.md` → skill (`SKILL.md` + agent metadata), persona or topic version (`--relative-to <dir>` writes portable relative paths; omits example/platform notes when absent) |
+| `generate_persona.py` | `brain.md` → subject-neutral skill (`SKILL.md` + agent metadata), persona or topic version; reads optional `skill.guidance` and `skill.boundaries` from `brain.md`, prints `consider skill.guidance:` hints when none are set, links `wiki/examples/` when present (`--relative-to <dir>` writes portable relative paths) |
 | `refresh_due.py` | which brains, sources or tool pages are due for a refresh (per-brain on/off switch, per-source cadence) |
 | `install_qmd.ps1` | install qmd and run it under Bun on Windows (macOS/Linux: `npm install -g @tobilu/qmd`) |
 
