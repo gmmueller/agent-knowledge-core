@@ -135,17 +135,32 @@ class ExampleFixes(unittest.TestCase):
         self.assertNotIn("Outside", text)
         self.assertEqual(self.front(path)["publication_precision"], "year")
 
-    def test_topic_loader_conditionals_and_legacy_template(self):
-        fm = {"evidence_types": ["practitioner"]}
-        neutral = persona.topic_template(self.brain, fm)
-        for text in ("official platform documentation", "annotated videos", "algorithm claim", "views or virality", "job and platform"):
-            self.assertNotIn(text, neutral)
+    def test_core_templates_are_subject_neutral(self):
+        for template in (persona.SKILL, persona.TOPIC_SKILL):
+            for text in ("platform", "video", "views", "virality", "algorithm"):
+                self.assertNotIn(text, template.lower())
+
+    def test_brain_guidance_boundaries_and_examples_folder(self):
+        fm = {"skill": {"guidance": ["Date every platform claim."], "boundaries": ["Never promise results."]}}
+        values = persona.customization(self.brain, fm)
+        self.assertEqual(values["examples_folder"], "")
+        self.assertIn("## This brain's guidance\n\n- Date every platform claim.\n", values["guidance"])
+        self.assertEqual(values["boundaries"], "- Never promise results.\n")
         self.write(self.brain / "wiki/examples/demo.md", "---\ntype: example\n---\n")
-        self.assertEqual(persona.topic_template(self.brain, {"evidence_types": ["official", "example"]}), persona.TOPIC_SKILL)
-        no_official = persona.topic_template(self.brain, fm)
-        self.assertNotIn("plus official platform documentation", no_official)
-        self.assertNotIn("Platform behaviour comes from official pages", no_official)
-        self.assertIn("annotated videos", no_official)
+        values = persona.customization(self.brain, {})
+        self.assertIn("worked examples are in `examples/`", values["examples_folder"])
+        self.assertEqual((values["guidance"], values["boundaries"]), ("", ""))
+        with self.assertRaises(ValueError):
+            persona.customization(self.brain, {"skill": {"guidance": [3]}})
+
+    def test_suggestions_follow_brain_contents_and_stop_once_guidance_exists(self):
+        self.write(self.brain / "wiki/topics/fact.md", "---\ntype: topic\nfreshness: platform\n---\n")
+        fm = {"evidence_types": ["practitioner", "official"], "hosts": ["Interviewer"]}
+        hints = " | ".join(persona.suggestions(self.brain, fm))
+        for text in ("official sources", "time-sensitive", "practitioner's claim", "interviewers"):
+            self.assertIn(text, hints)
+        self.assertEqual(persona.suggestions(self.brain, {**fm, "skill": {"guidance": ["x"]}}), [])
+        self.assertEqual(persona.suggestions(self.brain / "missing", {}), [])
 
     def test_relative_paths_for_topic_and_persona_default_unchanged(self):
         for kind in ("topic", "course"):

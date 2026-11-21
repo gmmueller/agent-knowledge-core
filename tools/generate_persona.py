@@ -4,6 +4,9 @@ Usage: python -I tools/generate_persona.py --brain <brain-folder> --out <skills-
 The output root can instead be supplied by AGENT_KNOWLEDGE_CORE_SKILLS_DIR.
 Optional <workspace>/workspace.yaml `user_persona_skills: [name, ...]` names the user's own persona skills,
 so the generated skill can point at them ("e.g. ...") when it says to keep the two views apart.
+The core wording is subject-neutral. Optional brain.md `skill.guidance: [...]` adds a "This brain's guidance"
+section and `skill.boundaries: [...]` adds boundary bullets, for anything specific to the brain's subject.
+When a brain has no guidance yet, the tool prints content-based suggestions ("consider skill.guidance: ...").
 Writes <out>/<name>/SKILL.md and <out>/<name>/agents/openai.yaml.
 Re-run after brain.md changes; never hand-edit generated files.
 """
@@ -41,14 +44,14 @@ A persona compiled from primary sources into a cited wiki. Its knowledge lives i
 2. **Look up.** Open the concept pages the question touches, then their source pages or raw transcripts for exact quotes. For a broad question that needs many pages, do the reading in a subagent (one hop) and have it return a cited answer, which keeps the main context small.
 3. **Answer** by following the persona card's **Task loop**: clarify the goal and situation, find the matching framework, answer in the persona's structure and voice, check the advice against its rules, and flag limits.
 4. **Cite** claims and quotes as wiki page names or `([[raw/<path>]] @ m:ss)` (or the other citation forms the persona card lists), writing the full path every time (no "same lesson" shorthand), so citations can be checked. Quotes must be exact. A quote with no speaker name is {persona}'s; anyone else's is labelled on the quote line, so keep the label.
-5. **Stay inside the material.** Anything the wiki doesn't support is **Inference:**. Say "the material doesn't cover this" rather than inventing an answer. Numbers and platform details are as recorded in the course, so note when they may be out of date.
-
+5. **Stay inside the material.** Anything the wiki doesn't support is **Inference:**. Say "the material doesn't cover this" rather than inventing an answer. Numbers and details are as recorded in the material, so note when they may be out of date.
+{guidance}
 ## Boundaries
 
 - **Read-only.** Don't edit the brain from here. Updates go through the brains repo (`docs/updates.md`: refresh, ingest, lint).
 - **Separate voice.** This is what {persona}'s material teaches. Keep it distinct from the user's own persona skills{own_skills}. When both are used, say which view is which.
 - **No side effects.** Advice and drafts only: no posting, spending or account changes because the persona recommends it.
-"""
+{boundaries}"""
 
 
 TOPIC_SKILL = """---
@@ -60,51 +63,79 @@ description: {description}
 
 # {display_name}
 
-A topic specialist compiled from several experts' own material ({experts}) plus official platform documentation, into a cited wiki. It has no imitated voice: it applies the experts' methods and says whose method each step comes from. Its knowledge lives in the brain folder, not in this file:
+A topic specialist compiled from several experts' own material ({experts}) into a cited wiki. It has no imitated voice: it applies the experts' methods and says whose method each step comes from. Its knowledge lives in the brain folder, not in this file:
 
 - **Brain card:** `{brain_md}`: scope, experts, extraction areas, task loop and boundaries.
-- **Wiki:** `{wiki}`. Start at `index.md`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/` ({n_consensus} consensus, {n_active} active, {n_bench} bench), `rubrics/`, `debates/` and `glossary/`; annotated videos are in `examples/`; per-source pages are in `sources/`.
+- **Wiki:** `{wiki}`. Start at `index.md`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/` ({n_consensus} consensus, {n_active} active, {n_bench} bench), `rubrics/`, `debates/` and `glossary/`;{examples_folder} per-source pages are in `sources/`.
 - **Library:** `{library}`. Transcripts and pages shared across brains, cited as `[[library/<publisher>/raw/...]]`.
 
 ## How to use it
 
 1. **Load.** Read `brain.md` in full the first time this skill is used in a task, then `wiki/index.md`.
-2. **Look up.** Open the concept, rule and rubric pages the request touches, plus examples when a demonstration helps. Go to source pages or library transcripts for exact quotes. For a broad request that needs many pages, do the reading in a subagent (one hop) and have it return a cited answer, to keep the main context small.
-3. **Do the work** following the brain card's **Task loop**: clarify the job and platform, apply the experts' methods (naming whose), check the result against the relevant rubric, and show the check.
-4. **Weigh the evidence.** Prefer `consensus` rules (several experts agree), then `active`, then `bench`. When experts disagree, present the debate page's positions instead of picking silently. Platform behaviour comes from official pages (`evidence: official`), with their dates. A creator's algorithm claim is that creator's observation, so label it.
+2. **Look up.** Open the concept, rule and rubric pages the request touches{examples_lookup}. Go to source pages or library transcripts for exact quotes. For a broad request that needs many pages, do the reading in a subagent (one hop) and have it return a cited answer, to keep the main context small.
+3. **Do the work** following the brain card's **Task loop**: clarify the job and context, apply the experts' methods (naming whose), check the result against the relevant rubric, and show the check.
+4. **Weigh the evidence.** Prefer `consensus` rules (several experts agree), then `active`, then `bench`. When experts disagree, present the debate page's positions instead of picking silently.
 5. **Cite** as wiki page names or `([[library/<publisher>/raw/<path>]] @ <block>)`, writing the full path every time. Quotes are exact and always name their speaker: copy them from the source or raw text, and if you paraphrase, drop the quote marks.
-6. **Stay inside the material.** Anything the wiki doesn't support is **Inference:**. Say "the material doesn't cover this" rather than inventing numbers, rates or platform rules. Never promise views or virality.
-
+6. **Stay inside the material.** Anything the wiki doesn't support is **Inference:**. Say "the material doesn't cover this" rather than inventing facts or rules.
+{guidance}
 ## Boundaries
 
 - **Read-only.** Don't edit the brain from here. Updates go through the brains repo (`docs/updates.md`, `docs/library.md`).
 - **Scope.** Hand off what the brain card lists as out of scope to the named sibling brain, or say it's outside this brain.
 - **Separate from the user's own persona skills**{own_skills}: when both are used, say which view is which.
 - **No side effects.** Advice and drafts only: no posting, spending or account changes.
-"""
+{boundaries}"""
 
 
-def topic_template(brain, fm):
-    """Keep the established loader verbatim where its evidence and examples exist."""
-    template = TOPIC_SKILL
-    evidence = fm.get("evidence_types") or []
-    official = "official" in evidence or bool(fm.get("official"))
+def _lines(value, key):
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = [value]
+    if not isinstance(value, list) or not all(isinstance(v, str) and v.strip() for v in value):
+        raise ValueError(f"brain.md skill.{key} must be a list of non-empty strings")
+    return [v.strip() for v in value]
+
+
+def customization(brain, fm):
+    """Template values that come from the brain itself: its folders and its own skill.guidance / skill.boundaries.
+
+    The core wording stays subject-neutral. Anything specific to a brain's subject (platforms, safety limits,
+    house rules) belongs in that brain's brain.md under skill.guidance (extra instructions) and skill.boundaries
+    (extra boundary bullets), so it reaches only that brain's skill.
+    """
+    skill = fm.get("skill") or {}
+    guidance = _lines(skill.get("guidance"), "guidance")
+    boundaries = _lines(skill.get("boundaries"), "boundaries")
     examples = any((brain / "wiki" / "examples").glob("*.md"))
-    platform = examples or bool(fm.get("platforms")) or any(
-        re.search(r"^freshness:\s*platform\s*$", p.read_text(encoding="utf-8"), re.M)
-        for p in (brain / "wiki").rglob("*.md"))
-    if not official:
-        template = template.replace(" plus official platform documentation,", "")
-        template = template.replace(" Platform behaviour comes from official pages (`evidence: official`), with their dates.", "")
-    if not examples:
-        template = template.replace("; annotated videos are in `examples/`", "")
-        template = template.replace(", plus examples when a demonstration helps", "")
-    if not platform:
-        template = template.replace("clarify the job and platform", "clarify the job and context")
-        template = template.replace(" Platform behaviour comes from official pages (`evidence: official`), with their dates.", "")
-        template = template.replace(" A creator's algorithm claim is that creator's observation, so label it.", "")
-        template = template.replace("numbers, rates or platform rules. Never promise views or virality.", "facts or rules.")
-    return template
+    return {
+        "examples_folder": " worked examples are in `examples/`;" if examples else "",
+        "examples_lookup": ", plus examples when a demonstration helps" if examples else "",
+        "guidance": ("\n## This brain's guidance\n\n" + "".join(f"- {g}\n" for g in guidance)) if guidance else "",
+        "boundaries": "".join(f"- {b}\n" for b in boundaries),
+    }
+
+
+def suggestions(brain, fm):
+    """Content-based hints for skill.guidance, printed (never written) when the brain has none yet."""
+    if (fm.get("skill") or {}).get("guidance"):
+        return []
+    hints = []
+    wiki = brain / "wiki"
+    pages = [p.read_text(encoding="utf-8") for p in wiki.rglob("*.md")] if wiki.is_dir() else []
+    evidence = [str(e) for e in fm.get("evidence_types") or []]
+    if "official" in evidence or fm.get("official"):
+        hints.append("the brain cites official sources: say when they outrank practitioner claims, and to give their dates")
+    dated = sum(1 for t in pages if re.search(r"^freshness:\s*(?!evergreen\b)\S+", t, re.M))
+    if dated:
+        hints.append(f"{dated} pages are marked time-sensitive (freshness): say to date such claims and prefer the newest source")
+    if any((wiki / "examples").glob("*.md")):
+        hints.append("the brain has worked examples: say what they show and what they don't (one case doesn't generalise)")
+    if {"practitioner", "creator"} & set(evidence) and ("official" in evidence or fm.get("official")):
+        hints.append("practitioners and official sources both appear: say how to label a practitioner's claim about how a system works")
+    if fm.get("hosts"):
+        hints.append("the brain has interviewers (hosts): their claims never back a rule, so say how to treat them in answers")
+    return hints
 
 
 def main() -> None:
@@ -149,7 +180,11 @@ def main() -> None:
         ap.error("brain.md name must be a kebab-case slug")
     out = pathlib.Path(a.out).expanduser().resolve() / name
     (out / "agents").mkdir(parents=True, exist_ok=True)
-    template = topic_template(brain, fm) if fm.get("kind") == "topic" else SKILL
+    try:
+        values.update(customization(brain, fm))
+    except ValueError as error:
+        ap.error(str(error))
+    template = TOPIC_SKILL if fm.get("kind") == "topic" else SKILL
     rendered = template.format(**values)
     if a.relative_to is not None:
         comment = "<!-- Portable example: normal generate_persona.py use writes absolute paths for your own machine. Paths here are relative to the --relative-to root; regenerate without that flag for installation elsewhere. -->\n\n"
@@ -160,6 +195,8 @@ def main() -> None:
     (out / "agents" / "openai.yaml").write_text(yaml.safe_dump(openai, sort_keys=False, allow_unicode=True, width=200),
                                                 encoding="utf-8", newline="\n")
     print(f"wrote {out / 'SKILL.md'} and agents/openai.yaml ({len(skill['description'])}-char description)")
+    for hint in suggestions(brain, fm):
+        print(f"consider skill.guidance: {hint}")
 
 
 if __name__ == "__main__":
