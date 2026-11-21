@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
+import raw_guard
 from source_helpers import configure, brain_path, cache_key
 
 import argparse
@@ -111,6 +112,7 @@ def main() -> None:
         body += ["## Lesson page text\n", notes + "\n"]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(front) + "\n".join(body), encoding="utf-8", newline="\n")
+    raw_guard.record_capture(out)
     words = sum(len(t.split()) for _, t in paragraphs(lines))
     print(f"wrote {out.relative_to(brain)}  ({len(lines)} caption lines, {len(body)} blocks, {words} words)")
 

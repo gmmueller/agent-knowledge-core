@@ -16,6 +16,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
+import raw_guard
 
 ROOT: pathlib.Path | None = None
 LIBRARY: pathlib.Path | None = None
@@ -204,6 +205,7 @@ def write_raw(path: pathlib.Path, front: dict, body: str) -> pathlib.Path:
     front.setdefault("captured", dt.date.today().isoformat())
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_front(front) + body, encoding="utf-8", newline="\n")
+    raw_guard.record_capture(path)
     return path
 
 if __name__ == "__main__":

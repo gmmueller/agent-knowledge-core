@@ -15,6 +15,8 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I drops the script dir
 import brainlib
+import wiki_edits
+import raw_guard
 from check_wiki import TYPES, frontmatter
 
 LINK = re.compile(r"\[\[([^\]|#]+?)(?:\|[^\]]*)?\]\]")
@@ -22,7 +24,7 @@ SPECIAL = {"index", "hot", "log"}
 
 
 def pages(wiki: pathlib.Path) -> dict[str, pathlib.Path]:
-    return {p.stem: p for p in wiki.rglob("*.md") if p.stem not in SPECIAL}
+    return {p.stem: p for p in brainlib.wiki_pages(wiki.parent) if p.stem not in SPECIAL}
 
 
 def main() -> None:
@@ -32,10 +34,19 @@ def main() -> None:
     a = ap.parse_args()
     brain = brainlib.brain_dir(a.brain)
     wiki = brain / "wiki"
+    edits = wiki_edits.status(brain)
+    print(f"warning: {len(edits)} human-edited pages; {len(wiki_edits.proposals(brain))} open proposals")
+    roots = [brain / "raw", *raw_guard.cited_raw_dirs(brain)]
+    for raw in roots:
+        changes = raw_guard.check(raw)
+        if changes:
+            print(f"warning: raw changed after capture: re-crawl instead of editing ({raw}: {len(changes)} files)")
     if a.fix_slug_map:
         slug_map = yaml.safe_load((brain / "ingest" / "slug-map.yaml").read_text(encoding="utf-8")) or {}
         n = 0
-        for p in wiki.rglob("*.md"):
+        for p in brainlib.wiki_pages(brain):
+            if wiki_edits.manifest(brain).exists() and p.relative_to(wiki).as_posix() in edits:
+                continue
             t = p.read_text(encoding="utf-8")
             new = LINK.sub(lambda m: m.group(0).replace(m.group(1), slug_map[m.group(1)]) if m.group(1) in slug_map else m.group(0), t)
             if new != t:
@@ -47,6 +58,8 @@ def main() -> None:
     broken = collections.defaultdict(set)
     for name, p in all_pages.items():
         for target in LINK.findall(p.read_text(encoding="utf-8")):
+            if target.startswith("notes/"):
+                continue
             if target.startswith("raw/"):
                 continue
             if target.startswith("library/"):

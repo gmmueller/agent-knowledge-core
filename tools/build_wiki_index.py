@@ -8,6 +8,7 @@ Durations given in seconds in source-page frontmatter are rewritten as m:ss / h:
 """
 import argparse
 import collections
+import datetime as dt
 import pathlib
 import re
 import sys
@@ -16,6 +17,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I drops the script dir
 import brainlib
+import wiki_edits
 
 TYPES = [("topic", "Topics"), ("principle", "Principles"), ("framework", "Frameworks"), ("method", "Methods"),
          ("rule", "Rules"), ("rubric", "Rubrics"), ("debate", "Debates"), ("tool", "Tools and platform facts"),
@@ -75,17 +77,22 @@ def main() -> None:
     brain = brainlib.brain_dir(a.brain)
     products = product_names(brain)
     wiki = brain / "wiki"
+    protected = wiki_edits.protected_pages(brain)
+    written = {}
     fixed = 0
     for p in (wiki / "sources").glob("*.md"):
+        if p.relative_to(wiki).as_posix() in protected:
+            continue
         t = p.read_text(encoding="utf-8")
         m = re.search(r"^duration:\s*['\"]?(\d+(?:\.\d+)?)['\"]?\s*$", t, re.M)
         if m and fmt_duration(m.group(1)):
             t = t[:m.start()] + f'duration: "{fmt_duration(m.group(1))}"' + t[m.end():]
             p.write_text(t, encoding="utf-8", newline="\n")
+            written[p.relative_to(wiki).as_posix()] = wiki_edits.hashes.digest(p)
             fixed += 1
     by_type = collections.defaultdict(list)
     sources = collections.defaultdict(lambda: collections.defaultdict(list))
-    for p in sorted(wiki.rglob("*.md")):
+    for p in sorted(brainlib.wiki_pages(brain)):
         if p.stem in ("index", "hot", "log"):
             continue
         fm, body = split(p.read_text(encoding="utf-8"))
@@ -122,7 +129,20 @@ def main() -> None:
         for module, items in (mods if product in products or product in ("attachments", "other") else sorted(mods, reverse=True)):
             out.append(f"- **{module}**: " + " · ".join(f"[[{s}|{t}]]" for s, t in sorted(items)))
         out.append("")
-    (wiki / "index.md").write_text("\n".join(out), encoding="utf-8", newline="\n")
+    notes = [p for p in brainlib.iter_files(brain / "notes") if p.suffix == ".md"]
+    if notes:
+        out += ["## Your notes", ""]
+        out += [f"- [[{p.relative_to(brain).with_suffix('').as_posix()}]]" for p in notes]
+        out.append("")
+    if "index.md" in protected:
+        proposal = brain / "ingest" / "proposals" / "index.md"
+        if not proposal.exists():
+            brainlib.write_text(proposal, f"# Proposed index rebuild\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/index.md\nWhy: index has human edits; review before replacing.\n\n---\n\n" + "\n".join(out))
+        print("index.md has human edits; proposal: ingest/proposals/index.md")
+    else:
+        (wiki / "index.md").write_text("\n".join(out), encoding="utf-8", newline="\n")
+        written["index.md"] = wiki_edits.hashes.digest(wiki / "index.md")
+    wiki_edits.record(brain, written=written)
     total = sum(len(v) for v in by_type.values())
     print(f"index.md: {total} concept pages, {sum(len(i) for m in sources.values() for i in m.values())} source pages; "
           f"normalised {fixed} durations")

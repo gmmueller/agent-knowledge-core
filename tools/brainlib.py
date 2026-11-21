@@ -11,9 +11,11 @@ Import from a tool with:
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import re
 import shutil
+import stat
 
 import yaml
 
@@ -98,3 +100,28 @@ def executable(name: str) -> str:
     if not path:
         raise FileNotFoundError(f"{name} was not found; install it and add it to PATH")
     return path
+
+
+def is_directory_link(path: pathlib.Path) -> bool:
+    """Include Windows junctions on Python 3.11, where is_junction is unavailable."""
+    return path.is_symlink() or bool(getattr(path.lstat(), "st_file_attributes", 0) &
+                                     getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
+
+
+def iter_files(root: pathlib.Path, *, exclude=()):
+    """Walk real files only; never enter directory links or excluded top-level folders."""
+    if not root.is_dir() or is_directory_link(root):
+        return
+    for directory, folders, files in os.walk(root, followlinks=False):
+        base = pathlib.Path(directory)
+        folders[:] = sorted(d for d in folders if not d.startswith(".")
+                            and not (base == root and d in exclude)
+                            and not is_directory_link(base / d))
+        for name in sorted(files):
+            path = base / name
+            if not name.startswith(".") and not path.is_symlink():
+                yield path
+
+
+def wiki_pages(brain: pathlib.Path):
+    return (p for p in iter_files(brain / "wiki", exclude=("notes", "library")) if p.suffix == ".md")

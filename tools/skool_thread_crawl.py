@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
+import raw_guard
 from skool_session import configure, scratch_dir, source_prefix
 
 import argparse
@@ -167,6 +168,7 @@ def main():
                         md = md.replace("\n---\n", "\ncomments_complete: false\n---\n", 1)
                     out_dir.mkdir(parents=True, exist_ok=True)
                     out.write_text(md, encoding="utf-8", newline="\n")
+                    raw_guard.record_capture(out)
                     rel = str(out.relative_to(ROOT)).replace("\\", "/")
                     m = post["metadata"]
                     state[pid] = {"raw_path": rel, "captured": today, "comments": m.get("comments"),

@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
+import raw_guard
 from skool_session import configure, scratch_dir
 
 import argparse
@@ -238,6 +239,7 @@ def main():
                     body += ["## Attached files", "", res, ""]
                 out.parent.mkdir(parents=True, exist_ok=True)
                 out.write_text("\n".join(front) + "\n".join(body).rstrip() + "\n", encoding="utf-8", newline="\n")
+                raw_guard.record_capture(out)
                 rel = str(out.relative_to(ROOT)).replace("\\", "/")
                 state[sid] = {"content_hash": chash, "raw_path": rel, "method": method, "captured": today}
                 done += 1

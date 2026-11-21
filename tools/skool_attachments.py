@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
+import raw_guard
 from skool_session import configure, scratch_dir
 
 import argparse
@@ -209,6 +210,7 @@ def main():
                          f"extracted: {kind}", "---", ""]
                 out.parent.mkdir(parents=True, exist_ok=True)
                 out.write_text("\n".join(front) + (body.rstrip() or "(no text: binary file)") + "\n", encoding="utf-8", newline="\n")
+                raw_guard.record_capture(out)
                 rel = str(out.relative_to(ROOT)).replace("\\", "/")
                 state[fid] = {"raw_path": rel, "file": fname, "lesson": sid, "bytes": len(data), "sha1": sha1,
                               "extracted": kind, "captured": today}

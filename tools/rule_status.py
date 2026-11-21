@@ -20,6 +20,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
+import wiki_edits
 
 QUOTE_SPEAKER = re.compile(r'^>\s*["“].+?["”]\s*[—–-]+\s*(.+?)\s*\(\[\[', re.M)
 
@@ -37,6 +38,7 @@ def main() -> None:
     valias = front.get("voice_aliases") or {}
     hosts = set(front.get("hosts") or [])
     counts = {}
+    protected = wiki_edits.status(brain) if wiki_edits.manifest(brain).exists() else {}
     for page in sorted((brain / "wiki" / "rules").glob("*.md")):
         text = page.read_text(encoding="utf-8")
         m = re.search(r"^status:\s*(\S+)", text, re.M)
@@ -54,7 +56,7 @@ def main() -> None:
         counts[new] = counts.get(new, 0) + 1
         if new != old:
             print(f"{page.stem:60} {old} -> {new}  ({', '.join(sorted(voices))})")
-            if write and m:
+            if write and m and page.relative_to(brain / "wiki").as_posix() not in protected:
                 page.write_text(text[:m.start()] + f"status: {new}" + text[m.end():], encoding="utf-8", newline="\n")
     print(counts)
 

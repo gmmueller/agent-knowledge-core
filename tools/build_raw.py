@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
+import raw_guard
 from source_helpers import configure, brain_path
 
 import argparse
@@ -119,6 +120,7 @@ def build_lesson(product: dict, path: list[str], lesson: dict, atts: list[str]) 
         body += (["## Lesson page text\n"] if paras else []) + [notes + "\n"]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(front) + "\n".join(body), encoding="utf-8", newline="\n")
+    raw_guard.record_capture(out)
     return method
 
 

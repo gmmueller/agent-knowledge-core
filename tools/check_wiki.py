@@ -79,7 +79,7 @@ def check_schema(brain, fm, body, where, errors):
             errors.append(f"{where}: rule needs status {'|'.join(sorted(statuses))}")
         if fm.get("status") == "contested":
             targets = re.findall(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]", body)
-            debates = [p for p in (brain / "wiki").rglob("*.md") if frontmatter(p).get("type") == "debate"]
+            debates = [p for p in brainlib.wiki_pages(brain) if frontmatter(p).get("type") == "debate"]
             if not any(t.removesuffix('.md') in (p.stem, p.relative_to(brain).with_suffix('').as_posix(), p.relative_to(brain / 'wiki').with_suffix('').as_posix()) for t in targets for p in debates):
                 errors.append(f"{where}: contested rule requires a link to a debate page")
 
@@ -256,6 +256,8 @@ def check_speaker(brain, idx, block_speaker, speaker, where, errors):
 
 
 def check_page(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None:
+    if path.resolve().is_relative_to((brain / "notes").resolve()):
+        return
     text = path.read_text(encoding="utf-8")
     where = display_path(brain, path)
     m = re.match(r"^---\n(.*?)\n---\n", text, flags=re.S)
@@ -286,6 +288,9 @@ def check_page(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None:
         elif raw_index(brain, re.sub(r"\.md$", "", str(s))) is None:
             errors.append(f"{where}: frontmatter source not found: {s}")
     body = text[m.end():]
+    if re.search(r"\[\[notes/[^\]]+\]\]\s*@", body) or any(
+            str(s).replace("\\", "/").lstrip("./").startswith("notes/") for s in fm.get("sources") or []):
+        errors.append(f"{where}: wiki pages must not cite human-owned notes as sources")
     n_quotes = 0
     for ln, line in enumerate(body.splitlines(), 1):
         q = QUOTE_LINE_DASHED.match(line) or QUOTE_LINE.match(line)
@@ -370,10 +375,12 @@ def main() -> None:
     brain = brainlib.brain_dir(args.brain)
     files = [pathlib.Path(f).resolve() for f in args.files]
     if not files:
-        files = sorted((brain / "wiki").rglob("*.md")) + sorted((brain / "ingest" / "staging").glob("*.yaml"))
+        files = sorted(brainlib.wiki_pages(brain)) + sorted((brain / "ingest" / "staging").glob("*.yaml"))
         files = [f for f in files if f.name not in ("index.md", "hot.md", "log.md")]
     errors: list[str] = []
     for f in files:
+        if f.is_relative_to(brain / "notes"):
+            continue
         (check_staging if f.suffix == ".yaml" else check_page)(brain, f, errors)
     print("\n".join(errors) if errors else f"ok: {len(files)} files")
     sys.exit(1 if errors else 0)

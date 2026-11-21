@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
+import raw_guard
 from source_helpers import configure
 
 import argparse
@@ -60,6 +61,7 @@ def write_pdf_raw(src: pathlib.Path, ids: list[str], url: str, title: str, *, br
     body = [f"**[p. {i}]**\n\n{t if t else '_(no extractable text)_'}\n" for i, t in enumerate(pages, 1)]
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(front) + "\n".join(body), encoding="utf-8", newline="\n")
+    raw_guard.record_capture(out)
     print(f"wrote {out.relative_to(brain)}  ({len(pages)} pages, {sum(map(len, pages)):,} chars, {len(ids)} lessons)")
     return out
 
