@@ -17,17 +17,34 @@ def snapshot(raw):
 
 
 def check(raw):
-    return hashes.differences(hashes.load(manifest(raw)) or {}, snapshot(raw))
+    """Files changed or deleted since capture. Files never recorded are not changes (see unrecorded)."""
+    before = hashes.load(manifest(raw))
+    if before is None:
+        return {}
+    return {name: kind for name, kind in hashes.differences(before, snapshot(raw)).items() if kind != "added"}
+
+
+def unrecorded(raw):
+    """Files with no capture hash yet (captured before the guard was adopted, or by a tool that doesn't record)."""
+    before = hashes.load(manifest(raw)) or {}
+    return sorted(set(snapshot(raw)) - set(before))
+
+
+def has_manifest(raw):
+    return manifest(raw).exists()
 
 
 def record(raw, *, init=False):
+    """Record capture hashes. Without --init: add files that have no hash yet, but refuse if a recorded file
+    changed or disappeared (re-crawl instead). With --init: record everything as it is now."""
     path = manifest(raw)
     with hashes.locked(path):
         before = hashes.load(path)
         current = snapshot(raw)
         if before is None and current and not init:
             raise ValueError("existing raw data needs record --init; re-crawl changed files")
-        if before is not None and hashes.differences(before, current) and not init:
+        if before is not None and not init and any(
+                kind != "added" for kind in hashes.differences(before, current).values()):
             raise ValueError("raw changed after capture: re-crawl instead of editing (or explicitly record --init)")
         hashes.save(path, current)
 
@@ -68,7 +85,7 @@ def main():
     a = ap.parse_args()
     roots = [brainlib.brain_dir(a.brain) / "raw"] if a.brain else sorted(
         brainlib.library_dir(brainlib.workspace_dir(a.workspace)).glob("*/raw"))
-    count = 0
+    count = missing = 0
     try:
         for raw in roots:
             if a.command == "record":
@@ -78,10 +95,13 @@ def main():
                 for name, kind in check(raw).items():
                     print(f"{kind}: {raw / name}")
                     count += 1
+                missing += len(unrecorded(raw))
     except (ValueError, OSError) as exc:
         ap.exit(2, str(exc) + "\n")
     if a.command == "check":
         print(f"{count} raw files changed after capture")
+        if missing:
+            print(f"{missing} raw files have no capture hash yet (run record, or record --init once when adopting)")
     return int(bool(count))
 
 

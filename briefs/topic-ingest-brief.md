@@ -23,7 +23,11 @@ Read first:
    Slug: `<publisher>-<short title slug>`, kebab-case, at most 60 characters (for example `{{example_slug}}`).
 2. `{{brain_name}}/ingest/staging/<batch>.yaml`: one file for your whole batch.
 
-Write nothing else. Never edit `library/` (raw is immutable). Don't run git. Don't install anything. Other workers are writing other batches at the same time.
+**Protected pages (from `wiki_edits.py begin`):** {{protected_pages}}
+
+Never edit any page on that list, and never create, edit or delete anything in `{{brain_name}}/notes/`. If your batch needs to update a protected page, write the proposed full page to a temporary file and file it with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
+
+Write nothing else. Never edit `library/` (raw is immutable) or `{{brain_name}}/notes/`. Don't run git. Don't install anything. Other workers are writing other batches at the same time.
 
 ## Hard rules for this brain: fill in per brain
 
@@ -177,6 +181,7 @@ Pass paths that resolve from your working directory (or absolute paths). `check_
 ## Report back (short)
 
 - Pages written (count), and the check's final output line.
+- Any proposals filed under `ingest/proposals/` for protected pages.
 - New slugs not in the seed vocabulary (slug, type, one line each).
 - Conflicts, speaker doubts, and anything odd about the material (wrong speaker labels, missing transcript stretches, unreadable PDF pages).
 - Stop and report if you're blocked for more than 30 minutes on one problem.

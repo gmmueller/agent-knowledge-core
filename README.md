@@ -64,11 +64,11 @@ Rules start as `bench` (one source or voice) and become `active` once they're ba
 AGENTS.md / CLAUDE.md   rules for any agent working in a workspace
 docs/                   architecture, build pipeline (with lessons learned by stage), updates, library and triage
                         (shared sources for topic brains), councils, tech choices, references
-template/               copy to start a persona brain: brain.md, sources.yaml, crawl.yaml, crawl-log.md, raw/, wiki/
-template-topic/         copy to start a topic brain: brain.md (topic keys), selection.yaml, evals.md, ingest/, wiki/ with every topic page folder
+template/               copy to start a persona brain: brain.md, sources.yaml, crawl.yaml, crawl-log.md, raw/, wiki/, notes/
+template-topic/         copy to start a topic brain: brain.md (topic keys), selection.yaml, evals.md, ingest/, wiki/ with every topic page folder, notes/
 briefs/                 ingest, page-writing and debate-writing briefs for parallel workers (persona and topic versions)
 tools/                  brain tools take --brain <folder>; library and workspace tools take --workspace <folder>
-tests/                  unit tests for the wiki, topic, library, Skool and platform tools; acceptance harness for the source adapters
+tests/                  unit tests for the wiki, topic, library, Skool, Obsidian, edit-guard and platform tools; acceptance harness for the source adapters
 examples/               complete public-domain topic brain (Plain Writing) built from three books, with generated portable skill
 ```
 
@@ -78,8 +78,8 @@ Your **workspace** is a separate private folder (its own git repo, no remote):
 my-brains/
   .secrets/             browser profiles, caches, scratch (never committed)
   library/              shared sources for topic brains: people.yaml and one folder per publisher (raw/, catalogue.tsv, …)
-  my-course/            a persona brain: brain.md, sources.yaml, crawl.yaml, outline.yaml, raw/, wiki/, media/ (gitignored)
-  my-topic/             a topic brain: brain.md, selection.yaml, evals.md, ingest/, wiki/ (cites library/)
+  my-course/            a persona brain: brain.md, sources.yaml, crawl.yaml, outline.yaml, raw/, wiki/, notes/, media/ (gitignored)
+  my-topic/             a topic brain: brain.md, selection.yaml, evals.md, ingest/, wiki/, notes/ (cites library/)
 ```
 
 ## One core, every project
@@ -219,6 +219,28 @@ python -X utf8 -I tools/web_to_raw.py --workspace ../my-brains fetch example-aut
 
 See [`examples/README.md`](examples/README.md) for a full text-only topic brain. The full step-by-step guides, with model assignments and lessons learned by stage, are in [docs/build-pipeline.md](docs/build-pipeline.md).
 
+## View and edit in Obsidian
+
+Each brain is an independent core and opens in place as its own Obsidian vault: the **brain folder itself** (never `<brain>/wiki/`, and never merged with unrelated brains into one vault or graph).
+
+Set up one brain, or every brain in a workspace:
+
+```sh
+# One brain
+python -X utf8 -I tools/obsidian_setup.py --brain ../my-brains/my-course
+
+# Every brain in a workspace (also writes ../my-brains/.cores-hub/ with links to open each core)
+python -X utf8 -I tools/obsidian_setup.py --workspace ../my-brains --all --gitignore-hub
+```
+
+Then open the brain folder in Obsidian with **Open folder as vault**. Setup hides working folders (`ingest/`, `media/`, `state/`, `library/`) from search and graph, colors the graph by page type (showing `wiki/` and `notes/`), creates `notes/`, adds `/library` and `/.obsidian/workspace*.json` to the brain's `.gitignore`, and for topic brains creates a `library` directory link (junction on Windows, symlink elsewhere) so library citations open the real source file. It merges into existing `.obsidian/` settings; pass `--reset` to rewrite them. With `--all`, `<workspace>/.cores-hub/` lists every core with `obsidian://open?path=...` links; open each brain folder as a vault once in Obsidian before those links work from elsewhere.
+
+**What you may edit:**
+
+- **`wiki/` pages:** edit directly in Obsidian or any editor. Initialize the baseline once with `python -X utf8 -I tools/wiki_edits.py --brain <brain> record --init`. Once you edit a page, `wiki_edits.py` flags it and protects it during agent runs (agents start every pass with `wiki_edits.py begin`, skip protected pages, and save proposed updates in `ingest/proposals/` via `wiki_edits.py propose`). Review changes with `status` / `proposals` and confirm your edits with `accept <page>` or `accept --all`.
+- **`notes/`:** your own folder. Add, edit or delete anything there; notes may link to wiki pages. Agents never touch `notes/`, wiki pages never cite notes as sources, checks ignore them, and `build_wiki_index.py` lists them under **Your notes**.
+- **Never edit `raw/` or `library/`:** captured sources are immutable. Capture tools hash every file they write (`raw/.capture-hashes.json`, `library/<publisher>/.capture-hashes.json`), and `raw_guard.py check` and `lint_wiki.py` warn if any raw file changed after capture. Fix source problems by re-crawling.
+
 ## Tools
 
 **Map and crawl (persona brains)**
@@ -258,7 +280,11 @@ See [`examples/README.md`](examples/README.md) for a full text-only topic brain.
 
 | Tool | Does |
 |---|---|
-| `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`); rebuild `index.md` |
+| `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`), human-edit/proposal/raw-change warnings; rebuild `index.md` (lists `notes/` under **Your notes** and records the wiki baseline) |
+| `obsidian_setup.py` | configure a brain folder in place as its own Obsidian vault (`.obsidian/` settings, `notes/`, topic-brain `library` link, `.gitignore`; `--workspace <ws> --all [--gitignore-hub] [--reset]` also writes `.cores-hub/`) |
+| `wiki_edits.py` | detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `propose`, `proposals`, `accept`) so agent passes never overwrite them |
+| `raw_guard.py` | hash captured `raw/` and `library/*/raw/` files (`record --init`, `check`) so post-capture raw edits are caught |
+| `content_hashes.py` | shared SHA-256 hash-manifest and file-lock helpers used by `wiki_edits.py` and `raw_guard.py` |
 | `verify_eval_quotes.py`, `rubric_agreement.py` | check quotes in eval answers; compare two graders' rubric scores |
 | `generate_persona.py` | `brain.md` → subject-neutral skill (`SKILL.md` + agent metadata), persona or topic version; reads optional `skill.guidance` and `skill.boundaries` from `brain.md`, prints `consider skill.guidance:` hints when none are set, links `wiki/examples/` when present (`--relative-to <dir>` writes portable relative paths) |
 | `refresh_due.py` | which brains, sources or tool pages are due for a refresh (per-brain on/off switch, per-source cadence) |

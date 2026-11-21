@@ -88,9 +88,22 @@ Both flows end the same way: queries that produce something valuable get filed b
 
 A source persona teaches what the expert's material says. The user's own persona skills are separate voices. If a council uses both, each identifies which view it represents. Unsupported advice is marked **Inference:**.
 
+## Ownership and edit guards
+
+| Folder | Who writes it | Rules |
+|---|---|---|
+| `raw/`, `library/*/raw/` | Capture tools only | Immutable after capture. Neither humans nor wiki agents edit it. Capture writers hash each file (`raw/.capture-hashes.json`, `library/<publisher>/.capture-hashes.json`); `raw_guard.py check` and `lint_wiki.py` flag post-capture edits. Fix problems by re-crawling. |
+| `wiki/` | Agents during logged passes; humans may edit directly | Human edits are protected by `wiki_edits.py`. Agents never overwrite a human-edited page; they save a proposal under `ingest/proposals/` instead. |
+| `notes/` | Humans only | Agents never create, edit or delete files here. Checks ignore `notes/`; `build_wiki_index.py` lists them under **Your notes**. Notes may link to wiki pages; wiki pages never cite notes as sources. |
+| `.obsidian/` | `obsidian_setup.py`, Obsidian and the user | Setup merges defaults into `app.json` and `graph.json` (`--reset` rewrites). Workspace layout files (`/.obsidian/workspace*.json`) are gitignored. |
+
+**Edit detection:** `wiki/.agent-baseline.json` stores SHA-256 content hashes of every page under `wiki/` (initialized once with `wiki_edits.py --brain <brain> record --init`; file locking and manifest I/O live in `tools/content_hashes.py`). Every agent pass starts with `wiki_edits.py --brain <brain> begin`, which writes the currently human-edited pages to `wiki/.agent-pass.json` and prints them as protected. Workers leave those pages untouched and file replacements via `wiki_edits.py propose <page> --from <file> --why "..."`. When `build_wiki_index.py` ends the pass (calling `wiki_edits.py record`), agent changes join the baseline, `.agent-pass.json` is deleted, and the protected pages remain flagged until the user runs `wiki_edits.py accept`. Without an open pass from `begin`, `record` protects every unexpected difference so human edits are never absorbed silently.
+
+**Per-core Obsidian vaults:** each brain opens in place as its own Obsidian vault: the brain folder itself, never a synced copy and never `<brain>/wiki/`. Opening the brain folder keeps `brain.md`, `wiki/`, `notes/`, and `raw/` inside one vault; for topic brains, `obsidian_setup.py` adds a `library` directory link (junction on Windows, symlink elsewhere) so `[[library/...]]` citations open the real source files. Each core stays in its own vault because brains can cover unrelated subjects with separate vocabularies, rules and sources, so merging them into one vault or graph mixes unrelated graphs and wikilinks. `obsidian_setup.py --workspace <ws> --all` sets up every brain and writes a small navigation hub vault at `<ws>/.cores-hub/` whose note links each core via `obsidian://open?path=...` (no cross-vault wikilinks; open each core folder once in Obsidian before URI links work from elsewhere).
+
 ## Workspace hygiene
 
-Gitignore `.secrets/` at the workspace root, `*/media/` for each brain, and `library/*/media/` and `library/*/staging/`. Browser profiles, caches and scratch stay in `.secrets/`; course media stays in the brain's `media/`. `raw/` is immutable after capture, while `wiki/` and `brain.md` evolve through logged ingests and refreshes.
+Gitignore `.secrets/` at the workspace root, `*/media/` for each brain, `library/*/media/` and `library/*/staging/`, plus `/library` and `/.obsidian/workspace*.json` inside each brain (added by `obsidian_setup.py`) and optionally `/.cores-hub/` at the workspace root (`--gitignore-hub`). Browser profiles, caches and scratch stay in `.secrets/`; course media stays in the brain's `media/`. `raw/` is immutable after capture, `notes/` is human-owned, and `wiki/` and `brain.md` evolve through logged ingests and refreshes.
 
 ## Shared-library brains
 

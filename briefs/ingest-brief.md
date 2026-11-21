@@ -9,6 +9,10 @@ Read the workspace `AGENTS.md` (core rules) before you start. All paths below ar
 1. `wiki/sources/<id>.md`: one page per item in your batch (ids and raw paths are listed in your task and in `ingest/batches.yaml`).
 2. `ingest/staging/<batch>.yaml`: one file for your whole batch.
 
+**Protected pages (from `wiki_edits.py begin`):** {{protected_pages}}
+
+Never edit any page on that list, and never create, edit or delete anything in `notes/`. If your batch needs to update a protected page, write the proposed full page to a temporary file and file it with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
+
 Don't create or edit any other file. Never edit `raw/` (it is immutable). Don't run git. Don't install anything. Other workers are writing other batches at the same time.
 
 ## Source page format
@@ -99,6 +103,7 @@ Use absolute paths for the brain and page files. It verifies frontmatter, that e
 ## Report back (short)
 
 - Pages written (count) and the check's final output line.
+- Any proposals filed under `ingest/proposals/` for protected pages.
 - New slugs you introduced that are not in the seed vocabulary (slug, type, one line each).
 - Conflicts found, unclear presenters, uncertain names, and anything odd about the material.
 - Limits: stop and report if you're blocked for more than 30 minutes on one problem.

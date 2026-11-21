@@ -13,7 +13,11 @@ Read the workspace `AGENTS.md` first. Paths are relative to `{{brain_path}}` unl
 
 ## What you write (and nothing else)
 
-One page per slug in your group, at `wiki/<dir>/<slug>.md`, where `<dir>` comes from the bundle `type`: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, glossary → `glossary`. Don't edit any other file: not source pages, not other groups' pages, not `index.md`, `hot.md`, `log.md` or `brain.md`. No git, no installs.
+One page per slug in your group, at `wiki/<dir>/<slug>.md`, where `<dir>` comes from the bundle `type`: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, glossary → `glossary`. Don't edit any other file: not source pages, not other groups' pages, not `notes/`, not `raw/`, and not `index.md`, `hot.md`, `log.md` or `brain.md`. No git, no installs.
+
+**Protected pages (from `wiki_edits.py begin`):** {{protected_pages}}
+
+Never edit any page on that list, and never create, edit or delete anything in `notes/`. If a slug in your group is protected, write the proposed full page to a temporary file and file it with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 
 ## Page format
 
@@ -81,5 +85,6 @@ Pass paths that resolve from your working directory (or absolute paths). It veri
 ## Report back (short)
 
 - Pages written (count) and the check's final line.
+- Any proposals filed under `ingest/proposals/` for protected pages.
 - Concepts you thought should be merged or split, and any slug you linked that is missing from the list.
 - Rules whose only quotes aren't {{expert_name}}'s; anything odd.

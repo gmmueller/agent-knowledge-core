@@ -4,7 +4,7 @@
 |---|---|---|
 | **Karpathy LLM Wiki** | **Core** | The only option that *synthesizes* principles, rules and methods, which is the persona layer. Plain markdown, git and Obsidian, with no infrastructure. |
 | **qmd** (tobi/qmd) | **Add at scale** | Local hybrid search (BM25 + vectors + LLM rerank) with a CLI and an MCP server. Fixes the wiki's weak spot past ~100 sources and lets personas quote raw transcripts with timestamps. |
-| Obsidian | **Viewer** | Graph view, backlinks, Dataview. Opens the folder in place. |
+| Obsidian | **Viewer and editor** | Opens each brain folder in place as its own vault (one vault per core; unrelated brains are never merged into one graph). Graph view colored by page type, backlinks, clickable raw/library citations, human-owned `notes/`, and hash-based protection for human edits to `wiki/` (`obsidian_setup.py`, `wiki_edits.py`). |
 | Plain vector RAG | Covered by qmd | Retrieval with no accumulated synthesis. |
 | GraphRAG / LightRAG / Cognee | Skip | Graph DB plus LLM extraction at index time. Built for big corpora. Benchmarks are mostly vendor-run; GraphRAG is weaker than vanilla RAG on simple factual questions. |
 | Graphiti / Zep | Skip | Temporal facts; course knowledge is mostly static. |

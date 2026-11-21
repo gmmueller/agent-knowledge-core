@@ -13,7 +13,7 @@ Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py …` (with 
 | 3 | **Crawl.** Download captions or transcripts, lesson text and attachments; parallelize where the session allows it | `raw/<module>/<lesson>.md`, `media/` | Volume workers |
 | 4 | **Transcribe.** For videos without captions, transcribe locally with faster-whisper and keep timestamps | `raw/...md` | script run by a subagent |
 | 5 | **Verify crawl.** Compare counts against the outline, check for empty or short transcripts, retry failures | `crawl-log.md` | Mechanical worker / script |
-| 6 | **Ingest.** Apply the LLM Wiki pattern, one module per task in parallel, then a merge pass | `wiki/` | Volume workers; orchestrator merges |
+| 6 | **Ingest.** Run `wiki_edits.py begin` (after `record --init` once), pass protected pages to workers; one module per task in parallel, then a merge pass; review any proposals with the user | `wiki/` | Volume workers; orchestrator merges |
 | 7 | **Extract rules.** Principles, frameworks and rules with quotes; bench vs active | `brain.md`, `wiki/rules/` | orchestrator |
 | 8 | **Generate.** Skill from `brain.md` into the explicit output directory (`--out` or `AGENT_KNOWLEDGE_CORE_SKILLS_DIR`). Read any `consider skill.guidance:` suggestions, add what fits to `brain.md`, and regenerate | agent files | orchestrator |
 | 9 | **Evaluate.** 5–10 questions with known answers; check citations, drift and inference labels | `evals.md` | orchestrator + user |
@@ -31,10 +31,10 @@ library → catalogue → triage → fetch → speaker pass → ingest waves →
 | 4 | **Fetch.** Fetch the selected items into raw (or staging for multi-speaker items) | `library_yt.py fetch --selection …`, `web_to_raw.py fetch`, `book_to_raw.py` | `library/<publisher>/raw/` | volume worker |
 | 5 | **Speaker pass.** Diarize multi-speaker items, name the speakers, finalize (skip for single-author text) | `diarize.py`, `speaker_naming.md`, `finalize_raw.py` | raw with `speakers`, `people.yaml` | script + naming agents |
 | 6 | **Examples** (optional). Measure demonstration videos, then annotate them | `example_frames.py`, `check_examples.py`, `link_examples.py` | `library/<publisher>/examples/`, `wiki/examples/` | script + volume workers |
-| 7 | **Ingest waves.** Batch workers write source pages and staging; one wave per publisher group | `briefs/topic-ingest-brief.md`, `check_wiki.py` | `wiki/sources/`, `ingest/staging/` | volume workers |
-| 8 | **Merge.** Survey concepts, fix duplicate slugs, write bundles, `page-groups.yaml` and `item-pages.tsv`, then concept pages | `merge_topic.py survey`, `ingest/slug-map.yaml`, `merge_topic.py bundles`, `briefs/topic-pages-brief.md` | `ingest/bundles/`, `wiki/{topics,principles,…}/` | volume workers; orchestrator plans groups |
-| 9 | **Debates.** One page per question on which sources disagree | `briefs/debates-brief.md` | `wiki/debates/` | volume workers |
-| 10 | **Rule audit.** Recount rule status by independent voice, lint, rebuild the index | `rule_status.py --write`, `lint_wiki.py --fix-slug-map`, `build_wiki_index.py` | `wiki/rules/`, `index.md` | orchestrator |
+| 7 | **Ingest waves.** Start each pass with `wiki_edits.py begin` (after `record --init` once); batch workers write source pages and staging (proposing updates to protected pages); one wave per publisher group | `wiki_edits.py begin`, `briefs/topic-ingest-brief.md`, `check_wiki.py` | `wiki/sources/`, `ingest/staging/` | volume workers |
+| 8 | **Merge.** Start with `wiki_edits.py begin`; survey concepts, fix duplicate slugs, write bundles, `page-groups.yaml` and `item-pages.tsv`, then concept pages (propose updates to protected pages) | `wiki_edits.py begin`, `merge_topic.py survey`, `ingest/slug-map.yaml`, `merge_topic.py bundles`, `briefs/topic-pages-brief.md` | `ingest/bundles/`, `wiki/{topics,principles,…}/` | volume workers; orchestrator plans groups |
+| 9 | **Debates.** One page per question on which sources disagree (propose updates to protected pages) | `briefs/debates-brief.md` | `wiki/debates/` | volume workers |
+| 10 | **Rule audit.** Recount rule status by independent voice, lint, rebuild the index (ends the pass and records the baseline), review any open proposals with the user | `rule_status.py --write`, `lint_wiki.py --fix-slug-map`, `build_wiki_index.py`, `wiki_edits.py proposals` | `wiki/rules/`, `index.md` | orchestrator |
 | 11 | **Rubrics** (optional). Calibrate scoring checklists with two cold graders | `rubric_agreement.py` | `wiki/rubrics/`, `rubric-calibration/` | volume workers + orchestrator |
 | 12 | **Draft skill and evaluate.** Generate a draft skill; read any `consider skill.guidance:` suggestions, add what fits to `brain.md`, and regenerate; run cold evals with a fresh agent (including traps), check quotes, fix gaps | `generate_persona.py`, `evals.md`, `verify_eval_quotes.py` | draft skill, `evals-run-<date>.md` | orchestrator |
 | 13 | **Final skill and search.** Regenerate the skill if `brain.md` or rule counts changed; index the wiki and library with qmd | `generate_persona.py`, qmd | skill, qmd collections | orchestrator / script |
@@ -102,13 +102,15 @@ Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py --brain <wo
 - Triage: `triage_inputs.py`, `triage_merge.py`, `selection_override.py`.
 
 **Ingest and merge**
+- Edit protection (every pass): initialize once with `wiki_edits.py --brain <path> record --init` (and `raw_guard.py --brain <path> record --init` or `--workspace <workspace> record --init` once when adopting on existing raw files). Start every ingest, merge, page-writing or refresh pass with `wiki_edits.py --brain <path> begin`, hand its protected list to workers so they run `wiki_edits.py propose` instead of editing protected pages, end the pass with `build_wiki_index.py` (which calls `wiki_edits.py record`), and review any open proposals (`wiki_edits.py proposals`) with the user before reporting the pass done.
 - Ingest: fill `briefs/ingest-brief.md` (persona) or `briefs/topic-ingest-brief.md` (topic), dispatch isolated batches, run `check_wiki.py` on their source pages and staging.
 - Merge, persona brain: `merge_staging.py --brain <path> survey`, resolve duplicate slugs in `ingest/slug-map.yaml`, then `merge_staging.py --brain <path> bundles`. Fill `briefs/pages-brief.md` for concept writers.
 - Merge, topic brain: `merge_topic.py --brain <path> survey`, then `slug-map.yaml`, then `merge_topic.py --brain <path> bundles`. Write `ingest/page-groups.yaml` and `ingest/item-pages.tsv`, then fill `briefs/topic-pages-brief.md` for concept writers and `briefs/debates-brief.md` for debate writers.
 - Rule status, topic brain: `rule_status.py --brain <path> [--write]`.
 
 **Check, generate, evaluate**
-- Check: `check_wiki.py`, `lint_wiki.py`, `build_wiki_index.py`, `requote.py` (re-anchors timestamps, `¶N` paragraph and `p. N` page locators); update `wiki/hot.md` and `wiki/log.md` after accepting the changes.
+- Check: `check_wiki.py`, `lint_wiki.py` (also warns about human-edited pages, open proposals and changed raw), `build_wiki_index.py` (records the wiki baseline and lists `notes/`), `raw_guard.py` (`record --init`, `check`), `wiki_edits.py` (`record --init`, `begin`, `status`, `propose`, `proposals`, `accept`), `requote.py` (re-anchors timestamps, `¶N` paragraph and `p. N` page locators); update `wiki/hot.md` and `wiki/log.md` after accepting the changes.
+- Obsidian: `obsidian_setup.py --brain <path>` or `--workspace <workspace> --all [--gitignore-hub] [--reset]`.
 - Evaluate: `verify_eval_quotes.py --brain <path> <answers.md>`; `rubric_agreement.py <grader-a.tsv> <grader-b.tsv>`.
 - Generate: `generate_persona.py --brain <path> --out <skills-directory> [--relative-to <dir>]`.
 - Remind: `refresh_due.py --workspace <workspace> --all`.
@@ -118,7 +120,7 @@ Product headings in the index use registry titles in `sources.yaml` order, with 
 
 ## Port checks
 
-Run `python -I tests/test_wiki_tools.py --scratch <workspace>/.secrets/scratch` for the targeted offline checks, and `tests/test_topic_checkers.py`, `tests/test_library_tools.py` and `tests/test_skool_tools.py` for the topic, library and Skool tools. On Windows, subprocess output uses the system encoding even under `-I`; the checks decode with that encoding rather than assuming UTF-8. Scratch fixtures are deleted automatically.
+Run `python -I tests/test_wiki_tools.py --scratch <workspace>/.secrets/scratch` for the targeted offline checks, and `tests/test_topic_checkers.py`, `tests/test_library_tools.py`, `tests/test_skool_tools.py`, `tests/test_obsidian_setup.py` and `tests/test_edit_guards.py` for the topic, library, Skool, Obsidian and edit-guard tools. On Windows, subprocess output uses the system encoding even under `-I`; the checks decode with that encoding rather than assuming UTF-8. Scratch fixtures are deleted automatically.
 
 ## Rule status and independence
 
@@ -187,6 +189,7 @@ Each line says what to do and what happened. They are grouped by stage.
 - **Stalled delegates:** a delegated run can stall silently (status "running", no thread activity). If a batch has written nothing after about 20 minutes, check the child thread's last update, cancel it and rerun it on another provider.
 - **Spend limit mid-wave:** a monthly org limit killed a fifth of the workers mid-run. Their work was saved: after the reset, resume each worker with a message that states which pages and staging files already exist, instead of starting new agents.
 - **Scale:** dozens of page-writing workers (33 page groups plus 7 debates, up to 23 at once) ran with no rate-limit failures. Each group passed the gate the first time it reported.
+- **Skipping `wiki_edits.py begin`:** an agent pass run without `begin` makes the agent's own changes look like human edits (`build_wiki_index.py` leaves them unrecorded so human edits are never absorbed silently); inspect them with `wiki_edits.py --brain <path> status` and confirm them with `wiki_edits.py --brain <path> accept`.
 
 ### Merge
 

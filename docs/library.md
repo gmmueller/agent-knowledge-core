@@ -162,6 +162,7 @@ Sources whose publisher already prints a speaker-labelled transcript (for exampl
 | Turn a user-supplied book or paper PDF into raw, updating `catalogue.tsv` and appending to `crawl-log.md` (`--published` accepts `YYYY`, `YYYY-MM`, `YYYY-MM-DD`; `--pages 1-12,40-55` keeps original PDF page numbers) | `book_to_raw.py --workspace <ws> <publisher> <pdf> --slug … --title … --author … --published DATE [--pages …]` |
 | Speaker pass: cluster voices, then name them | `diarize.py --workspace <ws> <publisher> <item>`, a naming agent, then `finalize_raw.py --workspace <ws> <publisher> <item>` |
 | Measure an example video (cuts, frames, opening lines) | `example_frames.py --workspace <ws> <publisher> <yt-id …>` |
+| Hash captured raw files (`library/<publisher>/.capture-hashes.json`) and detect post-capture edits | `raw_guard.py --workspace <ws> {record [--init],check}` |
 | Shared helpers (paths, slugs, catalogue read/write, raw writing) | `library_raw.py` (imported by the tools above) |
 
 Each tool's `--help` lists its options. The pipeline order is in `docs/build-pipeline.md`.

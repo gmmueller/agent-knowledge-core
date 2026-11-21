@@ -51,9 +51,10 @@ Examples of what belongs here (delete the ones that don't apply):
 
 ## Rules
 
+- **Protected pages (from `wiki_edits.py begin`):** {{protected_pages}}. Never edit any page on that list, and never create, edit or delete anything in `{{brain_name}}/notes/`. If a debate page in your list is protected, write the proposed full page to a temporary file and file it with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 - **Don't pick a winner.** For rules debates, say which document governs which events. Where one side clearly has stronger support, say so plainly and say why.
 - **Report a recommended rule status.** If a listed rule is the direct subject of your debate, say whether a source argues against the rule itself (then `contested` fits) or every side shares it (then it doesn't). Don't edit the rule page.
 - Check an ingest "conflict" in the raw text before building a debate on it. Some turn out to be agreement on a closer read; if so, say so in your report and write the page about what remains.
-- Write only your debate pages. No git, no installs. Other writers work at the same time.
+- Write only your debate pages (and proposals for protected ones). Never edit `library/` or `{{brain_name}}/notes/`. No git, no installs. Other writers work at the same time.
 - Run `{{python}} -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <your files>` until it prints `ok: N files` (check minimum quote counts from this brief separately; `check_wiki.py` checks citations, verbatim quotes and speakers).
-- **Report:** the pages you wrote, the check's final line, and one line per debate on where it stands (where the support leans, and your recommended status for any listed rule).
+- **Report:** the pages you wrote, any proposals filed under `ingest/proposals/`, the check's final line, and one line per debate on where it stands (where the support leans, and your recommended status for any listed rule).

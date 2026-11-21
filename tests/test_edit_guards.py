@@ -170,9 +170,29 @@ class EditGuards(unittest.TestCase):
         result = self.run_tool("raw_guard.py", "check")
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("changed:", result.stdout)
-        self.assertIn("added:", result.stdout)
+        self.assertIn("1 raw files have no capture hash yet", result.stdout)
+        self.assertEqual(raw_guard.unrecorded(self.brain / "raw"), ["new.md"])
+        self.assertNotIn("new.md", raw_guard.check(self.brain / "raw"))
         (self.brain / "raw/source.md").unlink()
         self.assertEqual(raw_guard.check(self.brain / "raw")["source.md"], "deleted")
+
+    def test_partial_manifest_from_capture_is_not_a_change_and_record_adopts_unrecorded(self):
+        self.write("raw/older.md", "Captured before the guard\n")
+        raw_guard.record_capture(self.brain / "raw/source.md")
+        self.assertEqual(raw_guard.check(self.brain / "raw"), {})
+        self.assertEqual(raw_guard.unrecorded(self.brain / "raw"), ["older.md"])
+        result = self.run_tool("raw_guard.py", "record")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(raw_guard.unrecorded(self.brain / "raw"), [])
+        self.write("raw/older.md", "Edited\n")
+        self.assertEqual(self.run_tool("raw_guard.py", "record").returncode, 2)
+
+    def test_lint_without_baselines_says_so_instead_of_flagging_everything(self):
+        result = self.run_tool("lint_wiki.py")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("no wiki edit baseline yet", result.stdout)
+        self.assertNotIn("human-edited", result.stdout)
+        self.assertNotIn("raw changed after capture", result.stdout)
 
     def test_library_shared_writer_records_only_its_own_file(self):
         (self.root / "library").mkdir()

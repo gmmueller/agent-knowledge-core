@@ -24,6 +24,16 @@ python -X utf8 -I tools/build_wiki_index.py --brain examples/workspace/plain-wri
 
 Without activating the venv, replace `python` with `.\.venv\Scripts\python.exe` (Windows) or `.venv/bin/python` (macOS/Linux).
 
+## Open it in Obsidian
+
+Run setup from the repository root (with the venv active), then open `examples/workspace/plain-writing` in Obsidian via **Open folder as vault**:
+
+```sh
+python -X utf8 -I tools/obsidian_setup.py --brain examples/workspace/plain-writing
+```
+
+Setup configures search and graph settings for the brain folder itself, adds a `library` directory link so book and lecture citations open the real source files, and creates `notes/` for your own notes.
+
 Raw captures are immutable. Paragraph locators point into the HTML captures; `p. N` locators point to original Quiller-Couch scan PDF pages (printed page N minus 16). Since this example was built, `book_to_raw.py --pages` and `web_to_raw.py fetch --from-heading` / `--to-heading` support pre-capture page and heading selection directly, and `book_to_raw.py` updates `catalogue.tsv` and `crawl-log.md`. Early twentieth-century spellings, dialect preferences and social judgments are attributed historical material, not current universal standards.
 
 The bundled skill under [`skills/plain-writing/`](skills/plain-writing/SKILL.md) is generated directly with:

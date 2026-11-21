@@ -25,7 +25,11 @@ Read first:
 
 ## What you write (and nothing else)
 
-One page per slug in your group (`{{brain_name}}/ingest/page-groups.yaml` → `groups`) at `{{brain_name}}/wiki/<dir>/<slug>.md`, where the type maps to a folder: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, rubric → `rubrics`, tool → `tools`, glossary → `glossary`. Don't edit any other file: not source pages, not other groups' pages, not `index.md`, `hot.md`, `log.md` or `brain.md`. No git, no installs. Other writers work on other groups at the same time.
+One page per slug in your group (`{{brain_name}}/ingest/page-groups.yaml` → `groups`) at `{{brain_name}}/wiki/<dir>/<slug>.md`, where the type maps to a folder: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, rubric → `rubrics`, tool → `tools`, glossary → `glossary`. Don't edit any other file: not source pages, not other groups' pages, not `notes/`, not `library/`, and not `index.md`, `hot.md`, `log.md` or `brain.md`. No git, no installs. Other writers work on other groups at the same time.
+
+**Protected pages (from `wiki_edits.py begin`):** {{protected_pages}}
+
+Never edit any page on that list, and never create, edit or delete anything in `{{brain_name}}/notes/`. If a slug in your group is protected, write the proposed full page to a temporary file and file it with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 
 ## Page format
 
@@ -111,6 +115,7 @@ Pass paths that resolve from your working directory (or absolute paths). Iterate
 ## Report back (short)
 
 - Pages written (count) and the check's final line.
+- Any proposals filed under `ingest/proposals/` for protected pages.
 - Concepts you think should be merged or split, and any slug you linked that is missing from the list.
 - Rules you think are contested or wrongly statused (one line each); rules whose only quotes aren't a listed expert's; anything odd.
 - Stop and report if you're blocked for more than 30 minutes on one problem.

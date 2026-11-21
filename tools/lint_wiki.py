@@ -34,13 +34,22 @@ def main() -> None:
     a = ap.parse_args()
     brain = brainlib.brain_dir(a.brain)
     wiki = brain / "wiki"
-    edits = wiki_edits.status(brain)
-    print(f"warning: {len(edits)} human-edited pages; {len(wiki_edits.proposals(brain))} open proposals")
-    roots = [brain / "raw", *raw_guard.cited_raw_dirs(brain)]
+    if wiki_edits.manifest(brain).exists():
+        edits = wiki_edits.status(brain)
+        if edits or wiki_edits.proposals(brain):
+            print(f"warning: {len(edits)} human-edited pages; {len(wiki_edits.proposals(brain))} open proposals")
+    else:
+        edits = {}
+        print("note: no wiki edit baseline yet; run wiki_edits.py --brain <brain> record --init")
+    roots = [r for r in [brain / "raw", *raw_guard.cited_raw_dirs(brain)] if r.is_dir()]
+    unguarded = 0
     for raw in roots:
         changes = raw_guard.check(raw)
         if changes:
             print(f"warning: raw changed after capture: re-crawl instead of editing ({raw}: {len(changes)} files)")
+        unguarded += len(raw_guard.unrecorded(raw))
+    if unguarded:
+        print(f"note: {unguarded} raw files have no capture hash yet; run raw_guard.py record --init once")
     if a.fix_slug_map:
         slug_map = yaml.safe_load((brain / "ingest" / "slug-map.yaml").read_text(encoding="utf-8")) or {}
         n = 0
