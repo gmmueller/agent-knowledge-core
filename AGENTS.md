@@ -1,6 +1,6 @@
 # Agent Knowledge Core: agent instructions
 
-This is Agent Knowledge Core, a public framework for "brains": cited LLM wikis compiled from experts' own material. Actual brains live in a separate private workspace. There are two kinds. **Persona brains** are one voice with their own `raw/`. **Topic brains** (`kind: topic`) combine several experts and draw on a shared `library/`: read `docs/library.md` before using library citations and `docs/triage.md` before selecting their inputs. Apply the per-brain rules below when working there. Read `docs/architecture.md` before structural work, `docs/build-pipeline.md` when building a brain and `docs/updates.md` when refreshing one.
+This is Agent Knowledge Core, a public framework for "brains": cited LLM wikis compiled from experts' own material. Actual brains live in a separate private workspace; `examples/` is the one place a brain lives in this repo, using verified public-domain material only. There are two kinds. **Persona brains** are one voice with their own `raw/`. **Topic brains** (`kind: topic`) combine several experts and draw on a shared `library/`: read `docs/library.md` before using library citations and `docs/triage.md` before selecting their inputs. Apply the per-brain rules below when working there. Read `docs/architecture.md` before structural work, `docs/build-pipeline.md` when building a brain and `docs/updates.md` when refreshing one.
 
 ## Tool conventions
 
@@ -9,7 +9,7 @@ This is Agent Knowledge Core, a public framework for "brains": cited LLM wikis c
 - Platform settings belong in `<brain>/crawl.yaml` (see `template/crawl.yaml`), not in framework code. Brain-specific values (expert aliases, hosts, evidence types, community URLs, ports, product lists) come from `brain.md`, `crawl.yaml`, `sources.yaml` or CLI flags. Library-specific values come from files under `library/`.
 - Caches, profiles and scratch belong in `<workspace>/.secrets/`; media belongs in `<brain>/media/` or `library/<publisher>/media/`. Use `tools/brainlib.py` helpers in Python tools.
 - Keep personal identifiers, licensed source text, cookies, tokens and browser profiles out of this public framework. Use generic placeholders in examples.
-- In PowerShell, use native paths and commands. Python reads and writes text with `encoding="utf-8"`. Run tools as `python -X utf8 -I <framework>/tools/<tool>.py …`. Never use the `python3` alias (it hangs on Windows) and never pipe a script into a bare `python -`: write a script file or use `-c`.
+- Use forward slashes in tool commands (they work in PowerShell on Windows and bash on macOS/Linux). Activate the venv first (`.\.venv\Scripts\Activate.ps1` on Windows; `source .venv/bin/activate` on macOS/Linux), or call the venv interpreter directly (`.\.venv\Scripts\python.exe` / `.venv/bin/python`). Run tools as `python -X utf8 -I <framework>/tools/<tool>.py …`. Use `python3` only to create the venv on macOS/Linux; never use the `python3` alias on Windows (it hangs in agent shells), and never pipe a script into a bare `python -` (write a script file or use `-c`). Python reads and writes text with `encoding="utf-8"`.
 
 ## Core rules
 
@@ -19,7 +19,7 @@ This is Agent Knowledge Core, a public framework for "brains": cited LLM wikis c
 4. **Rules need quotes.** Each rule in `brain.md` or `wiki/rules/` carries at least one exact quote and its source. Persona brains: a rule with one source has status `bench`, and becomes `active` at two or more independent sources. Topic brains: `bench` is one voice, `active` is two or more independent voices (`rule_status: voices`), `consensus` is two or more listed experts, and `contested` means a source argues against the rule and a debate page exists. One author repeating a rule is one voice.
 5. **Primary sources only.** Use the expert's own words. No third-party summaries unless `sources.yaml` marks them as such.
 6. **Log everything.** Crawls go in `<brain>/crawl-log.md` (library crawls in `library/<publisher>/crawl-log.md`). Ingests, queries filed back, and lint passes go in `wiki/log.md` with the prefix `## [YYYY-MM-DD] <op> | <title>`.
-7. **Privacy.** Never publish the private workspace; only generic framework code belongs in the public repo. Never commit cookies, tokens or browser profiles; they go in `.secrets/`. Never paste course text into external services other than the model APIs doing the work.
+7. **Privacy.** Never publish the private workspace; only generic framework code and the verified public-domain example in `examples/` (with edition and URL provenance recorded) belong in the public repo. Never commit cookies, tokens or browser profiles; they go in `.secrets/`. Never paste course text into external services other than the model APIs doing the work.
 
 ## Wiki operations (per brain)
 
@@ -59,7 +59,7 @@ library → catalogue → triage → fetch → speaker pass → ingest waves →
 | Rule audit | `rule_status.py --write`, `lint_wiki.py`, `build_wiki_index.py` | |
 | Rubrics | `rubric_agreement.py` | |
 | Evals | `verify_eval_quotes.py` | `template-topic/evals.md` |
-| Skill | `generate_persona.py`, `install_qmd.ps1` | |
+| Skill | `generate_persona.py` (`--relative-to` for portable samples), qmd (`install_qmd.ps1` on Windows; `npm install -g @tobilu/qmd` on macOS/Linux) | |
 
 Persona brains use `merge_staging.py` and the briefs `briefs/ingest-brief.md` and `briefs/pages-brief.md`. Skool communities use the `skool_*.py` tools; platform settings go in `crawl.yaml` with `platform: skool`.
 
@@ -78,7 +78,7 @@ Run independent modules, sources or page groups in parallel. Each worker gets a 
 
 ## Browser sessions
 
-Each login-based brain has its own Chrome profile under `<workspace>/.secrets/` and distinct debugging port set in `crawl.yaml`. For example, use `.secrets/chrome-my-course` with port `9222`, and a different profile and port for the next brain. Record assignments in the private workspace's agent instructions.
+Each login-based brain has its own Chrome profile under `<workspace>/.secrets/` and distinct debugging port set in `crawl.yaml`. Launch it on any OS with `python -X utf8 -I <framework>/tools/launch_chrome.py --brain <brain> [--chrome <executable>]` (it reads `site`, `cdp_port` and `profile` from `crawl.yaml`, defaulting `profile` to `chrome-<brain>`). Record assignments in the private workspace's agent instructions.
 
 Within one session, run only one browser-driving worker at a time. Use only the assigned brain's browser window and profile. The user handles login and 2FA.
 

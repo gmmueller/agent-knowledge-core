@@ -90,8 +90,8 @@ List canonical slugs, aliases and short definitions for frameworks, methods, pri
 
 ## Acceptance check (must pass before you report)
 
-```powershell
-python -I "{{framework_path}}/tools/check_wiki.py" --brain "{{brain_path}}" "{{brain_path}}/wiki/sources/<id>.md" ... "{{brain_path}}/ingest/staging/<batch>.yaml"
+```sh
+python -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{brain_path}}" "{{brain_path}}/wiki/sources/<id>.md" ... "{{brain_path}}/ingest/staging/<batch>.yaml"
 ```
 
 Use absolute paths for the brain and page files. It verifies frontmatter, that every citation resolves to a real raw file and block, that every quote is verbatim at the cited block, and that every key claim is cited. Fix every error, then re-run until it prints `ok: N files`. A "found elsewhere: fix the timestamp" error means the quote exists but you cited the wrong block.

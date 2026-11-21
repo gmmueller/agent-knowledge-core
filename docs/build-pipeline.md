@@ -2,7 +2,7 @@
 
 Two kinds of brain, two pipelines. A **persona brain** (a course or community) crawls its own sources into `raw/`. A **topic brain** (`kind: topic`) selects items from the shared library. Both end in the same checks, evals and generated skill. See `docs/architecture.md` for the difference.
 
-Run Python tools with `python -I <framework>/tools/<tool>.py …`. Tools that work on one brain take `--brain <brain-folder>`. Tools that only touch the library take `--workspace <workspace>`. `--help` on any tool lists its options.
+Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py …` (with the venv active). Tools that work on one brain take `--brain <brain-folder>`. Tools that only touch the library take `--workspace <workspace>`. `--help` on any tool lists its options.
 
 ## Persona brain pipeline
 
@@ -21,7 +21,7 @@ Run Python tools with `python -I <framework>/tools/<tool>.py …`. Tools that wo
 
 ## Topic brain pipeline
 
-library → catalogue → triage → fetch → speaker pass → ingest waves → merge → debates → evals → skill
+library → catalogue → triage → fetch → speaker pass → ingest waves → merge → debates → rule audit → draft skill → evals → skill
 
 | # | Step | Tools and briefs | Output | Who |
 |---|---|---|---|---|
@@ -29,18 +29,34 @@ library → catalogue → triage → fetch → speaker pass → ingest waves →
 | 2 | **Catalogue.** List every item of each publisher, metadata only | `library_yt.py catalogue`, `web_to_raw.py list`, `book_to_raw.py` | `catalogue.tsv` | volume worker / script |
 | 3 | **Triage.** Score rows against the brain's extraction areas, then merge into tiers | `triage_inputs.py`, `docs/triage.md`, `triage_merge.py`, `selection_override.py` | `ingest/triage/*.tsv`, `selection.yaml` | low-cost volume workers; orchestrator spot-checks |
 | 4 | **Fetch.** Fetch the selected items into raw (or staging for multi-speaker items) | `library_yt.py fetch --selection …`, `web_to_raw.py fetch`, `book_to_raw.py` | `library/<publisher>/raw/` | volume worker |
-| 5 | **Speaker pass.** Diarize multi-speaker items, name the speakers, finalize | `diarize.py`, `speaker_naming.md`, `finalize_raw.py` | raw with `speakers`, `people.yaml` | script + naming agents |
+| 5 | **Speaker pass.** Diarize multi-speaker items, name the speakers, finalize (skip for single-author text) | `diarize.py`, `speaker_naming.md`, `finalize_raw.py` | raw with `speakers`, `people.yaml` | script + naming agents |
 | 6 | **Examples** (optional). Measure demonstration videos, then annotate them | `example_frames.py`, `check_examples.py`, `link_examples.py` | `library/<publisher>/examples/`, `wiki/examples/` | script + volume workers |
 | 7 | **Ingest waves.** Batch workers write source pages and staging; one wave per publisher group | `briefs/topic-ingest-brief.md`, `check_wiki.py` | `wiki/sources/`, `ingest/staging/` | volume workers |
-| 8 | **Merge.** Survey concepts, fix duplicate slugs, write bundles, then concept pages | `merge_topic.py survey`, `ingest/slug-map.yaml`, `merge_topic.py bundles`, `briefs/topic-pages-brief.md` | `ingest/bundles/`, `wiki/{topics,principles,…}/` | volume workers; orchestrator plans groups |
+| 8 | **Merge.** Survey concepts, fix duplicate slugs, write bundles, `page-groups.yaml` and `item-pages.tsv`, then concept pages | `merge_topic.py survey`, `ingest/slug-map.yaml`, `merge_topic.py bundles`, `briefs/topic-pages-brief.md` | `ingest/bundles/`, `wiki/{topics,principles,…}/` | volume workers; orchestrator plans groups |
 | 9 | **Debates.** One page per question on which sources disagree | `briefs/debates-brief.md` | `wiki/debates/` | volume workers |
 | 10 | **Rule audit.** Recount rule status by independent voice, lint, rebuild the index | `rule_status.py --write`, `lint_wiki.py --fix-slug-map`, `build_wiki_index.py` | `wiki/rules/`, `index.md` | orchestrator |
 | 11 | **Rubrics** (optional). Calibrate scoring checklists with two cold graders | `rubric_agreement.py` | `wiki/rubrics/`, `rubric-calibration/` | volume workers + orchestrator |
-| 12 | **Evaluate.** Fresh agent with only the skill answers a fixed set, including traps | `evals.md`, `verify_eval_quotes.py` | `evals-run-<date>.md` | orchestrator |
-| 13 | **Skill and search.** Generate the skill; index the wiki and library with qmd | `generate_persona.py`, qmd | skill, qmd collections | orchestrator / script |
+| 12 | **Draft skill and evaluate.** Generate a draft skill, run cold evals with a fresh agent (including traps), check quotes, fix gaps | `generate_persona.py`, `evals.md`, `verify_eval_quotes.py` | draft skill, `evals-run-<date>.md` | orchestrator |
+| 13 | **Final skill and search.** Regenerate the skill if `brain.md` or rule counts changed; index the wiki and library with qmd | `generate_persona.py`, qmd | skill, qmd collections | orchestrator / script |
 | 14 | **Keep current.** Re-catalogue, triage the new rows, ingest a new wave | `docs/updates.md`, `refresh_due.py` | updated wiki | as above |
 
 Work in waves: ingest the best-covered publishers first, run the merge pass on what you have, and check the gate and the evals before adding the next wave. Each wave adds source pages and staging; each merge pass rebuilds bundles and concept pages from all staging so far.
+
+**Books and text-only sources:** capture PDFs with `book_to_raw.py` (which writes raw, updates `catalogue.tsv` and appends to `crawl-log.md`; pass `--pages 1-12,40-55` to select pages while keeping original PDF page numbers) and web chapters with `web_to_raw.py fetch` (pass `--from-heading` / `--to-heading` to select a section before capture). Skip step 5 (speaker pass) for single-author text (`speaker_method: single`). For a small fixed set of books you already plan to ingest in full, capture first and record the rows in `selection.yaml` (via `triage_merge.py` or by hand). See `examples/README.md` for a complete text-only topic brain.
+
+**Merge planning files:** before dispatching page and debate writers, the orchestrator writes two small files under `<brain>/ingest/`:
+
+- `page-groups.yaml`:
+  ```yaml
+  groups:
+    - name: group-one
+      slugs: [concept-a, concept-b, rule-example]
+  debates:
+    - slug: debate-example
+      title: "Question the sources disagree on?"
+      concepts: [concept-a, rule-example]
+  ```
+- `item-pages.tsv`: two-column UTF-8 TSV with header `item<TAB>page`, mapping `<publisher>/<source_id>` to each source or example page slug (multi-chapter items repeat `item` across rows). Build it from the union of `item`, `items` and each `sources:` raw file's `publisher/source_id`.
 
 ## Raw file format (transcripts)
 
@@ -65,22 +81,22 @@ Paragraph roughly every 30 seconds, with timestamps kept so citations can deep-l
 
 ## Membership sites (logged-in content)
 
-- Use a **real Chrome window the user logs into**: a dedicated per-brain profile and port (assignments in the private workspace's agent instructions and the port in `crawl.yaml`), opened with `--user-data-dir` and `--remote-debugging-port`, and have agents attach over CDP (Playwright `connect_over_cdp`). This gets past Cloudflare and avoids automation fingerprints. The user does the login and any 2FA; agents never handle the password.
+- Use a **real Chrome window the user logs into**: launch it on any OS with `python -X utf8 -I <framework>/tools/launch_chrome.py --brain <brain> [--chrome <executable>]`, which reads `site`, `cdp_port` and `profile` (default `chrome-<brain>`) from `crawl.yaml` and stores the profile under `<workspace>/.secrets/`. Agents attach over CDP (Playwright `connect_over_cdp`). This gets past Cloudflare and avoids automation fingerprints. The user does the login and any 2FA; agents never handle the password.
 - Prefer the platform's own JSON/API calls made from inside the logged-in page over HTML scraping.
 - Video hosts behind course platforms (Wistia, Vimeo, Kajabi's player) often expose captions or a media ID that yt-dlp can fetch. Try captions first, then audio download plus whisper.
 - Crawl politely: sequential requests with small delays, no hammering.
 
 ## Tool entry points
 
-Run Python tools with `python -I <framework>/tools/<tool>.py --brain <workspace>/my-course` (or `--workspace <workspace>` for library tools). Isolated mode is supported; tools add their own sibling helper directory to the import path.
+Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py --brain <workspace>/my-course` (or `--workspace <workspace>` for library tools). Isolated mode is supported; tools add their own sibling helper directory to the import path.
 
 **Map and crawl (persona brains)**
-- Map and inspect: `cdp_status.py`, `cdp_probe.py`, `cdp_lesson_probe.py`, `kajabi_map.py`.
+- Launch, map and inspect: `launch_chrome.py` (`--brain <brain> [--chrome <executable>]`), `cdp_status.py`, `cdp_probe.py`, `cdp_lesson_probe.py`, `kajabi_map.py`.
 - Skool communities: `skool_session.py` (attach to the logged-in tab), `skool_classroom_map.py`, `skool_classroom_crawl.py`, `skool_feed_index.py`, `skool_feed_stats.py`, `skool_thread_tiers.py`, `skool_thread_crawl.py`, `skool_thread.py`, `skool_attachments.py`, `skool_bulk.py` (chains phases and resumes after a cooldown), `skool_next.py`, `skool_verify.py`, `skool_ingest_batches.py`, `skool_probe.py`, `skool_text.py` (shared parsing). Settings come from `<brain>/crawl.yaml` with `platform: skool`.
 - Capture and transcribe: `kajabi_lesson_assets.py`, `wistia_to_raw.py`, `whisper_transcribe.py`, `build_raw.py`, `attachment_to_raw.py`, `yt_to_raw.py`, `whisper_lines.py`, `mux_captions.py`.
 
 **Library (topic brains)**
-- Catalogue and fetch: `library_yt.py`, `web_to_raw.py`, `book_to_raw.py` (helpers in `library_raw.py`).
+- Catalogue and fetch: `library_yt.py`, `web_to_raw.py` (`--from-heading` / `--to-heading` select sections before capture on paragraph pages; `--recapture` writes a dated capture), `book_to_raw.py` (`--published` accepts `YYYY`, `YYYY-MM` or `YYYY-MM-DD`; `--pages 1-12,40-55` keeps original PDF page numbers; updates `catalogue.tsv` and appends to `crawl-log.md`; helpers in `library_raw.py`).
 - Speaker pass: `diarize.py`, `speaker_naming.md` (the naming agent's brief), `finalize_raw.py`.
 - Examples: `example_frames.py`, `check_examples.py`, `link_examples.py`.
 - Triage: `triage_inputs.py`, `triage_merge.py`, `selection_override.py`.
@@ -88,15 +104,15 @@ Run Python tools with `python -I <framework>/tools/<tool>.py --brain <workspace>
 **Ingest and merge**
 - Ingest: fill `briefs/ingest-brief.md` (persona) or `briefs/topic-ingest-brief.md` (topic), dispatch isolated batches, run `check_wiki.py` on their source pages and staging.
 - Merge, persona brain: `merge_staging.py --brain <path> survey`, resolve duplicate slugs in `ingest/slug-map.yaml`, then `merge_staging.py --brain <path> bundles`. Fill `briefs/pages-brief.md` for concept writers.
-- Merge, topic brain: `merge_topic.py --brain <path> survey`, then `slug-map.yaml`, then `merge_topic.py --brain <path> bundles`. Fill `briefs/topic-pages-brief.md` for concept writers and `briefs/debates-brief.md` for debate writers.
+- Merge, topic brain: `merge_topic.py --brain <path> survey`, then `slug-map.yaml`, then `merge_topic.py --brain <path> bundles`. Write `ingest/page-groups.yaml` and `ingest/item-pages.tsv`, then fill `briefs/topic-pages-brief.md` for concept writers and `briefs/debates-brief.md` for debate writers.
 - Rule status, topic brain: `rule_status.py --brain <path> [--write]`.
 
 **Check, generate, evaluate**
-- Check: `check_wiki.py`, `lint_wiki.py`, `build_wiki_index.py`, `requote.py`; update `wiki/hot.md` and `wiki/log.md` after accepting the changes.
+- Check: `check_wiki.py`, `lint_wiki.py`, `build_wiki_index.py`, `requote.py` (re-anchors timestamps, `¶N` paragraph and `p. N` page locators); update `wiki/hot.md` and `wiki/log.md` after accepting the changes.
 - Evaluate: `verify_eval_quotes.py --brain <path> <answers.md>`; `rubric_agreement.py <grader-a.tsv> <grader-b.tsv>`.
-- Generate: `generate_persona.py --brain <path> --out <skills-directory>`.
+- Generate: `generate_persona.py --brain <path> --out <skills-directory> [--relative-to <dir>]`.
 - Remind: `refresh_due.py --workspace <workspace> --all`.
-- Search: `install_qmd.ps1`.
+- Search: qmd (`tools/install_qmd.ps1` on Windows; `npm install -g @tobilu/qmd` on macOS/Linux, after `brew install sqlite` on macOS).
 
 Product headings in the index use registry titles in `sources.yaml` order, with `outline.yaml` titles as fallback. Associate a source with its product using `product:` or `code:`, `crawl.yaml`'s `source_id`, a matching outline product URL, or legacy `(product code main)` notes. Unregistered product codes are still listed.
 
@@ -108,7 +124,7 @@ Run `python -I tests/test_wiki_tools.py --scratch <workspace>/.secrets/scratch` 
 
 Persona brains: `merge_staging.py` keeps a provisional status: one distinct lesson is `bench`, two or more are `active`. The orchestrator reviews independence before accepting a promotion. A lesson and its case-study follow-up count as one source; independent modules or courses provide stronger evidence (or three or more independently supporting lessons). Count an attachment with its lesson, and count community threads as one source kind.
 
-Topic brains: set `rule_status: voices` in `brain.md`. Then `active` needs two or more independent **voices**: distinct speakers after `expert_aliases` (a duo that counts once), `voice_aliases` (platform staff count as the platform) and `hosts` (ignored). `consensus` needs two or more listed experts. `contested` is set by page writers, never by a tool. `rule_status.py` recounts from the bundles and respects `status_locked: true`.
+Topic brains: set `rule_status: voices` in `brain.md`. Then `active` needs two or more independent **voices**: distinct speakers after `expert_aliases` (a duo that counts once), `voice_aliases` (platform staff count as the platform) and `hosts` (ignored). `consensus` needs two or more listed experts. `contested` is set by page writers, never by a tool. `rule_status.py` recounts from the bundles and respects `status_locked: true`. Because voices are counted by name, distinct authors who borrow from each other still count separately; note known borrowing or citation chains in prose (for example Strunk citing Quiller-Couch, who borrows from the Fowlers) and set `status_locked: true` with a `status_note` when the voices are not truly independent.
 
 ## Lessons learned
 
@@ -131,11 +147,12 @@ Each line says what to do and what happened. They are grouped by stage.
 - **Check user-supplied PDFs before ingesting.** Look at the first pages. A "book PDF" turned out to be a third-party summary (not primary), another file was a different book with a shared subtitle, and a "full audiobook" video duplicated a book already in the library.
 - **Ebook PDF quirks:** shadow-library PDFs stamp a watermark line on every page; drop it with `book_to_raw.py --drop-line "<regex>"`. pypdf returns typographic ligatures and unmapped glyphs as NUL bytes, which make Read and Edit refuse the file; `book_to_raw.py` expands ligatures and maps NUL to U+FFFD. Symbol-font glyphs (game tiles, music notation, chess diagrams) come out as stray letters: tell workers to quote prose only.
 - **Papers and scans:** text-layer PDFs convert with pdftotext or pypdf (`raw/paper/`, `@ p. N`). For scanned PDFs, don't have a model transcribe them verbatim: a model copying a copyrighted article page by page was stopped by the API content filter. OCR locally instead (two-column order rebuilt from box positions), set `method: pdf-ocr-model`, and check the scan before quoting.
-- **Re-crawls:** after re-crawling a raw file, re-anchor wiki quotes with `requote.py --brain <path>` (review similarity matches before `--apply`; then check exact quotes) instead of re-ingesting.
+- **Re-crawls:** after re-crawling a raw file, re-anchor wiki quotes with `requote.py --brain <path> <raw-rel-path> <files...>` (it handles timestamps, `¶N` paragraph and `p. N` page locators; review similarity matches before `--apply`, then check exact quotes) instead of re-ingesting.
+- **Select before capture; never edit raw:** use `book_to_raw.py --pages 1-12,40-55` for PDF page ranges and `web_to_raw.py fetch --from-heading "Start" --to-heading "End"` for HTML sections (start inclusive, end exclusive, exact unique headings, renumbered from `¶1`; cannot combine with `--transcript`). Never edit a raw file after capture.
 
 ### Transcripts and speakers
 
-- **Whisper (faster-whisper on Windows):** add the `nvidia/*/bin` wheel dirs with `os.add_dll_directory`, and load 16 kHz WAV with numpy (the bundled PyAV decoder breaks). Always scan output for repeated phrases (`(.{8,80}?)\1{2,}`), not just repeated segments; fix loops with `whisper_transcribe.py --anti-loop` (keeps punctuation). `--no-prev-text` removes loops but loses punctuation.
+- **Whisper (faster-whisper):** uses CUDA when available, otherwise CPU (no Apple GPU backend). On Windows, add the `nvidia/*/bin` wheel dirs with `os.add_dll_directory` (done automatically by `whisper_runtime.py`), and load 16 kHz WAV with numpy (the bundled PyAV decoder breaks). Always scan output for repeated phrases (`(.{8,80}?)\1{2,}`), not just repeated segments; fix loops with `whisper_transcribe.py --anti-loop` (keeps punctuation). `--no-prev-text` removes loops but loses punctuation.
 - **Prefer a publisher's own transcript** (named speakers, timestamps, punctuation) over captions plus diarization. YouTube auto-captions mark turns with `>>` but carry no word offsets.
 - **Diarization is about 85% right at turn edges.** Turn-aware ECAPA diarization (`diarize.py`) is the default. Whisper word alignment (`--whisper-words`) did not beat it, so it stays opt-in. Ingest reads quotes in context and logs `speaker_doubts` rather than trusting labels.
 - **Duo hosts sound alike to the machine.** When a label is clearly one of two co-hosts but no anchor says which, name it with the duo's name, and map both hosts to that name in `expert_aliases` so the duo counts once.
@@ -155,14 +172,15 @@ Each line says what to do and what happened. They are grouped by stage.
 
 ### Ingest
 
-- **Parallel batch workers write source pages and staging only;** a merge pass builds shared pages from per-concept bundles. Give workers a gold example page, a seed slug vocabulary and `check_wiki.py` as the acceptance gate (it verifies every quote verbatim at its cited block and the speaker against the block's prefix).
+- **Parallel batch workers write source pages and staging only;** a merge pass builds shared pages from per-concept bundles. Give workers a gold example page, a seed slug vocabulary and `check_wiki.py` as the acceptance gate (it verifies frontmatter, citation resolution, verbatim quotes at the cited block, speaker match and cited claims; it does not enforce minimum quote counts, coverage depth or prose quality, so spot-check brief minimums separately).
 - **Cap batches by words and by pages** (at most about 50 source pages per batch). Tell workers to reuse slugs from finished staging files; this kept 1,771 concept entries to 262 slugs.
 - **Digest community threads** (for example one monthly Q&A digest) instead of writing one page per thread, so member threads stay as context. `check_wiki.py` verifies thread quotes by comment author (`@ c:<id8>`).
 - **Recency:** for fast-moving tool brains, tag every staging point `freshness` (evergreen or tool-version or platform), let `merge_staging.py` attach source dates, and give tool pages a **Current vs dated** section. Limit member threads by age and keep all expert material.
 - **Dated facts carry their capture date in the text:** "listed at $174.99 (2026-10-16)".
 - **Cut slug sprawl at the source.** Two big books produced 140 new slugs, most of them single-chapter sub-ideas. Budget for a heavy `slug-map.yaml` pass, or tell workers to put sub-parts in the points of one principle slug per chapter.
 - **Map items to pages from every field.** Source pages that combine several raw files list one `item`, so a map built from `item` or `items` alone leaves bundle items unmapped. Build `item-pages.tsv` from the union of `item`, `items` and each `sources:` raw file's `publisher/source_id`, then check that every bundle item maps.
-- **Mojibake from workers:** writers on some providers wrote `?` for `·` and `–` in dozens of pages; `check_wiki.py` passes these because citations and quotes still resolve. After each wave, diff added lines against HEAD for `]] ? [[`, `\w?\w` and `\d?\d`, and tell writers to write UTF-8, never PowerShell `Set-Content`.
+- **Mojibake from workers:** writers on some providers wrote `?` for `·` and `–` in dozens of pages; `check_wiki.py` passes these because citations and quotes still resolve. Tell writers to write UTF-8, never PowerShell `Set-Content`.
+- **Scan whole files for `?` corruption:** workers sometimes write `?` in place of apostrophes, en dashes and arrows (for example `expert?s`, `30?45`, `Nov 4 ? Nov 10`), and it flows from staging into bundles and concept pages; scanning only added diff lines missed about a hundred cases in older pages, so after each ingest scan whole changed files, and staging before merging, for `[A-Za-z]\?s\b`, `\d\?\d` and ` \? ` between words, ignoring URLs.
 - **No placeholders in paths.** A writer that shortened long raw paths to tokens and planned to substitute them at the end left broken frontmatter when it was stopped. Tell writers to write final paths directly. Then a stopped run can resume by keeping every page that passes the check.
 - **Python on Windows:** `python3` is the Microsoft Store alias stub and hangs in agent shells. Tell workers to use the venv's `python -I`, never `python3`. A bare `python -` (script on stdin) with no heredoc also hangs: workers left stuck background jobs that way. Tell them to write a script file or use `-c`.
 - **`sed -i` in Git Bash** rewrites CRLF files as LF, and with `autocrlf=true` every file it touches shows as modified. Run it only on the files that need the change, never on a glob.
@@ -184,7 +202,7 @@ Each line says what to do and what happened. They are grouped by stage.
 
 - **Calibrate every rubric.** A 0/1/2 scale without anchors gives different scores from different graders. Use 8 to 10 non-overlapping criteria, each with a concrete **Test** and cited 0/1/2 anchors (experts' own before/after examples for the low end, annotated examples for the high end), plus a calibration set. Have two cold graders score held-out items and synthetic items written to spread scores, compare with `rubric_agreement.py`, and turn each disagreement into an edge-case rule. Expect three runs to reach 83 to 100% exact agreement per criterion.
 - **A rubric is a gate and a diagnosis, not a forecast.** Test it on the owner's real content too: in one trial, hook scores did not predict views but cut rhythm did.
-- **Run evals cold:** a fresh agent with only the generated skill answers each item. Grade pass, partial or fail against `must include` and `must not` points. Run `verify_eval_quotes.py` on the answers.
+- **Run evals cold:** generate a draft skill first (`generate_persona.py`), then have a fresh agent with only that skill answer each item. Grade pass, partial or fail against `must include` and `must not` points, run `verify_eval_quotes.py` on the answers, fix gaps, and regenerate the skill if `brain.md` or rule counts changed.
 - **Include trap items:** a question with a missing premise, a request that breaks a hard rule, a claim the research doesn't support, and a premise that is wrong.
 - **Fix the eval when the eval is wrong.** If a graded failure traces to an eval criterion that contradicts the sources, correct the criterion and say so in the run file.
 - **A rebuilt wiki must score at least as well** as the one it replaces.
@@ -193,4 +211,4 @@ Each line says what to do and what happened. They are grouped by stage.
 
 - **`generate_persona.py --out` takes the skills parent folder.** Passing the skill folder itself writes a nested `<brain>/<brain>/` copy. Then run your sync step.
 - **Sync scripts that mirror a whole skills folder** also copy other people's in-place edits. When only brain skills changed, copy those folders instead.
-- **qmd on Windows:** under Node, qmd crashes (access violation) when loading sqlite-vec, so run it under Bun. `install_qmd.ps1` installs it and rewrites the npm shims; re-run it after every qmd upgrade. Index each persona brain as two collections, `<brain>-wiki` and `<brain>-raw`, each with a `qmd context`. Topic brains get `<brain>-wiki` only and share the `library` collection. Register the MCP server in your agent tooling as `bun <npm>\node_modules\@tobilu\qmd\dist\cli\qmd.js mcp`.
+- **qmd:** on Windows, Node crashes (access violation) when loading `sqlite-vec`, so run it under Bun (`tools/install_qmd.ps1` installs qmd and rewrites the npm shims; re-run it after every upgrade, and register MCP as `bun <npm>\node_modules\@tobilu\qmd\dist\cli\qmd.js mcp`). On macOS/Linux, install with `npm install -g @tobilu/qmd` (on macOS, run `brew install sqlite` first). Index each persona brain as two collections, `<brain>-wiki` and `<brain>-raw`, each with a `qmd context`. Topic brains get `<brain>-wiki` only and share the `library` collection.

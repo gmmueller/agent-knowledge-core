@@ -27,7 +27,7 @@ Once a brain is `active` and its refresh script runs unattended, schedule it wit
 
 - **Per brain:** `refresh: { reminders: false }` in the brain's `brain.md` frontmatter switches reminders off for that whole brain (default: on). Use it for brains you don't plan to update.
 - **Per source:** the `refresh` cadence in `sources.yaml`. `manual` or `never` means no reminder for that source.
-- **Check:** `python -I <framework>/tools/refresh_due.py --workspace <workspace> [--all]` (`--root` also works) lists sources whose `last_crawled` + cadence has passed. It reads files only (no browser, no network).
+- **Check:** `python -X utf8 -I <framework>/tools/refresh_due.py --workspace <workspace> [--all]` (`--root` also works) lists sources whose `last_crawled` + cadence has passed. It reads files only (no browser, no network).
 - **Schedule:** a weekly scheduled reminder runs the check and reports the list to the user. It only reminds; the refresh itself is started by the user, because most sources need the logged-in browser.
 
 The reminder check also reads `library/*/sources.yaml` and flags `type: tool` wiki pages whose `recheck_by` date has passed.

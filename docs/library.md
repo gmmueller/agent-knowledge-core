@@ -16,9 +16,9 @@ library/
     raw/                           immutable text, written once
       yt/<YYYYMMDD>-<videoid>-<slug>.md
       pod/<YYYYMMDD>-<episode-slug>.md
-      web/<YYYYMMDD>-<slug>.md     (date = published; 00000000 if unknown)
+      web/<YYYYMMDD>-<slug>.md     (date = published; YYYYMM00 / YYYY0000 for partial dates; 00000000 if unknown)
       book/<slug>.md
-      paper/<YYYYMMDD>-<slug>.md   (research papers; date = publication, YYYY0000 if only the year is known)
+      paper/<YYYYMMDD>-<slug>.md   (research papers; YYYYMM00 / YYYY0000 for partial dates; 00000000 if unknown)
     examples/<item-id>.yaml        measured facts about a video used as an example (cuts, frames); not opinions
     staging/                       intermediate files (diarization, speaker naming); gitignored
     media/                         audio, video, frames, PDFs; gitignored
@@ -60,7 +60,7 @@ UTF-8, tab-separated, header row, no tabs or newlines inside fields. Rewritten o
 | `id` | item id (above) |
 | `kind` | `video`, `short`, `stream`, `podcast`, `post`, `book`, `paper`, `doc` |
 | `title` | |
-| `published` | `YYYY-MM-DD`, empty if unknown |
+| `published` | `YYYY-MM-DD`, `YYYY-MM` or `YYYY`; empty if unknown |
 | `duration_s` | integer seconds; empty for text |
 | `views` | integer; empty if unknown |
 | `url` | canonical URL |
@@ -96,7 +96,8 @@ Body blocks, one per line, each starting with its **locator**:
 | book or PDF | `**[p. 37]**` on its own line, then that page's text | `@ p. 37` |
 
 - Transcript blocks start a new block at every **speaker change**, otherwise roughly every 30 s at a sentence end (forced at 45 s), as in `tools/wistia_to_raw.py`.
-- Raw is immutable: tools refuse to overwrite an existing file. Fix a bad file by writing a new one and updating references (`tools/requote.py`).
+- **Dates:** `published` accepts `YYYY`, `YYYY-MM` or `YYYY-MM-DD`. Partial dates record `publication_precision: year` or `month` in frontmatter, and filenames pad missing parts with zeros (`YYYY0000`, `YYYYMM00`, or `00000000` when unknown). If a web page lacks machine-readable date metadata (`published: ""` and `00000000` filename) for a work whose edition year is known, keep raw untouched and record the verified edition year plus `publication_precision: year` on the wiki source page.
+- **Pre-capture selection vs immutable raw:** selecting a subset **before** capture is supported and recorded in raw frontmatter (`book_to_raw.py --pages 1-12,40-55` keeps original PDF `p. N` locators; `web_to_raw.py fetch --from-heading "Start" --to-heading "End"` is start-inclusive, end-exclusive, requires exact unique headings, renumbers selected paragraphs from `¶1`, and cannot combine with `--transcript`). Editing a raw file **after** capture is never allowed; tools refuse to overwrite an existing file. Fix a bad file by re-capturing (for web pages, `--recapture` writes a dated capture) and re-anchoring wiki quotes with `tools/requote.py` (which handles timestamps, `¶N` paragraph and `p. N` page locators).
 
 ## Citations from a brain wiki
 
@@ -157,8 +158,8 @@ Sources whose publisher already prints a speaker-labelled transcript (for exampl
 | Task | Tool |
 |---|---|
 | List a channel, feed or playlist; fetch captions or audio; add single videos | `library_yt.py --workspace <ws> {catalogue,fetch,add} <publisher>` |
-| List and capture blogs, docs and transcript pages | `web_to_raw.py --workspace <ws> {list,fetch} <publisher>` |
-| Turn a user-supplied book or paper PDF into raw | `book_to_raw.py --workspace <ws> <publisher> <pdf> --slug … --title … --author … --published …` |
+| List and capture blogs, docs and transcript pages (use `--from-heading` / `--to-heading` to select sections before capture on paragraph pages; `--recapture` for a fresh dated capture) | `web_to_raw.py --workspace <ws> {list,fetch} <publisher>` |
+| Turn a user-supplied book or paper PDF into raw, updating `catalogue.tsv` and appending to `crawl-log.md` (`--published` accepts `YYYY`, `YYYY-MM`, `YYYY-MM-DD`; `--pages 1-12,40-55` keeps original PDF page numbers) | `book_to_raw.py --workspace <ws> <publisher> <pdf> --slug … --title … --author … --published DATE [--pages …]` |
 | Speaker pass: cluster voices, then name them | `diarize.py --workspace <ws> <publisher> <item>`, a naming agent, then `finalize_raw.py --workspace <ws> <publisher> <item>` |
 | Measure an example video (cuts, frames, opening lines) | `example_frames.py --workspace <ws> <publisher> <yt-id …>` |
 | Shared helpers (paths, slugs, catalogue read/write, raw writing) | `library_raw.py` (imported by the tools above) |

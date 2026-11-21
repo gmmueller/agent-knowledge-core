@@ -72,11 +72,11 @@ Use the canonical concept list in `ingest/page-groups.yaml`; the orchestrator fi
 
 ## Acceptance check
 
-```powershell
-python -I "{{framework_path}}/tools/check_wiki.py" --brain "{{brain_path}}" <absolute page paths...>
+```sh
+python -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{brain_path}}" <page paths...>
 ```
 
-Use absolute paths for the brain and page files. It verifies frontmatter, rule status and quotes, and that every citation resolves and every quote is verbatim at its block. Iterate until it prints `ok: N files`.
+Pass paths that resolve from your working directory (or absolute paths). It verifies frontmatter, rule status and quotes, and that every citation resolves and every quote is verbatim at its block. Iterate until it prints `ok: N files`.
 
 ## Report back (short)
 

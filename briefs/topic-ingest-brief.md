@@ -4,13 +4,16 @@ You are ingesting part of the **{{brain_name}} brain**: a topic brain on {{brain
 
 Fill in every `{{placeholder}}` and the "fill in per brain" sections before dispatching a worker. This brief must stand alone: the worker sees nothing else of the conversation.
 
-Paths below are relative to the workspace `{{workspace}}` unless they start with `tools/` (relative to `{{framework_path}}`). Run Python as `{{python}} -I` (your venv's Python). Never use `python3`, and never pipe a script into a bare `python -` (both hang in agent shells): write a script file or use `-c`. Write UTF-8, and never use PowerShell `Set-Content`.
+**Paths and Python:**
+- Framework root (`{{framework_path}}`): `AGENTS.md`, `docs/`, `tools/`, `examples/`.
+- Workspace root (`{{workspace}}`): `library/` and `{{brain_name}}/`. All wiki, ingest and library paths below are relative to `{{workspace}}`.
+- Run commands from `{{framework_path}}` (or pass full paths to `tools/` and `--brain`). Run Python as `{{python}} -X utf8 -I` (your venv's Python). Never use `python3` on Windows, and never pipe a script into a bare `python -` (both hang in agent shells): write a script file or use `-c`. Write UTF-8, and never use PowerShell `Set-Content`.
 
 Read first:
-1. `AGENTS.md` (core rules).
-2. `docs/library.md` (raw formats, speakers, citations).
-3. `{{brain_name}}/brain.md` (scope, evidence types, experts, extraction areas, what the brain must never do).
-4. The gold example `{{gold_source_page}}`. Copy its shape. If it comes from another brain, ignore its topic.
+1. `{{framework_path}}/AGENTS.md` (core rules).
+2. `{{framework_path}}/docs/library.md` (raw formats, speakers, citations).
+3. `{{workspace}}/{{brain_name}}/brain.md` (scope, evidence types, experts, extraction areas, what the brain must never do).
+4. The gold example `{{gold_source_page}}`. Copy its shape. If you are starting a brand-new brain with no local pages yet, point this at a reference page such as `{{framework_path}}/examples/workspace/plain-writing/wiki/sources/strunk-concision.md` (or write the first source page yourself as the local gold). If it comes from another brain, ignore its topic.
 
 ## What you write (and nothing else)
 
@@ -40,7 +43,7 @@ Examples of what belongs here (delete the ones that don't apply):
   - `type: source`
   - `sources: [library/<publisher>/raw/<path>.md]` (every raw file you cite, with `.md`)
   - `updated: {{date}}`
-  - `publisher`, `item` (`<publisher>/<source_id>`), `url`, `title`, `published`, `method` and `speaker_method` (copied from raw)
+  - `publisher`, `item` (`<publisher>/<source_id>`), `url`, `title`, `published`, `method` and `speaker_method` (copied from raw; if a web capture has empty `published` because the page lacked date metadata, record the verified edition year and `publication_precision: year` on the source page and leave raw untouched)
   - `speakers` (who talks); for books, papers and rulebooks, `authors` instead
   - `pages: <first>-<last>` for a book section (PDF page numbers); `duration` for video or audio
   - `evidence:` one of {{evidence_types}} (defined in `brain.md`; `inference` is always allowed)
@@ -165,11 +168,11 @@ List canonical slugs, grouped by area, before dispatching. Reuse them. Add the e
 
 ## Acceptance check (must pass before you report)
 
-```
-{{python}} -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <page files...> "{{workspace}}/{{brain_name}}/ingest/staging/<batch>.yaml"
+```sh
+{{python}} -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <page files...> "{{workspace}}/{{brain_name}}/ingest/staging/<batch>.yaml"
 ```
 
-Use absolute paths. It verifies frontmatter, that citations resolve to a real block, that quotes are verbatim at the cited block, that each quote's speaker matches the block's speaker, and that key claims are cited. Fix every error and re-run until it prints `ok: N files`. "Found elsewhere: fix the timestamp" means the quote exists but you cited the wrong block. Never fix a speaker mismatch by renaming to a label you believe is wrong: drop the quote and log a `speaker_doubts` entry.
+Pass paths that resolve from your working directory (or absolute paths). `check_wiki.py` verifies frontmatter, that citations resolve to a real block, that quotes are verbatim at the cited block, that each quote's speaker matches the block's speaker, and that key claims are cited. It does not enforce minimum quote counts, coverage depth or prose quality; check the brief's minimums separately. Fix every error and re-run until it prints `ok: N files`. "Found elsewhere: fix the timestamp" means the quote exists but you cited the wrong block. Never fix a speaker mismatch by renaming to a label you believe is wrong: drop the quote and log a `speaker_doubts` entry.
 
 ## Report back (short)
 

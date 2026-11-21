@@ -4,10 +4,13 @@ You write **debate pages**: one page per question on which the sources disagree,
 
 Fill in every `{{placeholder}}` before dispatching a worker. This brief must stand alone apart from the page brief it points to.
 
-Paths are relative to the workspace `{{workspace}}`. Run Python as `{{python}} -I`; never `python3`, never a bare `python -` with stdin. Write UTF-8.
+**Paths and Python:**
+- Framework root (`{{framework_path}}`): `AGENTS.md`, `docs/`, `tools/`, `briefs/`, `examples/`.
+- Workspace root (`{{workspace}}`): `library/` and `{{brain_name}}/`. All wiki, ingest and library paths below are relative to `{{workspace}}`.
+- Run commands from `{{framework_path}}` (or pass full paths to `tools/` and `--brain`). Run Python as `{{python}} -X utf8 -I`; never `python3` on Windows, never a bare `python -` with stdin. Write UTF-8.
 
-- **Your list:** `{{brain_name}}/ingest/page-groups.yaml` → `debates:`. Each entry gives a `slug`, a `title` (the question) and the `concepts` it covers.
-- **Gold example:** `{{gold_debate_page}}`. Copy its shape and tone. If it comes from another brain, ignore its topic.
+- **Your list:** `{{brain_name}}/ingest/page-groups.yaml` → `debates: [{slug, title, concepts}]`. Each entry gives a `slug`, a `title` (the question) and the `concepts` it covers.
+- **Gold example:** `{{gold_debate_page}}`. Copy its shape and tone. If you are starting a brand-new brain with no local debates yet, point this at a reference page such as `{{framework_path}}/examples/workspace/plain-writing/wiki/debates/debate-technical-coinages.md`. If it comes from another brain, ignore its topic.
 - **Inputs:**
   - the bundles for the listed concepts (`{{brain_name}}/ingest/bundles/<slug>.yaml`);
   - `_conflicts.yaml` (the ingest workers' disagreements, each with both sides cited) and, where the brain has it, `_findings.yaml`;
@@ -52,5 +55,5 @@ Examples of what belongs here (delete the ones that don't apply):
 - **Report a recommended rule status.** If a listed rule is the direct subject of your debate, say whether a source argues against the rule itself (then `contested` fits) or every side shares it (then it doesn't). Don't edit the rule page.
 - Check an ingest "conflict" in the raw text before building a debate on it. Some turn out to be agreement on a closer read; if so, say so in your report and write the page about what remains.
 - Write only your debate pages. No git, no installs. Other writers work at the same time.
-- Run `{{python}} -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <your files>` until it prints `ok: N files`.
+- Run `{{python}} -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <your files>` until it prints `ok: N files` (check minimum quote counts from this brief separately; `check_wiki.py` checks citations, verbatim quotes and speakers).
 - **Report:** the pages you wrote, the check's final line, and one line per debate on where it stands (where the support leans, and your recommended status for any listed rule).

@@ -1,5 +1,7 @@
 # Agent Knowledge Core
 
+![Tests](https://github.com/gmmueller/agent-knowledge-core/actions/workflows/tests.yml/badge.svg)
+
 **A central, cited knowledge core your agents consult, built from experts' own words.**
 
 Turn experts' own material (a course, a community, a video library, blogs or books) into **brains**: cited, LLM-maintained wikis, each with a skill card that an AI agent can load. All your brains live in one private workspace on one shared source library, so every agent in every project consults the same knowledge instead of keeping its own copy. Every claim traces back to a timestamped transcript, every quote is checked word for word, and anything the material doesn't support is labelled **Inference:**.
@@ -16,7 +18,7 @@ It is built on Andrej Karpathy's "LLM wiki" idea, extended with a crawl → tran
 - **Use it only on material you have the right to use.** That means your own content, openly licensed or public-domain material, or courses and communities you have paid for and may use personally.
 - **The course and community crawlers are personal-use tools.** They drive *your own* logged-in browser session, see only what your account can see, and never handle your password. Read the platform's terms before you crawl it, keep request rates low, and don't use them to get around a paywall or access you don't have.
 - **Keep brains private.** Your brains live in your own private workspace, never in this repo. Paid course content is typically licensed for personal use only: don't publish, share or sell brains built from it.
-- The example brain in [`examples/`](examples/) is built only from public-domain books.
+- **Public-domain exception.** [`examples/`](examples/) is the one brain stored in this repo. It uses only verified public-domain books, with exact edition details and retrieval URLs recorded in each publisher's `sources.yaml`, raw frontmatter and crawl log.
 
 ## How it works
 
@@ -41,10 +43,10 @@ sources ──crawl──▶ raw/ ──ingest──▶ wiki/ ──extract─�
 Topic brain:
 
 ```
-library ─▶ catalogue ─▶ triage ─▶ fetch ─▶ speaker pass ─▶ ingest waves ─▶ merge ─▶ debates ─▶ evals ─▶ skill
-(crawled    (metadata   (score     (raw     (who said      (source pages  (bundles, (where     (cold    (generated
- once per    for every   items;     files)   what)          + staging)     concept    experts   agent,   from
- publisher)  item)       tiers)                                            pages)     disagree) traps)   brain.md)
+library ─▶ catalogue ─▶ triage ─▶ fetch ─▶ speaker pass ─▶ ingest waves ─▶ merge ─▶ debates ─▶ draft skill ─▶ evals ─▶ skill
+(crawled    (metadata   (score     (raw     (who said      (source pages  (bundles, (where     (generated     (cold    (regenerated
+ once per    for every   items;     files)   what)          + staging)     concept    experts   from           agent,   if brain.md
+ publisher)  item)       tiers)                                            pages)     disagree) brain.md)      traps)   changed)
 ```
 
 1. **Library.** Each publisher (a channel, blog, podcast, author or vendor) is crawled once into `library/<publisher>/raw/`. `library/people.yaml` records who speaks where.
@@ -52,7 +54,7 @@ library ─▶ catalogue ─▶ triage ─▶ fetch ─▶ speaker pass ─▶ i
 3. **Fetch and speaker pass.** Fetch the selected items. For interviews and panels, diarization clusters the voices, a naming agent labels them, and `finalize_raw.py` writes the raw file with speakers.
 4. **Ingest waves.** Batch workers write source pages and staging (`briefs/topic-ingest-brief.md`). Every quote names its speaker, and `check_wiki.py` verifies the speaker against the cited block.
 5. **Merge.** `merge_topic.py` pools staging into per-concept bundles. Workers write the concept pages (`briefs/topic-pages-brief.md`) and then the debate pages (`briefs/debates-brief.md`). `rule_status.py` recounts rule status by independent voice.
-6. **Evaluate and generate.** A fresh agent with only the skill answers `evals.md`, including trap questions; `verify_eval_quotes.py` checks its quotes. `generate_persona.py` writes the skill.
+6. **Generate, evaluate and refine.** Generate a draft skill (`generate_persona.py`), have a fresh agent with only that skill answer `evals.md` (including trap questions), verify its quotes with `verify_eval_quotes.py`, fix gaps, and regenerate the skill if `brain.md` or rule counts changed.
 
 Rules start as `bench` (one source or voice) and become `active` once they're backed by independent sources. Topic brains add `consensus` (two or more listed experts) and `contested` (a source argues against the rule, with a debate page). Quotes by anyone other than the expert carry the speaker's name.
 
@@ -66,7 +68,8 @@ template/               copy to start a persona brain: brain.md, sources.yaml, c
 template-topic/         copy to start a topic brain: brain.md (topic keys), selection.yaml, evals.md, ingest/, wiki/ with every topic page folder
 briefs/                 ingest, page-writing and debate-writing briefs for parallel workers (persona and topic versions)
 tools/                  brain tools take --brain <folder>; library and workspace tools take --workspace <folder>
-tests/                  unit tests for the wiki, topic, library and Skool tools; acceptance harness for the source adapters
+tests/                  unit tests for the wiki, topic, library, Skool and platform tools; acceptance harness for the source adapters
+examples/               complete public-domain topic brain (Plain Writing) built from three books, with generated portable skill
 ```
 
 Your **workspace** is a separate private folder (its own git repo, no remote):
@@ -83,83 +86,137 @@ my-brains/
 
 The workspace is the single home for everything your agents know from these sources. You build each brain once, there, and every agent in every project consults that same copy.
 
-- **Thin skills, live brains.** `generate_persona.py` writes a small skill (`SKILL.md`, plus `agents/openai.yaml` for Codex) into your agent's **user-level** skills folder, for example `~/.claude/skills/` for Claude Code. The skill holds no knowledge itself. It points by absolute path at the brain's `brain.md`, `wiki/` and sources, and the agent reads them at the moment it uses the skill.
+- **Thin skills, live brains.** `generate_persona.py` writes a small skill (`SKILL.md`, plus `agents/openai.yaml` for Codex) into your agent's **user-level** skills folder, for example `~/.claude/skills/` for Claude Code. The skill holds no knowledge itself. By default it points by absolute path at the brain's `brain.md`, `wiki/` and sources, and the agent reads them at use time (pass `--relative-to <dir>` for a portable sample skill). Topic-brain skills mention annotated examples and platform evidence only when the brain has them.
 - **Every project sees the same brain.** A user-level skill is available in every project on the machine. An agent writing a script in one repo and an agent planning content in another consult the same cited pages.
 - **Update once, everywhere current.** Refresh a brain (`refresh_due.py` says when) and the next use in every project reads the new pages. Regenerate the skill only when `brain.md`'s name, description or scope changes.
 - **Search across all of it.** Index `raw/`, `wiki/` and `library/` with [qmd](https://github.com/tobi/qmd) and any agent can search every brain from one local search server (MCP).
 - **Agents that don't read skills** can still use a brain: point them at `brain.md` and `wiki/index.md` and tell them to follow the "How to use it" steps in the generated `SKILL.md`.
 
+## Example
+
+A complete topic brain built from three public-domain books (Strunk, Quiller-Couch, and H. W. & F. G. Fowler) lives in [`examples/`](examples/README.md). It was built from the framework docs alone.
+
+Open first:
+
+- [`examples/README.md`](examples/README.md) — overview and verification commands.
+- [`examples/workspace/plain-writing/brain.md`](examples/workspace/plain-writing/brain.md) — the topic brain card.
+- [`examples/workspace/plain-writing/wiki/index.md`](examples/workspace/plain-writing/wiki/index.md) — the compiled wiki (16 source pages, 22 concept pages, 2 debate pages).
+- [`examples/skills/plain-writing/SKILL.md`](examples/skills/plain-writing/SKILL.md) — the generated portable skill.
+
+## Setup (Windows, macOS, Linux)
+
+Requires Python 3.11+. Create and activate a virtual environment from the repo root:
+
+| Step | Windows (PowerShell) | macOS / Linux (bash) |
+|---|---|---|
+| Create venv | `python -m venv .venv` | `python3 -m venv .venv` |
+| Activate venv | `.\.venv\Scripts\Activate.ps1` | `source .venv/bin/activate` |
+| Without activation | `.\.venv\Scripts\python.exe` | `.venv/bin/python` |
+
+With the venv active, install the core dependencies (which `requirements.txt` pulls from `requirements-core.txt`; heavy extras such as Whisper, torch and opencv are commented optional groups in `requirements.txt`):
+
+```sh
+python -m pip install -r requirements.txt
+python -m playwright install chromium
+```
+
+Every `python -X utf8 -I tools/...` command below works identically in PowerShell and bash once the venv is active.
+
 ## Quick start: persona brain
 
+Create a private workspace and copy the template:
+
 ```powershell
-# 1. Tools (Python 3.11+; use a venv)
-python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt; .\.venv\Scripts\playwright install chromium
-
-# 2. A private workspace and a brain from the template
+# Windows (PowerShell)
 mkdir ..\my-brains; Copy-Item -Recurse template ..\my-brains\my-course
-#    fill in my-course\brain.md (scope), sources.yaml and crawl.yaml (site, CDP port, products, whisper prompt)
+```
 
-# 3. Log in through a dedicated Chrome profile with remote debugging, then map the course
-& "C:\Program Files\Google\Chrome\Application\chrome.exe" --user-data-dir="..\my-brains\.secrets\chrome-my-course" --remote-debugging-port=9222 https://courses.example.com/login
-.\.venv\Scripts\python -I tools\kajabi_map.py --brain ..\my-brains\my-course
+```bash
+# macOS / Linux (bash)
+mkdir -p ../my-brains && cp -r template ../my-brains/my-course
+```
 
-# 4. Crawl, transcribe and assemble raw/
-.\.venv\Scripts\python -I tools\kajabi_lesson_assets.py --brain ..\my-brains\my-course --all
-.\.venv\Scripts\python -I tools\whisper_transcribe.py --brain ..\my-brains\my-course --all-uncaptioned
-.\.venv\Scripts\python -I tools\build_raw.py --brain ..\my-brains\my-course
-.\.venv\Scripts\python -I tools\build_raw.py --brain ..\my-brains\my-course --verify
+Fill in `my-course/brain.md` (scope), `sources.yaml` and `crawl.yaml` (`site`, `cdp_port`, `profile`, products, Whisper prompt), then run with the venv active:
 
-# 5. Ingest with parallel workers (briefs/), then gate, merge, lint and index
-.\.venv\Scripts\python -I tools\check_wiki.py --brain ..\my-brains\my-course
-.\.venv\Scripts\python -I tools\merge_staging.py --brain ..\my-brains\my-course survey
-.\.venv\Scripts\python -I tools\lint_wiki.py --brain ..\my-brains\my-course
-.\.venv\Scripts\python -I tools\build_wiki_index.py --brain ..\my-brains\my-course
+```sh
+# 1. Start the brain's dedicated Chrome profile (reads crawl.yaml, stores profile under .secrets/), log in, then map
+python -X utf8 -I tools/launch_chrome.py --brain ../my-brains/my-course
+python -X utf8 -I tools/kajabi_map.py --brain ../my-brains/my-course
 
-# 6. Persona skill (point --out at your agent's skills folder), then run evals with a fresh agent
-.\.venv\Scripts\python -I tools\generate_persona.py --brain ..\my-brains\my-course --out $HOME\.claude\skills
+# 2. Crawl, transcribe and assemble raw/
+python -X utf8 -I tools/kajabi_lesson_assets.py --brain ../my-brains/my-course --all
+python -X utf8 -I tools/whisper_transcribe.py --brain ../my-brains/my-course --all-uncaptioned
+python -X utf8 -I tools/build_raw.py --brain ../my-brains/my-course
+python -X utf8 -I tools/build_raw.py --brain ../my-brains/my-course --verify
 
-# 7. Refresh reminders across all brains
-.\.venv\Scripts\python -I tools\refresh_due.py --workspace ..\my-brains
+# 3. Ingest with parallel workers (briefs/), then gate, merge, lint and index
+python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-course
+python -X utf8 -I tools/merge_staging.py --brain ../my-brains/my-course survey
+python -X utf8 -I tools/lint_wiki.py --brain ../my-brains/my-course
+python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-course
+
+# 4. Generate a draft skill, run evals with a fresh agent, fix gaps, then regenerate if brain.md changed
+python -X utf8 -I tools/generate_persona.py --brain ../my-brains/my-course --out ~/.claude/skills
+
+# 5. Refresh reminders across all brains
+python -X utf8 -I tools/refresh_due.py --workspace ../my-brains
 ```
 
 ## Quick start: topic brain
 
+Copy the topic template into your private workspace:
+
 ```powershell
-# 1. Tools and a workspace (as above), then a topic brain from its template
+# Windows (PowerShell)
 Copy-Item -Recurse template-topic ..\my-brains\my-topic
-#    fill in my-topic\brain.md: experts, expert_aliases, hosts, evidence_types, extraction areas, scope and boundaries
-#    make ..\my-brains\library\<publisher>\sources.yaml for each publisher (see docs/library.md)
-$ws = "..\my-brains"; $brain = "$ws\my-topic"
-
-# 2. Catalogue a publisher (metadata only), then cut and score triage inputs
-.\.venv\Scripts\python -I tools\library_yt.py --workspace $ws catalogue example-publisher
-.\.venv\Scripts\python -I tools\triage_inputs.py --brain $brain example-publisher
-#    give each file in my-topic\ingest\triage\input\ to a triage agent (docs/triage.md); rows land in ingest\triage\
-.\.venv\Scripts\python -I tools\triage_merge.py --brain $brain
-
-# 3. Fetch the selected items; run the speaker pass on interviews and panels
-.\.venv\Scripts\python -I tools\library_yt.py --workspace $ws fetch example-publisher --selection $brain\selection.yaml
-.\.venv\Scripts\python -I tools\diarize.py --workspace $ws example-publisher yt-abc123
-#    a naming agent follows tools\speaker_naming.md, then:
-.\.venv\Scripts\python -I tools\finalize_raw.py --workspace $ws example-publisher yt-abc123
-
-# 4. Ingest waves: fill in briefs\topic-ingest-brief.md, dispatch batches, gate each one
-.\.venv\Scripts\python -I tools\check_wiki.py --brain $brain
-
-# 5. Merge: survey, resolve duplicate slugs in ingest\slug-map.yaml, bundle, then write pages and debates
-.\.venv\Scripts\python -I tools\merge_topic.py --brain $brain survey
-.\.venv\Scripts\python -I tools\merge_topic.py --brain $brain bundles
-#    fill in briefs\topic-pages-brief.md and briefs\debates-brief.md; dispatch writers by page group
-
-# 6. Audit rules, lint, index, evaluate, generate
-.\.venv\Scripts\python -I tools\rule_status.py --brain $brain --write
-.\.venv\Scripts\python -I tools\lint_wiki.py --brain $brain --fix-slug-map
-.\.venv\Scripts\python -I tools\build_wiki_index.py --brain $brain
-.\.venv\Scripts\python -I tools\verify_eval_quotes.py --brain $brain answers.md
-.\.venv\Scripts\python -I tools\generate_persona.py --brain $brain --out $HOME\.claude\skills
 ```
 
-The full step-by-step guides, with the model assignment for each step and the lessons learned at each stage, are in [docs/build-pipeline.md](docs/build-pipeline.md).
+```bash
+# macOS / Linux (bash)
+cp -r template-topic ../my-brains/my-topic
+```
+
+Fill in `my-topic/brain.md` (`experts`, `expert_aliases`, `hosts`, `evidence_types`, extraction areas, scope and boundaries) and create `../my-brains/library/<publisher>/sources.yaml` for each publisher (`docs/library.md`), then run with the venv active:
+
+```sh
+# 1. Catalogue a publisher (metadata only), then cut and score triage inputs
+python -X utf8 -I tools/library_yt.py --workspace ../my-brains catalogue example-publisher
+python -X utf8 -I tools/triage_inputs.py --brain ../my-brains/my-topic example-publisher
+#    give each file in my-topic/ingest/triage/input/ to a triage agent (docs/triage.md); rows land in ingest/triage/
+python -X utf8 -I tools/triage_merge.py --brain ../my-brains/my-topic
+
+# 2. Fetch the selected items; run the speaker pass on interviews and panels
+python -X utf8 -I tools/library_yt.py --workspace ../my-brains fetch example-publisher --selection ../my-brains/my-topic/selection.yaml
+python -X utf8 -I tools/diarize.py --workspace ../my-brains example-publisher yt-abc123
+#    a naming agent follows tools/speaker_naming.md, then:
+python -X utf8 -I tools/finalize_raw.py --workspace ../my-brains example-publisher yt-abc123
+
+# 3. Ingest waves: fill in briefs/topic-ingest-brief.md, dispatch batches, gate each one
+python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-topic
+
+# 4. Merge: survey, resolve duplicate slugs in ingest/slug-map.yaml, bundle, then write pages and debates
+python -X utf8 -I tools/merge_topic.py --brain ../my-brains/my-topic survey
+python -X utf8 -I tools/merge_topic.py --brain ../my-brains/my-topic bundles
+#    fill in briefs/topic-pages-brief.md and briefs/debates-brief.md; dispatch writers by page group
+
+# 5. Audit rules, lint and index
+python -X utf8 -I tools/rule_status.py --brain ../my-brains/my-topic --write
+python -X utf8 -I tools/lint_wiki.py --brain ../my-brains/my-topic --fix-slug-map
+python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-topic
+
+# 6. Generate a draft skill, run cold evals with a fresh agent, check quotes, fix gaps, then regenerate
+python -X utf8 -I tools/generate_persona.py --brain ../my-brains/my-topic --out ~/.claude/skills
+python -X utf8 -I tools/verify_eval_quotes.py --brain ../my-brains/my-topic answers.md
+```
+
+**Books and text-only sources:** skip the speaker pass for single-author books and articles (`speaker_method: single`). Capture PDFs with `book_to_raw.py` (which also updates `catalogue.tsv` and `crawl-log.md`) and web chapters with `web_to_raw.py fetch`:
+
+```sh
+python -X utf8 -I tools/book_to_raw.py --workspace ../my-brains example-author book.pdf --slug example-book --title "Example Book" --author "Example Author" --published 1920 --pages 1-12,40-55
+python -X utf8 -I tools/web_to_raw.py --workspace ../my-brains fetch example-author --urls https://example.com/chapter-1 --from-heading "Chapter 1" --to-heading "Chapter 2"
+```
+
+See [`examples/README.md`](examples/README.md) for a full text-only topic brain. The full step-by-step guides, with model assignments and lessons learned by stage, are in [docs/build-pipeline.md](docs/build-pipeline.md).
 
 ## Tools
 
@@ -167,6 +224,7 @@ The full step-by-step guides, with the model assignment for each step and the le
 
 | Tool | Does |
 |---|---|
+| `launch_chrome.py` | launch a brain's dedicated Chrome/Chromium profile (`--brain <brain> [--chrome <exe>]`), reading `site`, `cdp_port` and `profile` from `crawl.yaml` and keeping profiles under `<workspace>/.secrets/` |
 | `kajabi_map.py`, `kajabi_lesson_assets.py`, `cdp_*.py` | map a Kajabi site; fetch lesson page text and attachments through the logged-in browser (CDP) |
 | `skool_*.py` | map, crawl, verify and batch a Skool community through the logged-in browser (settings in `crawl.yaml`) |
 | `wistia_to_raw.py`, `yt_to_raw.py`, `mux_captions.py` | video-host captions → timestamped transcript |
@@ -178,8 +236,8 @@ The full step-by-step guides, with the model assignment for each step and the le
 | Tool | Does |
 |---|---|
 | `library_yt.py` | catalogue YouTube channels and feeds; fetch captions or audio into raw or staging |
-| `web_to_raw.py` | catalogue and capture blogs, docs and transcript pages (`--browser` for JS-built pages) |
-| `book_to_raw.py` | a user-supplied book or paper PDF → one raw file, one block per page |
+| `web_to_raw.py` | catalogue and capture blogs, docs and transcript pages (`--browser` for JS-built pages; `--from-heading` / `--to-heading` select sections before capture on paragraph pages) |
+| `book_to_raw.py` | user-supplied book or paper PDF → one raw file, one block per page (`--published` accepts `YYYY`, `YYYY-MM` or `YYYY-MM-DD`; `--pages 1-12,40-55` keeps original PDF page numbers); updates `catalogue.tsv` and appends to `crawl-log.md` |
 | `diarize.py`, `finalize_raw.py`, `speaker_naming.md` | speaker pass: cluster voices, name them (the naming agent's brief), write raw with speakers |
 | `example_frames.py`, `check_examples.py`, `link_examples.py` | measure demonstration videos (cuts, frames); check that example pages cite only their own video; link examples from concept pages |
 | `library_raw.py` | shared helpers: paths, slugs, catalogue read and write, raw writing |
@@ -189,8 +247,8 @@ The full step-by-step guides, with the model assignment for each step and the le
 | Tool | Does |
 |---|---|
 | `triage_inputs.py`, `triage_merge.py`, `selection_override.py` | cut catalogues into triage inputs; merge scores into `selection.yaml`; hand overrides |
-| `check_wiki.py` | gate: frontmatter, citations resolve, quotes verbatim at the cited block, speakers match, claims cited |
-| `requote.py` | re-anchor quotes after a raw file is re-crawled |
+| `check_wiki.py` | gate: frontmatter, citations resolve, quotes verbatim at the cited block, speakers match, claims cited (does not enforce minimum quote counts or synthesis depth) |
+| `requote.py` | re-anchor quotes (timestamps, `¶N` paragraph and `p. N` page locators) after a raw file is re-crawled |
 | `merge_staging.py` (persona), `merge_topic.py` (topic) | pool ingest staging by concept → per-concept bundles |
 | `rule_status.py` | recount topic-brain rule status by independent voice |
 | `skool_ingest_batches.py` | cut a Skool brain into ingest batches (`--only-new` for refreshes) |
@@ -201,19 +259,21 @@ The full step-by-step guides, with the model assignment for each step and the le
 |---|---|
 | `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`); rebuild `index.md` |
 | `verify_eval_quotes.py`, `rubric_agreement.py` | check quotes in eval answers; compare two graders' rubric scores |
-| `generate_persona.py` | `brain.md` → skill (`SKILL.md` + agent metadata), persona or topic version |
+| `generate_persona.py` | `brain.md` → skill (`SKILL.md` + agent metadata), persona or topic version (`--relative-to <dir>` writes portable relative paths; omits example/platform notes when absent) |
 | `refresh_due.py` | which brains, sources or tool pages are due for a refresh (per-brain on/off switch, per-source cadence) |
-| `install_qmd.ps1` | install qmd and make it run under Bun on Windows |
+| `install_qmd.ps1` | install qmd and run it under Bun on Windows (macOS/Linux: `npm install -g @tobilu/qmd`) |
 
-Python extras for the optional tools (speaker pass, frames, web capture, PDF) are grouped in `requirements.txt`. `yt-dlp` is an external program.
+`requirements.txt` installs `requirements-core.txt` by default; optional heavy groups (Whisper, torch/diarization, OpenCV/frames) are commented inside `requirements.txt`. External programs `yt-dlp` and `ffmpeg` must be on `PATH`.
 
-## Windows notes
+## Platform notes
 
-- Run Python with `-I` (isolated mode). The tools add their own folder to the import path.
-- Never use the `python3` alias (it is a Store stub and hangs in agent shells), and don't pipe a script into a bare `python -`.
-- qmd under Node crashes on Windows when it loads sqlite-vec; `tools\install_qmd.ps1` runs it under Bun.
-- faster-whisper on CUDA needs the NVIDIA cuBLAS/cuDNN wheels; `whisper_transcribe.py` registers their DLL folders.
-- More hard-won details are in the lessons-learned section of [docs/build-pipeline.md](docs/build-pipeline.md).
+- **Python flags:** run tools with `-X utf8 -I` (UTF-8 I/O and isolated mode) on Windows, macOS and Linux. The tools add their own folder to the import path.
+- **`python` vs `python3`:** use `python3` only to create the venv on macOS and Linux. On Windows, never use the `python3` Microsoft Store alias (it hangs in agent shells), and never pipe a script into a bare `python -`.
+- **Chrome:** use `python -X utf8 -I tools/launch_chrome.py --brain <brain> [--chrome <executable>]` on every OS to open the brain's dedicated Chrome/Chromium profile with remote debugging.
+- **qmd:** on Windows, Node crashes loading `sqlite-vec`, so run `tools/install_qmd.ps1` to run qmd under Bun. On macOS and Linux, install with `npm install -g @tobilu/qmd`; on macOS, run `brew install sqlite` first (per [tobi/qmd](https://github.com/tobi/qmd)).
+- **Whisper:** uses CUDA when available, otherwise CPU (no Apple GPU backend). On Windows, the NVIDIA cuBLAS/cuDNN wheels' DLL folders are registered automatically.
+- **External tools:** `yt-dlp` and `ffmpeg` must be installed and on `PATH` for video/audio fetching and transcription.
+- **CI:** the test suite runs automatically on Windows, macOS and Linux. More details are in the lessons-learned section of [docs/build-pipeline.md](docs/build-pipeline.md).
 
 ## License
 

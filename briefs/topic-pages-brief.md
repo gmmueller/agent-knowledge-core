@@ -4,20 +4,24 @@ You write the shared **concept pages** of the {{brain_name}} brain ({{brain_topi
 
 Fill in every `{{placeholder}}` and the "fill in per brain" sections before dispatching a worker. This brief must stand alone.
 
-Paths are relative to the workspace `{{workspace}}` unless they start with `tools/` (relative to `{{framework_path}}`). Run Python as `{{python}} -I`; never `python3`, never a bare `python -` with stdin (both hang in agent shells). Write UTF-8 (never PowerShell `Set-Content`). Write final citation paths directly: never shorten paths to placeholder tokens to substitute later.
+**Paths and Python:**
+- Framework root (`{{framework_path}}`): `AGENTS.md`, `docs/`, `tools/`, `examples/`.
+- Workspace root (`{{workspace}}`): `library/` and `{{brain_name}}/`. All wiki, ingest and library paths below are relative to `{{workspace}}`.
+- Run commands from `{{framework_path}}` (or pass full paths to `tools/` and `--brain`). Run Python as `{{python}} -X utf8 -I`; never `python3` on Windows, never a bare `python -` with stdin (both hang in agent shells). Write UTF-8 (never PowerShell `Set-Content`). Write final citation paths directly: never shorten paths to placeholder tokens to substitute later.
 
 Read first:
-1. `AGENTS.md`.
-2. `docs/library.md` (citations, speakers).
-3. `{{brain_name}}/brain.md` (scope, evidence types, experts, hosts, rule statuses, and what the brain must never do).
-4. The gold example `{{gold_concept_page}}`. Copy its shape. If it comes from another brain, ignore its topic.
+1. `{{framework_path}}/AGENTS.md`.
+2. `{{framework_path}}/docs/library.md` (citations, speakers).
+3. `{{workspace}}/{{brain_name}}/brain.md` (scope, evidence types, experts, hosts, rule statuses, and what the brain must never do).
+4. The gold example `{{gold_concept_page}}`. Copy its shape. If you are starting a brand-new brain with no local pages yet, point this at a reference page such as `{{framework_path}}/examples/workspace/plain-writing/wiki/methods/jargon-audit.md` (or write the first concept page yourself as the local gold). If it comes from another brain, ignore its topic.
 
 ## Inputs
 
 - `{{brain_name}}/ingest/bundles/<slug>.yaml`: `type`, `names`, `aliases`, `evidence`, `freshness`, `items` (library items), `experts` (listed experts backing it), `speakers`, `status` (rules), `summaries`, and `points` and `quotes`. Each point and quote has `speaker`, `raw`, `at` and `item`; points may also carry brain-defined fields such as `variant` and `kind`.
 - `{{brain_name}}/ingest/bundles/_conflicts.yaml`, `_speaker_doubts.yaml`, and where the brain has them `_findings.yaml` (research results with design and medium), `_examples.yaml`, `_tropes.yaml` and `_equipment.yaml`: use the entries about your concepts.
 - `{{brain_name}}/wiki/sources/*.md`, `{{brain_name}}/wiki/examples/*.md` and the raw files under `library/`: open them to confirm a quote's context, speaker or meaning.
-- `{{brain_name}}/ingest/item-pages.tsv`: maps each library item to its source or example page slug(s).
+- `{{brain_name}}/ingest/item-pages.tsv`: two-column TSV (`item<TAB>page`) mapping each library item (`<publisher>/<source_id>`) to its source or example page slug(s); multi-chapter items repeat `item` across rows.
+- `{{brain_name}}/ingest/page-groups.yaml`: defines `groups: [{name, slugs}]` (your assigned concept slugs) and `debates: [{slug, title, concepts}]` (for debate links).
 
 ## What you write (and nothing else)
 
@@ -60,7 +64,7 @@ One paragraph: what it is, who teaches it (by name), and how strong the support 
 - **Rule pages** use the rule (imperative) as the H1 and add `## Why` and `## When it applies` (cited, or **Inference:**) before `## In their words`.
 - **Status** (rules): copy the bundle's. `consensus` = two or more listed experts (`experts` in `brain.md`; a duo that `expert_aliases` maps to one name counts once). `active` = two or more independent voices (hosts don't count; platform staff count as the platform). `bench` = one voice. `contested` = a source argues against the rule itself, and the page links a debate.
 - **Debate pages are written by separate agents.** Their slugs and titles are under `debates:` in `page-groups.yaml`. If a concept is the subject of a debate, link it (`[[debate-...]]`) under `## How sources differ`. Set a rule to `contested` only when a source actually argues against the rule itself. A rule listed under a debate is often guidance every side shares: keep the bundle's status and report your doubt.
-- **Partial support.** If a second voice in the bundle backs only part of a rule, or a different context, say so in prose, add `status_locked: true` and a one-line `status_note:` to the frontmatter, and keep the status the evidence supports (for example `bench`).
+- **Partial support and borrowing.** If a second voice in the bundle backs only part of a rule, or a different context, say so in prose, add `status_locked: true` and a one-line `status_note:` to the frontmatter, and keep the status the evidence supports (for example `bench`). Voice counting also counts distinct names even when one author cites or borrows from another; note known borrowing in prose and lock the status when voices are not truly independent.
 - **Merged concepts.** Bundles absorbed smaller concepts (see `{{brain_name}}/ingest/slug-map.yaml`); their names are in the bundle's `aliases`. Keep the useful sub-ideas as `###` sub-sections or bullets so nothing extracted is lost.
 - **Sources section.** Map the bundle's `items` to page slugs with `ingest/item-pages.tsv`. A book item maps to several chapter pages: list only the chapters you actually cite.
 - **Tool pages** (`type: tool`, folder `tools/`: platform features, metrics, vendors, products, programs): what the owner says the thing is and how it works, with every statement dated ("Help page, captured 2026-10-16:"). Add `reviewed: {{date}}` and `recheck_by: {{date_plus_90_days}}` to the frontmatter, and `freshness: platform` or `dated`. Give every price, commission or number in the form "listed at $174.99 (2026-10-16)". Separate the owner's own claims (marketing) from facts checked elsewhere. Put how practitioners use or read it in a separate, attributed and dated section.
@@ -98,11 +102,11 @@ The canonical concept list is in `{{brain_name}}/ingest/page-groups.yaml` (group
 
 ## Acceptance check
 
-```
-{{python}} -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <absolute page paths...>
+```sh
+{{python}} -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <page paths...>
 ```
 
-Iterate until it prints `ok: N files`. It verifies frontmatter, rule status, that every citation resolves, that every quote is verbatim at its block and that its speaker matches.
+Pass paths that resolve from your working directory (or absolute paths). Iterate until it prints `ok: N files`. It verifies frontmatter, rule status, that every citation resolves, that every quote is verbatim at its block and that its speaker matches. It does not enforce minimum quote counts or synthesis depth; check the brief's minimums separately.
 
 ## Report back (short)
 
