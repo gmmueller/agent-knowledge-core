@@ -1,6 +1,6 @@
 """Crawl Skool classroom lessons from outline.yaml into raw/ files (incremental, read-only).
 
-Usage: tools/.venv/Scripts/python -I tools/skool_classroom_crawl.py \
+Usage: python -I tools/skool_classroom_crawl.py \
          --brain <brain> [--port <port>] [--only <source_id> ...] [--limit N] [--dry-run]
 
 Per lesson (skipping locked lessons and `duplicate_of` copies):

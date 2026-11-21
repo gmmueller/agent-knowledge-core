@@ -26,7 +26,7 @@ def fetch_captions(video_id: str, cache: pathlib.Path) -> tuple[pathlib.Path | N
         found = sorted(cache.glob(f"{video_id}.{kind}.*.json3"))
         if not found:
             subprocess.run(
-                ["yt-dlp", "--skip-download", flag, "--sub-langs", "en-orig,en,en-US,en-GB", "--sub-format", "json3",
+                [brainlib.executable("yt-dlp"), "--skip-download", flag, "--sub-langs", "en-orig,en,en-US,en-GB", "--sub-format", "json3",
                  "-o", str(cache / f"{video_id}.{kind}.%(ext)s"), f"https://www.youtube.com/watch?v={video_id}"],
                 check=False, capture_output=True,
             )
@@ -43,8 +43,8 @@ def upload_date(video_id: str, cache: pathlib.Path) -> str:
     cache_key(video_id)
     f = cache / f"{video_id}.upload_date"
     if not f.exists():
-        r = subprocess.run(["yt-dlp", "--skip-download", "--print", "%(upload_date)s",
-                            f"https://www.youtube.com/watch?v={video_id}"], check=False, capture_output=True, text=True)
+        r = subprocess.run([brainlib.executable("yt-dlp"), "--skip-download", "--print", "%(upload_date)s",
+                            f"https://www.youtube.com/watch?v={video_id}"], check=False, capture_output=True, text=True, encoding="utf-8")
         d = (r.stdout or "").strip()
         if r.returncode != 0 or not re.fullmatch(r"\d{8}", d):
             return ""

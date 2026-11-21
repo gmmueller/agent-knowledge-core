@@ -1,6 +1,6 @@
 """Split a Skool brain's raw/ into ingest batches -> <brain>/ingest/batches.yaml (offline).
 
-Usage: tools/.venv/Scripts/python -I tools/skool_ingest_batches.py --brain <brain> [--lesson-words 60000]
+Usage: python -I tools/skool_ingest_batches.py --brain <brain> [--lesson-words 60000]
          [--thread-words 70000] [--max-pages 50] [--only-new]
 
 Item kinds (each item: id, raw, kind, words, published; lessons may carry `files:` with prose attachments):

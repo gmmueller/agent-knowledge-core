@@ -52,12 +52,12 @@ def audio_for(publisher, item, url):
     path = lr.audio_path(publisher, item.removeprefix("yt-"))
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["yt-dlp", "--no-playlist", "-f", "bestaudio", "-x", "--audio-format", "m4a",
+        subprocess.run([brainlib.executable("yt-dlp"), "--no-playlist", "-f", "bestaudio", "-x", "--audio-format", "m4a",
                         "-o", str(path.with_suffix(".%(ext)s")), url], check=True)
     if not path.exists() or not path.stat().st_size:
         raise ValueError(f"missing or empty audio: {path}")
     import numpy as np
-    result = subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-i", str(path),
+    result = subprocess.run([brainlib.executable("ffmpeg"), "-nostdin", "-loglevel", "error", "-i", str(path),
                              "-vn", "-ac", "1", "-ar", "16000", "-f", "f32le", "pipe:1"],
                             check=True, stdout=subprocess.PIPE)
     return np.frombuffer(result.stdout, dtype="<f4").copy()
@@ -280,12 +280,12 @@ def whisper_words(publisher, item, audio):
             raise ValueError(f"stale Whisper word cache: {path}; move it aside before retrying")
         print(f"{item}: using cached Whisper words", flush=True)
         return cached
-    from whisper_transcribe import load_cuda_dlls
-    load_cuda_dlls()
+    from whisper_runtime import model_options
+    options = model_options()
     from faster_whisper import WhisperModel
 
     begun = time.perf_counter()
-    model = WhisperModel("large-v3-turbo", device="cuda", compute_type="float16")
+    model = WhisperModel("large-v3-turbo", **options)
     loaded = time.perf_counter()
     segments, _ = model.transcribe(audio, language="en", word_timestamps=True, vad_filter=True,
                                    beam_size=5, condition_on_previous_text=False, repetition_penalty=1.05)

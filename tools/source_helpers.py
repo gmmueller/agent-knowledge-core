@@ -1,6 +1,8 @@
 """Configuration and workspace-safe paths shared by source adapters."""
 from pathlib import Path
+import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import brainlib
 
 
@@ -18,7 +20,7 @@ def site(config, override=None):
 
 def cdp(config, port=None):
     value = port if port is not None else config.get("cdp_port")
-    if not isinstance(value, int) or not 1 <= value <= 65535:
+    if not isinstance(value, int) or isinstance(value, bool) or not 1 <= value <= 65535:
         raise SystemExit("set cdp_port in crawl.yaml or pass --port (1..65535)")
     return f"http://127.0.0.1:{value}"
 

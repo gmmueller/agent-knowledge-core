@@ -1,8 +1,8 @@
 """Pool a topic brain's ingest staging by concept and write per-concept bundles for page writers.
 
 Usage:
-  tools/.venv/Scripts/python -I tools/merge_topic.py --brain <brain> survey     # concept table to stdout
-  tools/.venv/Scripts/python -I tools/merge_topic.py --brain <brain> bundles    # write <brain>/ingest/bundles/*.yaml
+  python -I tools/merge_topic.py --brain <brain> survey     # concept table to stdout
+  python -I tools/merge_topic.py --brain <brain> bundles    # write <brain>/ingest/bundles/*.yaml
 
 Reads <brain>/ingest/staging/*.yaml (except examples-*.yaml) and the optional <brain>/ingest/slug-map.yaml
 ({old-slug: canonical-slug}). Every point and quote is tagged with its library item (from the raw file's

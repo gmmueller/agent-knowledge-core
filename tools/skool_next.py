@@ -1,6 +1,6 @@
 """Fetch Skool page data as JSON via Next.js `_next/data`, from inside the logged-in tab.
 
-Usage: tools/.venv/Scripts/python -I tools/skool_next.py --brain <brain> <path> <out.json> [--port <port>] [--query k=v ...]
+Usage: python -I tools/skool_next.py --brain <brain> <path> <out.json> [--port <port>] [--query k=v ...]
   <path> is the site path without the domain, e.g. my-community/classroom/course-code
 Read-only: reuses (or opens) one skool.com tab and calls fetch() there, so it sends the
 user's own session. Never types or clicks. Write output under .secrets/scratch/.

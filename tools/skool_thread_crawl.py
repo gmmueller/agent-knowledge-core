@@ -1,6 +1,6 @@
 """Crawl Skool community threads (post + all comments) into raw/ files (incremental, read-only).
 
-Usage: tools/.venv/Scripts/python -I tools/skool_thread_crawl.py --brain <brain> [--port <port>]
+Usage: python -I tools/skool_thread_crawl.py --brain <brain> [--port <port>]
          (--ids <post id> ... | --tier expert|replied|replied_other|changed) [--since YYYY-MM-DD | --days N]
          [--limit N] [--dry-run]
 

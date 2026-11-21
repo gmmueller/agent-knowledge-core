@@ -1,6 +1,6 @@
 """Run a brain's Skool crawl phases one after another, unattended (one Skool process at a time).
 
-Usage: tools/.venv/Scripts/python -I tools/skool_bulk.py --phases lessons,attachments,recache,expert,replied
+Usage: python -I tools/skool_bulk.py --phases lessons,attachments,recache,expert,replied
          --brain <brain> [--replied-since YYYY-MM-DD] [--recache-until YYYY-MM-DD] [--cooldown 1800] [--whisper auto|on|off]
 
 Each phase is one of the incremental crawlers; re-running a finished phase is cheap (it skips what's in state).
@@ -22,17 +22,21 @@ import datetime as dt
 import json
 import os
 import pathlib
+import shutil
 import subprocess
 import time
 
 sys.stdout.reconfigure(encoding="utf-8")
-PY = [sys.executable, "-I"]
+PY = [sys.executable, "-X", "utf8", "-I"]
 
 
 def gpu_idle() -> bool:
+    program = shutil.which("nvidia-smi")
+    if not program:
+        return False
     try:
-        out = subprocess.run(["nvidia-smi", "--query-gpu=utilization.gpu,memory.used", "--format=csv,noheader,nounits"],
-                             capture_output=True, text=True, timeout=20).stdout
+        out = subprocess.run([program, "--query-gpu=utilization.gpu,memory.used", "--format=csv,noheader,nounits"],
+                             capture_output=True, text=True, encoding="utf-8", timeout=20).stdout
         util, mem = (int(x) for x in out.strip().splitlines()[0].split(","))
         return util < 20 and mem < 6000
     except Exception:

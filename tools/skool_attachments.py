@@ -1,6 +1,6 @@
 """Download Skool lesson attachments and extract their text into raw/ (incremental, read-only).
 
-Usage: tools/.venv/Scripts/python -I tools/skool_attachments.py --brain <brain> [--port <port>]
+Usage: python -I tools/skool_attachments.py --brain <brain> [--port <port>]
          [--only <source_id> ...] [--limit N] [--dry-run]
 
 Run after skool_classroom_crawl.py: file ids come from its module cache (.secrets/scratch/<short>/modules).

@@ -1,6 +1,6 @@
 """Offline checks on a Skool brain's raw/ after a crawl (no network). Exit 1 if anything needs attention.
 
-Usage: tools/.venv/Scripts/python -I tools/skool_verify.py --brain <brain>
+Usage: python -I tools/skool_verify.py --brain <brain>
 
 Checks:
   classroom  every accessible, non-duplicate lesson in outline.yaml has a state entry and a raw file;

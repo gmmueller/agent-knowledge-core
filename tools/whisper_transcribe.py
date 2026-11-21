@@ -1,4 +1,4 @@
-"""Transcribe uncaptioned Wistia media into media/whisper/ using one GPU.
+"""Transcribe uncaptioned Wistia media into media/whisper/ using CUDA when available, otherwise CPU.
 
 Model and spelling prompt come from crawl.yaml. --dry-run reports uncached media."""
 import sys
@@ -9,28 +9,16 @@ from source_helpers import configure, cache_key
 
 import argparse
 import json
-import os
 import pathlib
 import subprocess
 import time
 import urllib.request
 import wave
 
-import numpy as np
 import yaml
 
 from wistia_to_raw import fetch_json
-
-
-
-def load_cuda_dlls() -> None:
-    # The nvidia-cublas/cudnn wheels ship their DLLs outside the Windows search path.
-    import nvidia
-
-    for base in nvidia.__path__:
-        for bin_dir in pathlib.Path(base).glob("*/bin"):
-            os.add_dll_directory(str(bin_dir))
-            os.environ["PATH"] = str(bin_dir) + os.pathsep + os.environ["PATH"]
+from whisper_runtime import load_cuda_dlls, model_options
 
 
 def uncaptioned_media() -> list[str]:
@@ -50,7 +38,9 @@ def uncaptioned_media() -> list[str]:
     return ids
 
 
-def audio_for(media_id: str, media: dict) -> np.ndarray:
+def audio_for(media_id: str, media: dict):
+    import numpy as np
+
     mp4 = CACHE / f"{media_id}.mp4"
     wav = CACHE / f"{media_id}.16k.wav"
     if not wav.exists():
@@ -61,7 +51,7 @@ def audio_for(media_id: str, media: dict) -> np.ndarray:
             with urllib.request.urlopen(req, timeout=120) as r, open(mp4, "wb") as f:
                 while chunk := r.read(1 << 20):
                     f.write(chunk)
-        subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-i", str(mp4), "-vn", "-ac", "1", "-ar", "16000", str(wav)], check=True)
+        subprocess.run([brainlib.executable("ffmpeg"), "-nostdin", "-loglevel", "error", "-y", "-i", str(mp4), "-vn", "-ac", "1", "-ar", "16000", str(wav)], check=True)
         mp4.unlink()
     # Load the PCM ourselves; faster-whisper's PyAV decoder breaks on newer av releases.
     with wave.open(str(wav)) as w:
@@ -99,7 +89,7 @@ def main() -> None:
     load_cuda_dlls()
     from faster_whisper import WhisperModel
 
-    model = WhisperModel(args.model, device="cuda", compute_type="float16")
+    model = WhisperModel(args.model, **model_options())
     total_audio = total_wall = 0.0
     for i, mid in enumerate(todo, 1):
         media = fetch_json("medias", mid, BRAIN)["media"]

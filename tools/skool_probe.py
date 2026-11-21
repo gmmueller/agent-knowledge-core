@@ -1,6 +1,6 @@
 """Read-only probe of a Skool page: dump __NEXT_DATA__ and the XHR/fetch calls it makes.
 
-Usage: tools/.venv/Scripts/python -I tools/skool_probe.py --brain <brain> <url> <out.json> [--port <port>]
+Usage: python -I tools/skool_probe.py --brain <brain> <url> <out.json> [--port <port>]
 Opens one extra tab in the logged-in Chrome, then closes it. Never types or clicks.
 Write output under .secrets/scratch/ (gitignored): it contains community content.
 """

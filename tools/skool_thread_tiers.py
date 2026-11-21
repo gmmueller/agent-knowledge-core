@@ -1,6 +1,6 @@
 """Classify indexed Skool posts into crawl tiers -> <brain>/state/threads_tiers.json (offline, no network).
 
-Usage: tools/.venv/Scripts/python -I tools/skool_thread_tiers.py --brain <brain>
+Usage: python -I tools/skool_thread_tiers.py --brain <brain>
 
 Tiers (staff = owner/admins/moderators in state/staff.json):
   expert         posts authored by staff (the persona's own voice)

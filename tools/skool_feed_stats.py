@@ -1,6 +1,6 @@
 """Offline stats over a Skool feed index (posts.jsonl): volume by role, year and category.
 
-Usage: tools/.venv/Scripts/python -I tools/skool_feed_stats.py --brain <brain> [--json out.json]
+Usage: python -I tools/skool_feed_stats.py --brain <brain> [--json out.json]
 No network. This preserves legacy role-code estimates; member_role_code comes from crawl.yaml.
 Use state/staff.json for authoritative staff membership, not the gamification role codes.
 """

@@ -8,21 +8,11 @@ import brainlib
 from source_helpers import configure, brain_path, cache_key
 
 import json
-import os
 import pathlib
 import subprocess
+from whisper_runtime import load_cuda_dlls as _load_cuda_dlls, model_options
 
 _model = None
-
-
-def _load_cuda_dlls() -> None:
-    # The nvidia-cublas/cudnn wheels ship their DLLs outside the Windows search path.
-    import nvidia
-
-    for base in nvidia.__path__:
-        for bin_dir in pathlib.Path(base).glob("*/bin"):
-            os.add_dll_directory(str(bin_dir))
-            os.environ["PATH"] = str(bin_dir) + os.pathsep + os.environ["PATH"]
 
 
 def _get_model(model):
@@ -31,7 +21,7 @@ def _get_model(model):
         _load_cuda_dlls()
         from faster_whisper import WhisperModel
 
-        _model = (model, WhisperModel(model, device="cuda", compute_type="float16"))
+        _model = (model, WhisperModel(model, **model_options()))
     return _model[1]
 
 
@@ -45,9 +35,9 @@ def lines(key: str, url: str, media_dir: pathlib.Path, prompt: str = "", model: 
         return json.loads(cache.read_text(encoding="utf-8"))
     audio = media_dir / f"{key}.m4a"
     if not audio.exists():
-        subprocess.run(["yt-dlp", "-f", "bestaudio/best", "-x", "--audio-format", "m4a", "-o", str(media_dir / f"{key}.%(ext)s"), url],
+        subprocess.run([brainlib.executable("yt-dlp"), "-f", "bestaudio/best", "-x", "--audio-format", "m4a", "-o", str(media_dir / f"{key}.%(ext)s"), url],
                        check=True, capture_output=True)
-    pcm = subprocess.run(["ffmpeg", "-nostdin", "-i", str(audio), "-f", "s16le", "-ac", "1", "-ar", "16000", "-"],
+    pcm = subprocess.run([brainlib.executable("ffmpeg"), "-nostdin", "-i", str(audio), "-f", "s16le", "-ac", "1", "-ar", "16000", "-"],
                          check=True, capture_output=True).stdout
     samples = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768
     segs, _ = _get_model(model).transcribe(samples, language="en", vad_filter=True, initial_prompt=prompt or None)

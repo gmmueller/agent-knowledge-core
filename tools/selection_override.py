@@ -1,6 +1,6 @@
 """Set hand overrides in <brain>/selection.yaml (they survive tools/triage_merge.py re-runs).
 
-Usage: tools/.venv/Scripts/python -I tools/selection_override.py --brain <brain> <tier> <item> [<item> ...] [--why "reason"]
+Usage: python -I tools/selection_override.py --brain <brain> <tier> <item> [<item> ...] [--why "reason"]
   tier: A | B | C | X     item: <publisher>/<id>
 """
 import argparse

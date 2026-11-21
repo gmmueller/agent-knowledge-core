@@ -1,6 +1,6 @@
 """Catalogue YouTube channels/RSS feeds and fetch resumable library transcripts.
 
-Run with tools/.venv/Scripts/python -I tools/library_yt.py --help.
+Run with python -I tools/library_yt.py --help.
 """
 import argparse
 import datetime as dt
@@ -33,7 +33,7 @@ META_KEYS = ("id", "title", "upload_date", "release_date", "duration", "view_cou
 
 
 def ytdlp(*args):
-    result = subprocess.run(["yt-dlp", *map(str, args)], capture_output=True,
+    result = subprocess.run([brainlib.executable("yt-dlp"), *map(str, args)], capture_output=True,
                             text=True, encoding="utf-8", errors="replace", timeout=300)
     if result.returncode:
         raise RuntimeError(result.stderr.strip() or "yt-dlp failed")
@@ -177,18 +177,14 @@ class Transcriber:
             ytdlp("--no-playlist", "-f", "bestaudio[ext=m4a]", "-o", audio,
                    f"https://www.youtube.com/watch?v={video_id}")
         wav = audio.with_suffix(".16k.wav")
-        subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-i", str(audio),
+        subprocess.run([brainlib.executable("ffmpeg"), "-nostdin", "-loglevel", "error", "-y", "-i", str(audio),
                         "-vn", "-ac", "1", "-ar", "16000", "-acodec", "pcm_s16le", str(wav)], check=True)
         import numpy as np
         if self.model is None:
-            import nvidia
-            self.dlls = []
-            for base in nvidia.__path__:
-                for folder in pathlib.Path(base).glob("*/bin"):
-                    self.dlls.append(os.add_dll_directory(str(folder)))
-                    os.environ["PATH"] = str(folder) + os.pathsep + os.environ["PATH"]
+            from whisper_runtime import model_options
+            options = model_options()
             from faster_whisper import WhisperModel
-            self.model = WhisperModel("large-v3-turbo", device="cuda", compute_type="float16", local_files_only=True)
+            self.model = WhisperModel("large-v3-turbo", local_files_only=True, **options)
         try:
             with wave.open(str(wav)) as f:
                 samples = np.frombuffer(f.readframes(f.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0

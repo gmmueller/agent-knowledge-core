@@ -1,6 +1,6 @@
 """Add an '## Examples' list to concept pages, linking the annotated example pages that demonstrate them.
 
-Usage: tools/.venv/Scripts/python -I tools/link_examples.py --brain <brain> [--max 8]
+Usage: python -I tools/link_examples.py --brain <brain> [--max 8]
 
 Reads <brain>/ingest/staging/examples-*.yaml (each example's `techniques` slugs), maps old slugs through
 <brain>/ingest/slug-map.yaml, and rewrites a generated block on each concept page:

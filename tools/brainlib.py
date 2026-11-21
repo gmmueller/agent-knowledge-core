@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import pathlib
 import re
+import shutil
 
 import yaml
 
@@ -89,3 +90,11 @@ def write_text(path: pathlib.Path, text: str) -> None:
     """UTF-8, LF line endings, parent folders created."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def executable(name: str) -> str:
+    """Find an external program without depending on a shell or OS-specific suffix."""
+    path = shutil.which(name)
+    if not path:
+        raise FileNotFoundError(f"{name} was not found; install it and add it to PATH")
+    return path

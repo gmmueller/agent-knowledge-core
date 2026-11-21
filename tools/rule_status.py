@@ -1,6 +1,6 @@
 """Recompute rule status on a topic brain's wiki/rules pages (rule audit, pipeline step 6).
 
-Usage: tools/.venv/Scripts/python -I tools/rule_status.py --brain <brain> [--write]
+Usage: python -I tools/rule_status.py --brain <brain> [--write]
 
 Speakers behind a rule = its bundle's speakers (<brain>/ingest/bundles/<slug>.yaml). Quotes on the page don't count:
 writers also quote parallel or contrasting voices. A page with no bundle (a merged rule) falls back to its quote

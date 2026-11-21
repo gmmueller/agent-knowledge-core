@@ -1,6 +1,6 @@
 """Verify quotes in an eval answers file with check_wiki's citation checker (speaker and verbatim).
 
-Usage: tools/.venv/Scripts/python -I tools/verify_eval_quotes.py --brain <brain-folder> <answers.md>
+Usage: python -I tools/verify_eval_quotes.py --brain <brain-folder> <answers.md>
 """
 import argparse
 import pathlib

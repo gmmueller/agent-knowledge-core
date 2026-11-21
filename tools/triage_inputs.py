@@ -1,6 +1,6 @@
 """Cut library catalogues into triage input files for one brain (docs/triage.md).
 
-Usage: tools/.venv/Scripts/python -I tools/triage_inputs.py --brain <brain> <publisher> [--kinds video,short] [--chunk 300]
+Usage: python -I tools/triage_inputs.py --brain <brain> <publisher> [--kinds video,short] [--chunk 300]
                                        [--shorts-prefilter 150:20]
 
 Writes <brain>/ingest/triage/input/<publisher>-<n>.tsv with columns

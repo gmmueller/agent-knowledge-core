@@ -9,6 +9,9 @@
 # Example: .\tools\install_qmd.ps1 -Brain <workspace>\my-course -SkipInstall -Collections wiki,raw
 param([Parameter(Mandatory=$true)][string]$Brain, [switch]$SkipInstall, [string[]]$Collections = @())
 $ErrorActionPreference = 'Stop'
+if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
+    throw 'This Bun shim workaround is Windows-only. On macOS/Linux use npm install -g @tobilu/qmd directly.'
+}
 $brainPath = (Resolve-Path -LiteralPath $Brain).Path
 if (-not (Test-Path -LiteralPath (Join-Path $brainPath 'brain.md'))) { throw 'Brain must contain brain.md.' }
 foreach ($collection in $Collections) {
@@ -16,9 +19,14 @@ foreach ($collection in $Collections) {
 }
 
 if (-not (Get-Command bun -ErrorAction SilentlyContinue)) { throw 'Bun is required (https://bun.sh); install it first.' }
-if (-not $SkipInstall) { npm install -g '@tobilu/qmd' | Out-Host }
+if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { throw 'npm is required; install Node.js and add npm to PATH.' }
+if (-not $SkipInstall) {
+    npm install -g '@tobilu/qmd' | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'qmd installation failed.' }
+}
 
 $npmDir = (npm prefix -g).Trim()
+if ($LASTEXITCODE -ne 0) { throw 'Could not locate the npm global directory.' }
 $entry  = Join-Path $npmDir 'node_modules\@tobilu\qmd\dist\cli\qmd.js'
 if (-not (Test-Path $entry)) { throw "qmd entry not found: $entry" }
 

@@ -1,6 +1,6 @@
 """Index a Skool community feed into posts.jsonl (metadata only, no post content). Incremental, read-only.
 
-Usage: tools/.venv/Scripts/python -I tools/skool_feed_index.py --mode backfill|refresh|recache [--until YYYY-MM-DD]          [--group <brain>] [--port <port>] [--out <brain>/state/posts.jsonl] [--max-pages N]
+Usage: python -I tools/skool_feed_index.py --mode backfill|refresh|recache [--until YYYY-MM-DD]          [--group <brain>] [--port <port>] [--out <brain>/state/posts.jsonl] [--max-pages N]
 
 backfill: pages `?s=newest` (creation order, newest first) to the end. Resumable: progress is saved
           to the cursor file every 10 pages and after a RateLimited/BudgetExhausted stop; the next

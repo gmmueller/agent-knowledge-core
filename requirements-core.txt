@@ -1,0 +1,11 @@
+# Portable tools and offline checks; no GPU or video-analysis dependencies.
+pyyaml>=6
+playwright>=1.45
+pypdf>=4
+# Version 2 pulls in layout/ONNX models; core PDF extraction needs only the 1.x API.
+pymupdf>=1.24,<2
+trafilatura>=2
+beautifulsoup4>=4
+requests>=2
+ruamel.yaml>=0.18
+filelock>=3

@@ -1,6 +1,6 @@
 """Check that every example page cites only its own video (examples file and raw transcript).
 
-Usage: tools/.venv/Scripts/python -I tools/check_examples.py --brain <brain>
+Usage: python -I tools/check_examples.py --brain <brain>
 Exit code 1 if any page cites another item's examples/ file or another video's raw transcript.
 """
 import argparse

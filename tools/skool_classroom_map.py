@@ -1,6 +1,6 @@
 """Map a Skool classroom into outline.yaml (incremental, read-only).
 
-Usage: tools/.venv/Scripts/python -I -X utf8 tools/skool_classroom_map.py \
+Usage: python -I -X utf8 tools/skool_classroom_map.py \
          --brain <brain> [--group <community>] [--port <port>] [--out <brain>/outline.yaml] \
          --cache .secrets/scratch/<cache-name>/modules [--only <course code>]
 

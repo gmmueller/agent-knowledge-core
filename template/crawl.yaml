@@ -2,6 +2,7 @@
 platform: kajabi              # kajabi | skool | youtube | files
 site: https://courses.example.com
 cdp_port: 9222                # choose a distinct port for each login-based brain
+profile: chrome-my-course     # directory under <workspace>/.secrets/; launch_chrome.py starts it
 products:
   - {code: main, slug: my-course, source_id: my-course}
 whisper:

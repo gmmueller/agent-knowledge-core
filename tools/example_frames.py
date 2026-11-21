@@ -19,11 +19,7 @@ import brainlib
 import library_raw as lr
 from yt_to_raw import fetch_captions, json3_lines
 
-import cv2
 import yaml
-from PIL import Image, ImageDraw
-from scenedetect import detect
-from scenedetect.detectors import AdaptiveDetector
 
 
 def frame_numbers(cuts, fps, count):
@@ -36,6 +32,8 @@ def frame_numbers(cuts, fps, count):
 
 
 def contact_sheets(frames, folder):
+    from PIL import Image, ImageDraw
+
     sheets = []
     for offset in range(0, len(frames), 20):
         batch = frames[offset:offset + 20]
@@ -54,18 +52,23 @@ def contact_sheets(frames, folder):
 
 
 def prepare(publisher, item):
+    import cv2
+    from PIL import Image
+    from scenedetect import detect
+    from scenedetect.detectors import AdaptiveDetector
+
     video_id = item[3:]
     url = f'https://www.youtube.com/watch?v={video_id}'
     video = lr.video_path(publisher, video_id)
     video.parent.mkdir(parents=True, exist_ok=True)
     info_path = video.with_suffix('.info.json')
     if not video.exists():
-        subprocess.run(['yt-dlp', '--no-playlist', '-f',
+        subprocess.run([brainlib.executable('yt-dlp'), '--no-playlist', '-f',
                         'bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/b[height<=1080]',
                         '--merge-output-format', 'mp4', '--recode-video', 'mp4',
                         '--write-info-json', '-o', str(video), url], check=True)
     if not info_path.exists():
-        result = subprocess.run(['yt-dlp', '--no-playlist', '--skip-download', '--dump-single-json', url],
+        result = subprocess.run([brainlib.executable('yt-dlp'), '--no-playlist', '--skip-download', '--dump-single-json', url],
                                 check=True, capture_output=True, text=True, encoding='utf-8')
         info_path.write_text(result.stdout, encoding='utf-8')
     info = json.loads(info_path.read_text(encoding='utf-8'))
@@ -118,8 +121,8 @@ def prepare(publisher, item):
     except importlib.metadata.PackageNotFoundError:
         opencv_package = 'opencv-python'
     versions = {name: importlib.metadata.version(name) for name in ('scenedetect', opencv_package, 'pillow')}
-    versions['yt-dlp'] = subprocess.run(['yt-dlp', '--version'], check=True, capture_output=True,
-                                      text=True).stdout.strip()
+    versions['yt-dlp'] = subprocess.run([brainlib.executable('yt-dlp'), '--version'], check=True, capture_output=True,
+                                      text=True, encoding="utf-8").stdout.strip()
     data = dict(item=f'{publisher}/{item}', url=url, title=info['title'], duration_s=duration,
                 fps=fps, resolution={'width': width, 'height': height},
                 aspect='vertical' if height > width else 'horizontal', cuts=cuts,

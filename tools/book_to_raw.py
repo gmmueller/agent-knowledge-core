@@ -1,7 +1,7 @@
 """Turn a user-supplied ebook PDF (text layer) into library/<publisher>/raw/book/<slug>.md, one block per page.
 
 Usage:
-  tools/.venv/Scripts/python -I tools/book_to_raw.py <publisher> <pdf> --workspace <workspace> --slug example-book \
+  python -I tools/book_to_raw.py <publisher> <pdf> --workspace <workspace> --slug example-book \
       --title "Example Book" --author "Example Author" --published 2026-01-01 [--url URL] [--isbn ISBN] [--drop-line REGEX]
 
 --drop-line drops whole lines matching REGEX (repeatable), e.g. a watermark: --drop-line "ExampleWatermark".
