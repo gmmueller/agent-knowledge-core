@@ -39,6 +39,7 @@ Develop and finish the thought announced by a paragraph. ([[library/strunk/raw/w
 
 ## Related
 
+- [[revision-check]]: check paragraph development in the revised passage.
 - [[paragraph-unity]]
 - [[sentence-emphasis]]
 

@@ -37,7 +37,7 @@ Strunk’s economy, the Fowlers’ qualifications and Quiller-Couch’s expressi
 
 > "The first is that it uses circumlocution rather than short straight speech." — Arthur Quiller-Couch ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 121)
 
-> "Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]" — H. W. Fowler and F. G. Fowler ([[library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120]] @ ¶6)
+> "Prefer the single word to the circumlocution." — H. W. Fowler and F. G. Fowler ([[library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120]] @ ¶6)
 
 > "Vigorous writing is concise." — William Strunk Jr. ([[library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online]] @ ¶136)
 
@@ -47,6 +47,7 @@ Strunk’s economy, the Fowlers’ qualifications and Quiller-Couch’s expressi
 
 ## Related
 
+- [[revision-check]]: check the revision against the cited criteria.
 - [[economy-without-compression]]
 - [[circumlocution]]
 - [[debate-economy-and-beauty]]

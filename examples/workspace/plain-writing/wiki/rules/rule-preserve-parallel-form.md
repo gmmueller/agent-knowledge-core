@@ -38,6 +38,7 @@ Use similar constructions for co-ordinate ideas. ([[library/strunk/raw/web/00000
 
 ## Related
 
+- [[revision-check]]: check the revision against the cited criteria.
 - [[parallelism]]
 - [[sentence-emphasis]]
 

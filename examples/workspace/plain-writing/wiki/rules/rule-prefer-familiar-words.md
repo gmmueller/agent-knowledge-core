@@ -28,14 +28,13 @@ Prefer the word a reader understands readily when it expresses the intended mean
 
 ## In their words
 
-> "Prefer the familiar word to the far-fetched.Prefer the concrete word to the abstract.Prefer the single word to the circumlocution.Prefer the short word to the long.Prefer the Saxon word to the Romance.[1]" — H. W. Fowler and F. G. Fowler ([[library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120]] @ ¶6)
+> "Prefer the familiar word to the far-fetched." — H. W. Fowler and F. G. Fowler ([[library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120]] @ ¶6)
 
 > "It is now perhaps clear that the Saxon oracle is not infallible; it will sometimes be dumb, and sometimes lie." — H. W. Fowler and F. G. Fowler ([[library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120]] @ ¶9)
 
-> "1." — H. W. Fowler and F. G. Fowler ([[library/fowler/raw/web/00000000-the-king-s-english-part-1-chapter-1-wikisource-the-free-onli-recapture-20261120]] @ ¶101)
-
 ## Related
 
+- [[revision-check]]: check the revision against the cited criteria.
 - [[diction-and-register]]
 - [[meaning-before-etymology]]
 

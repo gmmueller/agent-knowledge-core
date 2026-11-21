@@ -54,6 +54,10 @@ Quiller-Couch diagnoses jargon as a way of evading the work of saying something.
 
 > "The first virtue, the touchstone of masculine style, is its use of the active verb and the concrete noun." — Arthur Quiller-Couch ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 133)
 
+> "When you write in the active voice, "They gave him a silver teapot,' ' you write as a man." — Arthur Quiller-Couch ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 133)
+
+> "When you write "He was made the recipient of a silver teapot," you write jargon." — Arthur Quiller-Couch ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 133)
+
 ## Examples
 
 - The game-results revision ends by deleting an entire repeated proposition, rather than merely shortening both clauses. ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 131)

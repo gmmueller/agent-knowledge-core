@@ -31,6 +31,10 @@ Use the active voice as a useful default while preserving justified passive cons
 
 > "The first virtue, the touchstone of masculine style, is its use of the active verb and the concrete noun." — Arthur Quiller-Couch ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 133)
 
+> "When you write in the active voice, "They gave him a silver teapot,' ' you write as a man." — Arthur Quiller-Couch ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 133)
+
+> "When you write "He was made the recipient of a silver teapot," you write jargon." — Arthur Quiller-Couch ([[library/quiller-couch/raw/book/on-the-art-of-writing-selected]] @ p. 133)
+
 > "The active voice is usually more direct and vigorous than the passive:" — William Strunk Jr. ([[library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online]] @ ¶76)
 
 > "This rule does not, of course, mean that the writer should entirely discard the passive voice, which is frequently convenient and sometimes necessary." — William Strunk Jr. ([[library/strunk/raw/web/00000000-the-elements-of-style-principles-wikisource-the-free-online]] @ ¶83)
@@ -39,6 +43,7 @@ Use the active voice as a useful default while preserving justified passive cons
 
 ## Related
 
+- [[revision-check]]: check the revision against the cited criteria.
 - [[voice-and-agency]]
 - [[jargon-audit]]
 

@@ -44,6 +44,7 @@ Look for circumlocution and empty abstraction, then express the actual thought. 
 
 ## Related
 
+- [[revision-check]]: check meaning, concrete expression and economy after the audit.
 - [[circumlocution]]
 - [[concrete-language]]
 - [[revision-pass]]

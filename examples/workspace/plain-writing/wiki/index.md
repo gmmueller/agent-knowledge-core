@@ -32,9 +32,13 @@ Catalog of every wiki page: link, one-line summary, source count. Read this firs
 - [[rule-keep-related-words-together]] `bench`: Place related sentence elements near one another so their connection is clear. (2 sources)
 - [[rule-omit-needless-words]] `consensus`: Keep the detail that earns its place and remove empty verbal padding. (4 sources)
 - [[rule-prefer-active-voice]] `consensus`: Use the active voice as a useful default while preserving justified passive constructions. (2 sources)
-- [[rule-prefer-concrete-words]] `consensus`: Prefer concrete expression when an abstraction hides the actual subject. (3 sources)
+- [[rule-prefer-concrete-words]] `consensus`: Prefer concrete expression when an abstraction hides the actual subject. (2 sources)
 - [[rule-prefer-familiar-words]] `bench`: Prefer the word a reader understands readily when it expresses the intended meaning. (1 sources)
 - [[rule-preserve-parallel-form]] `bench`: Use similar constructions for co-ordinate ideas. (1 sources)
+
+## Rubrics
+
+- [[revision-check]]: **Inference:** Use this checklist after revision-pass to judge a revised passage. (3 sources)
 
 ## Debates
 

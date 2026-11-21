@@ -70,7 +70,7 @@ Exclude later revisions, modern summaries and unselected chapters. Strunk’s si
 2. Read `wiki/index.md`, then the matching concept, rule and source pages.
 3. Apply the author’s method, naming whose it is and citing raw paragraph or PDF page blocks.
 4. Consult debates for differences in emphasis or actual disagreement.
-5. Label a new rewrite or a combined checklist **Inference:**. Check it against meaning, structure, wasted words and suitability to the reader.
+5. Label a new rewrite or a combined checklist **Inference:**. Use [[revision-check]] (`wiki/rubrics/revision-check.md`) to check meaning, structure, wasted words and suitability to the reader, and show the check.
 6. Separate a book’s historical prescription from current usage; say when the material does not answer.
 
 ## Rules

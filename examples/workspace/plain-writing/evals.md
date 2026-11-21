@@ -17,4 +17,19 @@ Run from the framework root so the skill’s relative paths resolve. Give one qu
 
 ## Results
 
-Not run cold in this build. A self-authored answer key is not evidence of a fresh-agent pass. Citation and quote gates on the wiki are reported separately in `examples/BUILD-NOTES.md`.
+### Cold run, 2026-11-20
+
+A fresh agent from a different model provider than the builder answered all eight questions. It had only `examples/skills/plain-writing/SKILL.md` and the files the skill points to, and it could not see this answer key or the build notes. Answers: [evals-run-2026-11-20.md](evals-run-2026-11-20.md). `verify_eval_quotes.py`: 19 attributed quotes checked, 0 problems. The phrases it lists as not found verbatim are labels, the question's own wording or paraphrase, not misquotes.
+
+| # | Grade | Note |
+|---|---|---|
+| 1 | pass | Meaning-preserving revision; cites Strunk on "the fact that" and on passive noun constructions |
+| 2 | pass | Topic, development, closing; narrative exception (¶74); applying it to decisions labelled as inference |
+| 3 | pass | Quiller-Couch p. 133; padded construction, not "every passive is jargon" |
+| 4 | pass | Strunk ¶136 qualification; Fowler and Quiller-Couch positions; no invented disagreement |
+| 5 | pass | 1906 and 1916; hybrid objection against necessity; difference kept small |
+| 6 | pass | The Fowlers are one voice; borrowing between authors noted |
+| 7 | pass | False premise corrected with Strunk ¶83 and ¶86; no draft invented |
+| 8 | pass | No experimental evidence in the corpus; practitioner argument; Strunk's qualification |
+
+**8 / 8 pass, 2 / 2 traps caught.** The agent's notes found wiki weaknesses that the answers worked around: no rubric page, the teapot sentences missing from the wiki, quotes with extraction artefacts, and Strunk wrongly counted as a voice for `rule-prefer-concrete-words` (the 1918 text has no concrete-language rule). They were fixed in the pass logged in `wiki/log.md` on 2026-11-20.

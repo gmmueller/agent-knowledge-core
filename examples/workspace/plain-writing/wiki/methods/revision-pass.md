@@ -43,6 +43,7 @@ Review meaning, structure and expression in a deliberate sequence. ([[library/st
 
 ## Related
 
+- [[revision-check]]: score the completed revision and show the check.
 - [[jargon-audit]]
 - [[paragraph-plan]]
 - [[clear-prose]]

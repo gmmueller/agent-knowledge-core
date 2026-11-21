@@ -1,6 +1,8 @@
 # Hot
 
-Latest 20 additions in the example build (all 2026-11-20).
+Latest changes in the example build (all 2026-11-20).
+
+- **2026-11-20 fix pass:** [[revision-check]] added and linked from methods and rules; [[rule-prefer-concrete-words]], [[rule-prefer-familiar-words]] and [[rule-omit-needless-words]] quotes corrected; silver-teapot sentences added to [[quiller-couch-jargon]] and [[rule-prefer-active-voice]]; index and portable skill regenerated, citation/link/status gates and privacy scrub passed.
 
 - [[debate-technical-coinages]]
 - [[debate-economy-and-beauty]]
@@ -21,4 +23,3 @@ Latest 20 additions in the example build (all 2026-11-20).
 - [[quiller-couch-jargon]]
 - [[quiller-couch-style]]
 - [[fowler-general-principles]]
-- [[strunk-concision]]

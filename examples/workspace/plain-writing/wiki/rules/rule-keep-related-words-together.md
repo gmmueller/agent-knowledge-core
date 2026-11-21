@@ -39,6 +39,7 @@ Place related sentence elements near one another so their connection is clear. (
 
 ## Related
 
+- [[revision-check]]: check the revision against the cited criteria.
 - [[punctuation-and-attachment]]
 - [[sentence-emphasis]]
 
