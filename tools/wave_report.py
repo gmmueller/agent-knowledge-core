@@ -53,7 +53,9 @@ def batch_report(brain, name, batch, pages):
     for item in batch.get("items") or []:
         raw = item.get("raw") or item.get("item") or item.get("id", "")
         wanted = {normalized(raw)} | {normalized(item[key]) for key in ("item", "id") if item.get(key)}
-        matches = {path for path, refs in pages if any(same(w, r) for w in wanted for r in refs)}
+        # An item's `id` is its page slug; Q&A digests share one id and need not cite every brief-reply thread.
+        matches = {path for path, refs in pages
+                   if path.stem == item.get("id") or any(same(w, r) for w in wanted for r in refs)}
         selected.update(matches)
         if not matches:
             problems.append(f"missing: {raw}")

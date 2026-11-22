@@ -175,6 +175,15 @@ class TokenTools(unittest.TestCase):
         self.assertRegex(out, r"y: (ok|FAIL)")
         self.assertNotIn("y: ok (0 pages", out)
 
+    def test_digest_matched_by_page_id(self):
+        brain = self.brain_fixture()
+        self.write(brain / "raw/t2.md", "Brief reply\n")
+        self.write(brain / "batches.yaml", "a:\n  items:\n    - id: one\n      raw: raw/one.md\n      kind: qa\n"
+                                           "    - id: one\n      raw: raw/t2.md\n      kind: qa\n")
+        code, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
+        self.assertEqual(code, 0, out + err)  # wiki/sources/one.md cites only raw/one.md
+        self.assertIn("a: ok (1 pages", out)
+
     def test_reference_normalization(self):
         n = wave_report.normalized
         self.assertTrue(wave_report.same(n("./library/demo/raw/one.md"), n("raw\\one")))
