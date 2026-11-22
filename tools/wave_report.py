@@ -56,8 +56,9 @@ def batch_report(brain, name, batch, pages):
         # Q&A digests share one page id and need not cite brief-reply threads; every other item
         # (including a recaptured lesson's new raw file) must be cited.
         digest = item.get("kind") == "qa" and item.get("id")
-        matches = {path for path, refs in pages
-                   if (digest and path.stem == digest) or any(same(w, r) for w in wanted for r in refs)}
+        folder = "examples" if item.get("page") == "example" else "sources"  # only the page kind the item asks for
+        matches = {path for path, kind, refs in pages if kind == folder and
+                   ((digest and path.stem == digest) or any(same(w, r) for w in wanted for r in refs))}
         selected.update(matches)
         if not matches:
             problems.append(f"missing: {raw}")
@@ -111,11 +112,12 @@ def main(argv=None):
             waves = {args.wave: data[args.wave]} if args.wave else data
             batches = [(name, batch) for wave in waves.values() for name, batch in wave.items()]
         pages = []
-        for path in sorted(p for d in PAGE_DIRS for p in (brain / "wiki" / d).rglob("*.md")):
-            try:
-                pages.append((path, references(brainlib.read_frontmatter(path))))
-            except (ValueError, yaml.YAMLError):
-                pages.append((path, set()))
+        for folder in PAGE_DIRS:
+            for path in sorted((brain / "wiki" / folder).rglob("*.md")):
+                try:
+                    pages.append((path, folder, references(brainlib.read_frontmatter(path))))
+                except (ValueError, yaml.YAMLError):
+                    pages.append((path, folder, set()))
         lines, ok, count, problems = [], 0, 0, 0
         for name, batch in batches:
             n, errors = batch_report(brain, name, batch, pages)

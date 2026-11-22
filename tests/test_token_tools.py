@@ -170,12 +170,18 @@ class TokenTools(unittest.TestCase):
         self.write(brain / "ingest/staging/x.yaml", "concepts: []\n")
         self.write(brain / "ingest/staging/y.yaml", "concepts: []\n")
         self.write(brain / "topic.yaml", "x:\n  items:\n    - raw: library/pub-a/raw/web/intro.md\n"
-                                         "y:\n  items:\n    - raw: library/pub-a/raw/web/case.md\n      page: example\n")
+                                         "y:\n  items:\n    - raw: library/pub-a/raw/web/case.md\n      page: example\n"
+                                         "z:\n  items:\n    - raw: library/pub-b/raw/web/intro.md\n      page: example\n"
+                                         "    - raw: library/pub-a/raw/web/case.md\n")
         _, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "topic.yaml")
         self.assertIn("missing: library/pub-a/raw/web/intro.md", out, err)  # pub-b's page with the same filename doesn't count
-        self.assertNotIn("missing: library/pub-a/raw/web/case.md", out)
+        self.assertNotIn("missing: library/pub-a/raw/web/case.md", out.split("z: ", 1)[0])
         self.assertRegex(out, r"y: (ok|FAIL)")
         self.assertNotIn("y: ok (0 pages", out)
+        # z asks for the other page kind of each: a source page doesn't satisfy `page: example`, nor the reverse
+        z = out.split("z: ", 1)[1]
+        self.assertIn("missing: library/pub-b/raw/web/intro.md", z)
+        self.assertIn("missing: library/pub-a/raw/web/case.md", z)
 
     def test_digest_matched_by_page_id(self):
         brain = self.brain_fixture()
