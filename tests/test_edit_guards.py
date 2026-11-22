@@ -210,7 +210,22 @@ class EditGuards(unittest.TestCase):
         self.assertEqual(self.run_tool("raw_guard.py", "record", "--init", scope="workspace").returncode, 0)
         self.assertEqual(raw_guard.check(raw), {})
 
-    def test_lint_warns_for_edits_proposals_and_cited_raw_only(self):
+    def test_workspace_check_finds_missing_raw_using_capture_manifests(self):
+        raw = self.root / "library/acme/raw"
+        brainlib.write_text(raw / "source.md", "Captured library words\n")
+        raw_guard.record(raw, init=True)
+        raw_guard.record(self.brain / "raw", init=True)
+        self.assertEqual(self.run_tool("raw_guard.py", "check", scope="workspace").returncode, 0)
+        (raw / "source.md").unlink()
+        raw.rmdir()
+        (self.brain / "raw/source.md").unlink()
+        result = self.run_tool("raw_guard.py", "check", scope="workspace")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        for missing in (raw / "source.md", self.brain / "raw/source.md"):
+            self.assertIn(f"deleted: {missing}", result.stdout)
+        self.assertIn("2 raw files changed after capture", result.stdout)
+
+    def test_lint_fails_for_changed_captures_and_warns_for_edits_and_proposals(self):
         self.init_wiki()
         raw_guard.record(self.brain / "raw", init=True)
         self.write("wiki/topics/example.md", PAGE + "Human addition\n")
@@ -222,7 +237,7 @@ class EditGuards(unittest.TestCase):
         brainlib.write_text(self.root / "library/cited/raw/source.md", "Human modification\n")
         self.write("wiki/topics/cited.md", PAGE.replace("sources: []", "sources: [library/cited/raw/source.md]") + "([[library/cited/raw/source]] @ page text)\n")
         result = self.run_tool("lint_wiki.py")
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("2 human-edited pages; 1 open proposals", result.stdout)
         self.assertEqual(result.stdout.count("raw changed after capture: re-crawl instead of editing"), 2)
         self.assertNotIn("unrelated", result.stdout)

@@ -3,7 +3,7 @@
 Usage: python -I tools/lint_wiki.py --brain <brain-folder> [--fix-slug-map]
   --fix-slug-map  rewrite [[old-slug]] links using <brain>/ingest/slug-map.yaml before linting
 
-Complements tools/check_wiki.py (which verifies citations and quotes). Exit code 1 if broken links remain.
+Complements tools/check_wiki.py (which verifies citations and quotes). Exit code 1 for broken links or changed captures.
 """
 import argparse
 import collections
@@ -42,11 +42,12 @@ def main() -> None:
         edits = {}
         print("note: no wiki edit baseline yet; run wiki_edits.py --brain <brain> record --init")
     roots = [r for r in [brain / "raw", *raw_guard.cited_raw_dirs(brain)] if r.is_dir()]
-    unguarded = 0
+    changed_raw = unguarded = 0
     for raw in roots:
         changes = raw_guard.check(raw)
         if changes:
-            print(f"warning: raw changed after capture: re-crawl instead of editing ({raw}: {len(changes)} files)")
+            print(f"error: raw changed after capture: re-crawl instead of editing ({raw}: {len(changes)} files)")
+            changed_raw += len(changes)
         unguarded += len(raw_guard.unrecorded(raw))
     if unguarded:
         print(f"note: {unguarded} raw files have no capture hash yet; run raw_guard.py record --init once")
@@ -100,7 +101,7 @@ def main() -> None:
         m = re.search(r"^status:\s*(\w+)", p.read_text(encoding="utf-8"), re.M)
         status[m.group(1) if m else "missing"] += 1
     print(f"rules: {dict(status)}")
-    sys.exit(1 if broken else 0)
+    sys.exit(1 if broken or changed_raw else 0)
 
 
 if __name__ == "__main__":

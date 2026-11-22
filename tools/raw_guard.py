@@ -83,8 +83,16 @@ def main():
     rec = sub.add_parser("record")
     rec.add_argument("--init", action="store_true")
     a = ap.parse_args()
-    roots = [brainlib.brain_dir(a.brain) / "raw"] if a.brain else sorted(
-        brainlib.library_dir(brainlib.workspace_dir(a.workspace)).glob("*/raw"))
+    if a.brain:
+        roots = [brainlib.brain_dir(a.brain) / "raw"]
+    else:
+        workspace = brainlib.workspace_dir(a.workspace)
+        library = brainlib.library_dir(workspace)
+        roots = {p for p in library.glob("*/raw") if p.is_dir()}
+        if a.command == "check":
+            roots.update(p.parent / "raw" for p in library.glob("*/.capture-hashes.json"))
+            roots.update(p.parent / "raw" for p in workspace.glob("*/brain.md"))
+        roots = sorted(roots)
     count = missing = 0
     try:
         for raw in roots:
