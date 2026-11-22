@@ -33,21 +33,27 @@ def pass_file(brain):
 
 def begin(brain):
     """Start an agent pass: remember which pages are human-edited right now, so record() protects only those."""
-    if hashes.load(manifest(brain)) is None:
-        raise ValueError("baseline missing: use record --init first")
-    protected = sorted(status(brain))
-    current = snapshot(brain)
-    hashes.save(pass_file(brain), {"started": dt.datetime.now().isoformat(timespec="seconds"), "protected": protected,
-                                   "at_begin": {page: current.get(page) for page in protected}})
+    path = manifest(brain)
+    with hashes.locked(path):
+        baseline = hashes.load(path)
+        if baseline is None:
+            raise ValueError("baseline missing: use record --init first")
+        if pass_file(brain).exists():
+            raise ValueError("an agent pass is already open. Finish it before starting another.")
+        current = snapshot(brain)
+        protected = sorted(hashes.differences(baseline, current))
+        hashes.save(pass_file(brain), {"started": dt.datetime.now().isoformat(timespec="seconds"), "protected": protected,
+                                       "at_begin": {page: current.get(page) for page in protected}})
     return protected
 
 
-def changed_during_pass(brain):
-    """Protected pages whose content changed since the open pass began (a worker wrote instead of proposing)."""
+def changed_during_pass(brain, *, current=None):
+    """Protected pages that differ from the open pass's saved hashes."""
     open_pass = hashes.load(pass_file(brain))
     if not open_pass or "at_begin" not in open_pass:
         return []
-    current = snapshot(brain)
+    if current is None:
+        current = snapshot(brain)
     return sorted(page for page, digest in open_pass["at_begin"].items() if current.get(page) != digest)
 
 
@@ -57,7 +63,7 @@ def protected_pages(brain):
         return set()
     open_pass = hashes.load(pass_file(brain))
     if open_pass is not None:
-        return set(open_pass.get("protected") or []) & set(status(brain))
+        return set(open_pass.get("protected") or [])
     return set(status(brain))
 
 
@@ -65,17 +71,28 @@ def record(brain, *, init=False, written=None):
     """Update the baseline after an agent pass.
 
     With an open pass (begin), every change is the agents' except the pages that were human-edited when the
-    pass began; those stay protected and the pass is closed. Without a pass, every difference is protected
+    pass began; the pass closes only if those pages match their saved hashes. Without a pass, every difference is protected
     unless the caller names the exact content it wrote (written), so a human edit is never absorbed silently.
     """
     path = manifest(brain)
     with hashes.locked(path):
         before = hashes.load(path)
+        current = snapshot(brain)
+        open_pass = hashes.load(pass_file(brain))
+        if open_pass is not None:
+            touched = changed_during_pass(brain, current=current)
+            if touched:
+                pages = "\n".join(f"  wiki/{page}" for page in touched)
+                raise ValueError(f"Agent pass remains open. Protected pages changed:\n{pages}\n"
+                                 "For agent changes, save the new version with `wiki_edits.py propose <page> --from <file>` "
+                                 "and restore the pre-pass page.\n"
+                                 "For owner changes, run `wiki_edits.py accept <page>` with each affected page named.\n"
+                                 "Then retry the index rebuild or `wiki_edits.py record`.")
+            if init:
+                raise ValueError("finish the open agent pass before running record --init")
         if before is None and not init:
             print("wiki baseline missing: run wiki_edits.py --brain <brain> record --init")
             return 0
-        current = snapshot(brain)
-        open_pass = None if init else hashes.load(pass_file(brain))
         differences = set() if init else set(hashes.differences(before, current))
         if init:
             blocked = set()
@@ -117,6 +134,9 @@ def accept(brain, names=None):
         before = hashes.load(path)
         if before is None:
             raise ValueError("baseline missing: use record --init first")
+        open_pass = hashes.load(pass_file(brain))
+        if open_pass is not None and names is None:
+            raise ValueError("name each page to accept while an agent pass is open")
         current = snapshot(brain)
         selected = set(hashes.differences(before, current)) if names is None else {page_name(brain, n) for n in names}
         for name in selected:
@@ -125,20 +145,30 @@ def accept(brain, names=None):
             else:
                 before.pop(name, None)
         hashes.save(path, before)
+        if open_pass is not None:
+            at_begin = open_pass.get("at_begin", {})
+            for name in selected & at_begin.keys():
+                at_begin[name] = current.get(name)
+            hashes.save(pass_file(brain), open_pass)
     return len(selected)
 
 
 def proposals(brain):
-    return sorted((brain / "ingest" / "proposals").glob("*.md"))
+    return sorted((brain / "ingest" / "proposals").rglob("*.md"))
 
 
 def propose(brain, page, source, why="Agent proposes an update; human review required."):
     name = page_name(brain, page)
+    root = brain / "ingest" / "proposals"
+    out = root / "wiki" / name
     slug = re.sub(r"[^a-z0-9-]+", "-", pathlib.Path(name).stem.lower()).strip("-") or "page"
-    out = brain / "ingest" / "proposals" / f"{slug}.md"
-    if out.exists():
-        raise FileExistsError(f"proposal already exists; review it first: {out}")
-    brainlib.write_text(out, f"# Proposed wiki change\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: {why}\n\n---\n\n" + source.read_text(encoding="utf-8"))
+    legacy = root / f"{slug}.md"
+    if legacy.is_file() and f"Page: wiki/{name}" in legacy.read_text(encoding="utf-8").splitlines()[:5]:
+        raise FileExistsError(f"proposal already exists; review it first: {legacy}")
+    content = source.read_text(encoding="utf-8")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("x", encoding="utf-8", newline="\n") as proposal:
+        proposal.write(f"# Proposed wiki change\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: {why}\n\n---\n\n" + content)
     return out
 
 
@@ -163,10 +193,15 @@ def main():
     try:
         if a.command == "status":
             changes = status(brain)
+            is_open = pass_file(brain).exists()
+            touched = changed_during_pass(brain)
             for name, kind in changes.items():
                 print(f"{kind}: wiki/{name}")
-            print(f"{len(changes)} human-edited pages")
-            return int(bool(changes))
+            print(f"{len(changes)} pages differ from the baseline")
+            print(f"agent pass: {'open' if is_open else 'closed'} ({len(protected_pages(brain))} protected pages)")
+            for name in touched:
+                print(f"protected page changed during pass: wiki/{name}")
+            return int(bool(changes or touched))
         if a.command == "begin":
             protected = begin(brain)
             for name in protected:
