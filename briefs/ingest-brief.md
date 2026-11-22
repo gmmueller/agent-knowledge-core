@@ -2,7 +2,15 @@
 
 You are ingesting part of the **{{brain_name}} brain**: {{expert_name}}'s {{source_scope}}, transcribed into `{{brain_path}}/raw/`. You turn raw files into **wiki source pages**, plus **staging notes** that a later merge pass uses to build shared topic, framework and rule pages.
 
-Read the workspace `AGENTS.md` (core rules) before you start. All paths below are relative to `{{brain_path}}` unless they start with `tools/` (relative to `{{framework_path}}`). Fill in every placeholder before dispatching a worker.
+All paths below are relative to `{{brain_path}}` unless they start with `tools/` (relative to `{{framework_path}}`). Fill in every placeholder before dispatching a worker. This brief is self-contained: use primary sources only (the expert's own words, no third-party summaries), keep source text private (never paste it into external services), write UTF-8 (never PowerShell `Set-Content`), and run Python as `python -X utf8 -I` (never `python3` on Windows, never a bare `python -`).
+
+## Reading budget
+
+- Read only the files this brief and your batch list: the gold example `{{gold_source_page}}`, your batch entries in `ingest/batches.yaml`, and your assigned raw files.
+- Do not open `AGENTS.md`, `docs/workspace.md`, or other workspace-wide docs.
+- Read each raw file once, in full.
+- Batch several small reads into one command where possible.
+- Do not re-read a file you just wrote to check it; run `check_wiki.py` instead.
 
 ## What you write (and nothing else)
 

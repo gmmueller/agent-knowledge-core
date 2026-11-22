@@ -31,14 +31,14 @@ If an agent pass runs without `wiki_edits.py begin`, its changes show up as huma
 
 ## Scheduling
 
-Once a brain is `active` and its refresh script runs unattended, schedule it with your scheduler (e.g. weekly), bound to the private workspace. Each scheduled run executes the steps above and posts the report. Browser sessions expire, so a refresh that finds the session logged out reports `NEEDS_USER` instead of failing silently.
+Once a brain is `active` and its refresh script runs unattended, schedule it with your scheduler (e.g. weekly), bound to the private workspace. Run every scheduled job in a fresh session, and start every manual refresh in a new thread: running a refresh inside a long build thread replays hundreds of thousands of tokens of old history on every turn (measured at roughly 5x the cost of a fresh context; see `docs/token-budget.md`). Each run executes the steps above and posts the report. Browser sessions expire, so a refresh that finds the session logged out reports `NEEDS_USER` instead of failing silently.
 
 ## Reminders
 
 - **Per brain:** `refresh: { reminders: false }` in the brain's `brain.md` frontmatter switches reminders off for that whole brain (default: on). Use it for brains you don't plan to update.
 - **Per source:** the `refresh` cadence in `sources.yaml`. `manual` or `never` means no reminder for that source.
 - **Check:** `python -X utf8 -I <framework>/tools/refresh_due.py --workspace <workspace> [--all]` (`--root` also works) lists sources whose `last_crawled` + cadence has passed. It reads files only (no browser, no network).
-- **Schedule:** a weekly scheduled reminder runs the check and reports the list to the user. It only reminds; the refresh itself is started by the user, because most sources need the logged-in browser.
+- **Schedule:** a weekly scheduled reminder runs the check and reports the list to the user. Run the reminder in a fresh session (or a separate thread), never inside a build thread, so a routine "nothing due" check does not rebuild a long conversation's context. When items are due, the user starts the refresh in a new thread, because most sources need the logged-in browser.
 
 The reminder check also reads `library/*/sources.yaml` and flags `type: tool` wiki pages whose `recheck_by` date has passed.
 

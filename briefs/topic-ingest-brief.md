@@ -10,10 +10,18 @@ Fill in every `{{placeholder}}` and the "fill in per brain" sections before disp
 - Run commands from `{{framework_path}}` (or pass full paths to `tools/` and `--brain`). Run Python as `{{python}} -X utf8 -I` (your venv's Python). Never use `python3` on Windows, and never pipe a script into a bare `python -` (both hang in agent shells): write a script file or use `-c`. Write UTF-8, and never use PowerShell `Set-Content`.
 
 Read first:
-1. `{{framework_path}}/AGENTS.md` (core rules).
-2. `{{framework_path}}/docs/library.md` (raw formats, speakers, citations).
-3. `{{workspace}}/{{brain_name}}/brain.md` (scope, evidence types, experts, extraction areas, what the brain must never do).
-4. The gold example `{{gold_source_page}}`. Copy its shape. If you are starting a brand-new brain with no local pages yet, point this at a reference page such as `{{framework_path}}/examples/workspace/plain-writing/wiki/sources/strunk-concision.md` (or write the first source page yourself as the local gold). If it comes from another brain, ignore its topic.
+1. `{{workspace}}/{{brain_name}}/brain.md` (scope, evidence types, experts, extraction areas, what the brain must never do).
+2. The gold example `{{gold_source_page}}`. Copy its shape. If you are starting a brand-new brain with no local pages yet, point this at a reference page such as `{{framework_path}}/examples/workspace/plain-writing/wiki/sources/strunk-concision.md` (or write the first source page yourself as the local gold). If it comes from another brain, ignore its topic.
+
+Core rules (self-contained): use primary sources only (no third-party summaries unless `sources.yaml` marks them as such), cite every claim or mark it **Inference:**, back every rule with at least one verbatim quote, and keep source text private (never paste it into external services).
+
+## Reading budget
+
+- Read only the files this brief lists (`brain.md`, the gold example, `ingest/slugs.txt` and `ingest/slug-map.yaml` if they exist, and your assigned raw files).
+- Do not open `AGENTS.md`, `docs/workspace.md`, or other workspace-wide docs.
+- Read each raw file once, in full.
+- Batch several small reads into one command where possible.
+- Do not re-read a file you just wrote to check it; run `check_wiki.py` instead.
 
 ## What you write (and nothing else)
 

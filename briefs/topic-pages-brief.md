@@ -10,10 +10,18 @@ Fill in every `{{placeholder}}` and the "fill in per brain" sections before disp
 - Run commands from `{{framework_path}}` (or pass full paths to `tools/` and `--brain`). Run Python as `{{python}} -X utf8 -I`; never `python3` on Windows, never a bare `python -` with stdin (both hang in agent shells). Write UTF-8 (never PowerShell `Set-Content`). Write final citation paths directly: never shorten paths to placeholder tokens to substitute later.
 
 Read first:
-1. `{{framework_path}}/AGENTS.md`.
-2. `{{framework_path}}/docs/library.md` (citations, speakers).
-3. `{{workspace}}/{{brain_name}}/brain.md` (scope, evidence types, experts, hosts, rule statuses, and what the brain must never do).
-4. The gold example `{{gold_concept_page}}`. Copy its shape. If you are starting a brand-new brain with no local pages yet, point this at a reference page such as `{{framework_path}}/examples/workspace/plain-writing/wiki/methods/jargon-audit.md` (or write the first concept page yourself as the local gold). If it comes from another brain, ignore its topic.
+1. `{{workspace}}/{{brain_name}}/brain.md` (scope, evidence types, experts, hosts, rule statuses, and what the brain must never do).
+2. The gold example `{{gold_concept_page}}`. Copy its shape. If you are starting a brand-new brain with no local pages yet, point this at a reference page such as `{{framework_path}}/examples/workspace/plain-writing/wiki/methods/jargon-audit.md` (or write the first concept page yourself as the local gold). If it comes from another brain, ignore its topic.
+
+Core rules (self-contained): use primary sources only, cite every claim or mark it **Inference:**, back every rule with at least one verbatim quote naming its speaker, keep source text private (never paste it into external services), and cite library raw files as `([[library/<publisher>/raw/<path without .md>]] @ <where>)` where `<where>` is `@ 12:41` (transcripts), `@ ¶12` (web pages) or `@ p. 37` (books and papers).
+
+## Reading budget
+
+- Read only the files this brief lists (`brain.md`, the gold example, `ingest/page-groups.yaml`, `ingest/item-pages.tsv`, your assigned bundles and `_*.yaml` files, and only the specific source pages or raw blocks needed to check a quote's context or speaker).
+- Do not open `AGENTS.md`, `docs/workspace.md`, or other workspace-wide docs.
+- If you open a raw file, read it once in full.
+- Batch several small reads into one command where possible.
+- Do not re-read a page you just wrote to check it; run `check_wiki.py` instead.
 
 ## Inputs
 
