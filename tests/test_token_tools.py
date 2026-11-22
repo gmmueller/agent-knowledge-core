@@ -82,6 +82,19 @@ class TokenTools(unittest.TestCase):
         self.assertEqual(self.report("--since", "2026-11-03")["total_sessions"], 1)
         self.assertEqual(self.report("--top", "1")["totals"], data["totals"])
 
+    def test_claude_projects_in_subfolders(self):
+        def transcript(cwd):
+            return [dict(type="user", cwd=str(cwd), message=dict(content="hi")),
+                    dict(type="assistant", cwd=str(cwd), timestamp="2026-11-02T12:00:00Z",
+                         message=dict(id="a", model="m", usage=dict(input_tokens=100, output_tokens=0)))]
+        for cwd in (self.workspace / "brain", self.root / "workspace-other"):  # same slug prefix, only one inside
+            slug = re.sub(r"[^a-zA-Z0-9]", "-", str(cwd))
+            self.jsonl(self.claude / "projects" / slug / "s.jsonl", transcript(cwd))
+        self.codex.mkdir()
+        data = self.report()
+        self.assertEqual(data["total_sessions"], 1)
+        self.assertEqual(data["totals"]["input_tokens"], 100)
+
     def test_t3_snapshots_and_missing_tables(self):
         path = self.root / "state.sqlite"
         with contextlib.closing(sqlite3.connect(path)) as db, db:

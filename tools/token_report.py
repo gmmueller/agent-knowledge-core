@@ -45,10 +45,15 @@ def finish(result, contexts):
     return result
 
 
-def claude(path, scheduled):
+def claude(path, scheduled, workspace=None):
+    """Summarize one transcript; with workspace, keep it only if its cwd lies inside."""
     result = row("claude-sub" if "subagents" in path.parts else "claude", path.stem)
-    contexts, seen, trigger = [], set(), "user"
+    contexts, seen, trigger, belongs = [], set(), "user", workspace is None
     for event in events(path):
+        if not belongs and event.get("cwd"):
+            if not inside(event["cwd"], workspace):
+                return None
+            belongs = True
         result["start"] = result["start"] or str(event.get("timestamp", ""))[:10]
         message = event.get("message") or {}
         if event.get("type") == "user" and not event.get("isMeta"):
@@ -74,7 +79,7 @@ def claude(path, scheduled):
         result["input_equivalent"] += cost
         result["trigger_equivalent"][trigger] += cost
         contexts.append(sum(values[:3]))
-    return finish(result, contexts)
+    return finish(result, contexts) if belongs else None
 
 
 def inside(cwd, workspace):
@@ -149,12 +154,16 @@ def report(args):
         if not projects.is_dir():
             continue
         for project in projects.iterdir():
-            if project.name.casefold() != slug:
+            # Slugs are lossy, so projects named like a subfolder are kept only if their transcripts' cwd is inside.
+            name = project.name.casefold()
+            if name != slug and not name.startswith(slug + "-"):
                 continue
             for path in [*project.glob("*.jsonl"), *project.glob("*/subagents/*.jsonl")]:
                 if path.resolve() not in seen:
                     seen.add(path.resolve())
-                    rows.append(claude(path, re.compile(args.trigger_scheduled)))
+                    result = claude(path, re.compile(args.trigger_scheduled), None if name == slug else workspace)
+                    if result:
+                        rows.append(result)
     home = pathlib.Path(args.codex_dir or os.environ.get("CODEX_HOME", pathlib.Path.home() / ".codex")).expanduser()
     for path in (home / "sessions").rglob("rollout-*.jsonl"):
         result = codex(path, workspace)
