@@ -143,6 +143,15 @@ class TopicCheckers(unittest.TestCase):
         self.assertEqual(self.errors(self.page(speaker="Sample", quote='Say "hello" before (starting).',
                                               raw=raw, at="0:00")), "")
 
+    def test_inline_code_inside_quotes_is_checked_verbatim(self):
+        raw = "library/test/raw/yt/code"
+        self.write(raw + ".md", "---\nspeakers: [Sample Expert]\n---\n"
+                   "**[0:00]** Sample Expert: Run `example` every day.\n")
+        page = self.page(speaker="Sample", quote="Run `example` every day.", raw=raw, at="0:00")
+        self.assertEqual(self.errors(page), "")
+        self.assertIn("quote not", self.errors(self.page(speaker="Sample", quote="Run `invented` every day.",
+                                                          raw=raw, at="0:00")))
+
     def test_citations_checked_individually_and_evidence_prose_checked(self):
         page = self.page()
         text = page.read_text(encoding="utf-8")

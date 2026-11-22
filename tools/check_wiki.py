@@ -433,10 +433,11 @@ def check_page(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None:
     n_quotes = 0
     targets = link_targets(brain) if card else None
     for ln, line in enumerate(body.splitlines(), text.count("\n", 0, offset) + 1):
-        line = INLINE_CODE.sub("", line)
+        # Blank out code spans (citation examples) for link scanning but keep positions, so quotes stay verbatim.
+        scan = INLINE_CODE.sub(lambda m: " " * len(m[0]), line)
         location = f"{where}:{ln}"
-        check_links(brain, path, line, location, errors, targets)
-        links = list(RAW_LINK.finditer(line))
+        check_links(brain, path, scan, location, errors, targets)
+        links = list(RAW_LINK.finditer(scan))
         prefix = line[:links[0].start()].rstrip().removesuffix("(").rstrip() if links else line
         q = QUOTE_LINE.fullmatch(prefix) if links else None
         if not q and ((line.lstrip().startswith(">") and QUOTE_MARKER.match(line))
@@ -444,9 +445,9 @@ def check_page(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None:
             errors.append(f"{location}: quote line needs a separator dash and a parsable citation")
         end = 0
         for i, link in enumerate(links):
-            cite = CITE.match(line, link.start())
+            cite = CITE.match(scan, link.start())
             if not cite:
-                errors.append(f"{location}: raw link without a valid '@ <locator>': {line[link.start():link.start() + 70]}")
+                errors.append(f"{location}: raw link without a valid '@ <locator>': {scan[link.start():link.start() + 70]}")
                 continue
             quote = q if i == 0 else None
             if not quote and card and not QUOTE_MARKER.match(line):
