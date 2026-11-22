@@ -90,6 +90,8 @@ class TokenTools(unittest.TestCase):
         for cwd in (self.workspace / "brain", self.root / "workspace-other"):  # same slug prefix, only one inside
             slug = re.sub(r"[^a-zA-Z0-9]", "-", str(cwd))
             self.jsonl(self.claude / "projects" / slug / "s.jsonl", transcript(cwd))
+        twin = pathlib.Path(str(self.workspace).replace("token-tools-", "token_tools_"))  # same slug, other folder
+        self.jsonl(self.claude / "projects" / re.sub(r"[^a-zA-Z0-9]", "-", str(self.workspace)) / "twin.jsonl", transcript(twin))
         self.codex.mkdir()
         data = self.report()
         self.assertEqual(data["total_sessions"], 1)
@@ -183,6 +185,10 @@ class TokenTools(unittest.TestCase):
         code, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
         self.assertEqual(code, 0, out + err)  # wiki/sources/one.md cites only raw/one.md
         self.assertIn("a: ok (1 pages", out)
+        self.write(brain / "batches.yaml", "a:\n  items:\n    - id: one\n      raw: raw/one-v2.md\n      kind: lesson\n      update: true\n")
+        code, out, _ = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
+        self.assertEqual(code, 1)  # a recaptured lesson's page must cite the new raw file
+        self.assertIn("missing: raw/one-v2.md", out)
 
     def test_reference_normalization(self):
         n = wave_report.normalized

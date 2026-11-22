@@ -45,15 +45,15 @@ def finish(result, contexts):
     return result
 
 
-def claude(path, scheduled, workspace=None):
-    """Summarize one transcript; with workspace, keep it only if its cwd lies inside."""
+def claude(path, scheduled, workspace, need_cwd=False):
+    """Summarize one transcript, or None if its cwd lies outside workspace (or is absent and need_cwd)."""
     result = row("claude-sub" if "subagents" in path.parts else "claude", path.stem)
-    contexts, seen, trigger, belongs = [], set(), "user", workspace is None
+    contexts, seen, trigger, checked = [], set(), "user", False
     for event in events(path):
-        if not belongs and event.get("cwd"):
+        if not checked and event.get("cwd"):
             if not inside(event["cwd"], workspace):
                 return None
-            belongs = True
+            checked = True
         result["start"] = result["start"] or str(event.get("timestamp", ""))[:10]
         message = event.get("message") or {}
         if event.get("type") == "user" and not event.get("isMeta"):
@@ -79,7 +79,7 @@ def claude(path, scheduled, workspace=None):
         result["input_equivalent"] += cost
         result["trigger_equivalent"][trigger] += cost
         contexts.append(sum(values[:3]))
-    return finish(result, contexts) if belongs else None
+    return None if need_cwd and not checked else finish(result, contexts)
 
 
 def inside(cwd, workspace):
@@ -154,14 +154,15 @@ def report(args):
         if not projects.is_dir():
             continue
         for project in projects.iterdir():
-            # Slugs are lossy, so projects named like a subfolder are kept only if their transcripts' cwd is inside.
+            # Slugs are lossy: keep a transcript only if its cwd is inside the workspace. Subfolder-like
+            # projects need a cwd; exact-slug transcripts without one are kept.
             name = project.name.casefold()
             if name != slug and not name.startswith(slug + "-"):
                 continue
             for path in [*project.glob("*.jsonl"), *project.glob("*/subagents/*.jsonl")]:
                 if path.resolve() not in seen:
                     seen.add(path.resolve())
-                    result = claude(path, re.compile(args.trigger_scheduled), None if name == slug else workspace)
+                    result = claude(path, re.compile(args.trigger_scheduled), workspace, need_cwd=name != slug)
                     if result:
                         rows.append(result)
     home = pathlib.Path(args.codex_dir or os.environ.get("CODEX_HOME", pathlib.Path.home() / ".codex")).expanduser()

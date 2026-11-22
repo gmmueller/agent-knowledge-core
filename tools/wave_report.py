@@ -53,9 +53,11 @@ def batch_report(brain, name, batch, pages):
     for item in batch.get("items") or []:
         raw = item.get("raw") or item.get("item") or item.get("id", "")
         wanted = {normalized(raw)} | {normalized(item[key]) for key in ("item", "id") if item.get(key)}
-        # An item's `id` is its page slug; Q&A digests share one id and need not cite every brief-reply thread.
+        # Q&A digests share one page id and need not cite brief-reply threads; every other item
+        # (including a recaptured lesson's new raw file) must be cited.
+        digest = item.get("kind") == "qa" and item.get("id")
         matches = {path for path, refs in pages
-                   if path.stem == item.get("id") or any(same(w, r) for w in wanted for r in refs)}
+                   if (digest and path.stem == digest) or any(same(w, r) for w in wanted for r in refs)}
         selected.update(matches)
         if not matches:
             problems.append(f"missing: {raw}")
