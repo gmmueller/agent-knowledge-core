@@ -125,6 +125,9 @@ Every `python -X utf8 -I tools/...` command below works identically in PowerShel
 
 ## Quick start: persona brain
 
+When setting up a workspace, ask the owner whether they want a backup and where, such as another drive or an encrypted archive.
+Keep the workspace off public remotes and record the choice in the workspace's own notes. Skipping the backup is fine.
+
 Create a private workspace and copy the template:
 
 ```powershell
@@ -150,10 +153,16 @@ python -X utf8 -I tools/whisper_transcribe.py --brain ../my-brains/my-course --a
 python -X utf8 -I tools/build_raw.py --brain ../my-brains/my-course
 python -X utf8 -I tools/build_raw.py --brain ../my-brains/my-course --verify
 
-# 3. Ingest with parallel workers (briefs/), then gate, merge, lint and index
+# 3. Initialize edit protection once, then begin each ingest or merge pass before dispatching workers (briefs/)
+python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-course record --init
+python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-course begin
 python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-course
+# Update wiki/hot.md and wiki/log.md before closing the ingest pass.
+python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-course
+python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-course begin
 python -X utf8 -I tools/merge_staging.py --brain ../my-brains/my-course survey
 python -X utf8 -I tools/lint_wiki.py --brain ../my-brains/my-course
+# Update wiki/hot.md and wiki/log.md before closing the merge pass.
 python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-course
 
 # 4. Generate a draft skill, run evals with a fresh agent, fix gaps, then regenerate if brain.md changed
@@ -165,7 +174,7 @@ python -X utf8 -I tools/refresh_due.py --workspace ../my-brains
 
 ## Quick start: topic brain
 
-Copy the topic template into your private workspace:
+Copy the topic template into your private workspace. If you are creating the workspace now, follow the backup step in the [persona quick start](#quick-start-persona-brain).
 
 ```powershell
 # Windows (PowerShell)
@@ -192,10 +201,15 @@ python -X utf8 -I tools/diarize.py --workspace ../my-brains example-publisher yt
 #    a naming agent follows tools/speaker_naming.md, then:
 python -X utf8 -I tools/finalize_raw.py --workspace ../my-brains example-publisher yt-abc123
 
-# 3. Ingest waves: fill in briefs/topic-ingest-brief.md, dispatch batches, gate each one
+# 3. Initialize edit protection once, then begin the ingest pass before dispatching batches (briefs/topic-ingest-brief.md)
+python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-topic record --init
+python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-topic begin
 python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-topic
+# Update wiki/hot.md and wiki/log.md before closing the ingest pass.
+python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-topic
 
 # 4. Merge: survey, resolve duplicate slugs in ingest/slug-map.yaml, bundle, then write pages and debates
+python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-topic begin
 python -X utf8 -I tools/merge_topic.py --brain ../my-brains/my-topic survey
 python -X utf8 -I tools/merge_topic.py --brain ../my-brains/my-topic bundles
 #    fill in briefs/topic-pages-brief.md and briefs/debates-brief.md; dispatch writers by page group
@@ -203,6 +217,7 @@ python -X utf8 -I tools/merge_topic.py --brain ../my-brains/my-topic bundles
 # 5. Audit rules, lint and index
 python -X utf8 -I tools/rule_status.py --brain ../my-brains/my-topic --write
 python -X utf8 -I tools/lint_wiki.py --brain ../my-brains/my-topic --fix-slug-map
+# Update wiki/hot.md and wiki/log.md before closing the merge pass.
 python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-topic
 
 # 6. Generate a draft skill, run cold evals with a fresh agent, check quotes, fix gaps, then regenerate
@@ -237,7 +252,7 @@ Then open the brain folder in Obsidian with **Open folder as vault**. Setup hide
 
 **What you may edit:**
 
-- **`wiki/` pages:** edit directly in Obsidian or any editor. Initialize the baseline once with `python -X utf8 -I tools/wiki_edits.py --brain <brain> record --init`. Once you edit a page, `wiki_edits.py` flags it and protects it during agent runs (agents start every pass with `wiki_edits.py begin`, skip protected pages, and save proposed updates in `ingest/proposals/` via `wiki_edits.py propose`). Review changes with `status` / `proposals` and confirm your edits with `accept <page>` or `accept --all`.
+- **`wiki/` pages:** edit by hand between passes in Obsidian or any editor. `wiki_edits.py status` shows whether a pass is open. Initialize the baseline once with `python -X utf8 -I tools/wiki_edits.py --brain <brain> record --init`. Agents start every pass with `begin` and use `propose` to save updates to protected pages under `ingest/proposals/`. The index rebuild leaves the pass open if a protected page changed. See [ownership and edit guards](docs/architecture.md#ownership-and-edit-guards) for recovery. Review changes with `status` and `proposals`. Confirm your edits with `accept <page>` or, between passes, `accept --all`.
 - **`notes/`:** your own folder. Add, edit or delete anything there; notes may link to wiki pages. Agents never touch `notes/`, wiki pages never cite notes as sources, checks ignore them, and `build_wiki_index.py` lists them under **Your notes**.
 - **Never edit `raw/` or `library/`:** captured sources are immutable. Capture tools hash every file they write (`raw/.capture-hashes.json`, `library/<publisher>/.capture-hashes.json`), and `raw_guard.py check` and `lint_wiki.py` fail when they find a changed or missing capture. Fix source problems by re-crawling.
 
