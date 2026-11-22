@@ -5,6 +5,7 @@ Usage: python -I tools/requote.py --brain <brain-folder> <raw-rel-path> <file> [
 Only quotes citing <raw-rel-path> that check_wiki.py would reject are touched. For each, the closest window of the
 new transcript (same word count ±30%) is found with difflib; with --apply, quotes at or above --min similarity are
 replaced by the new verbatim text and block label. Lower matches are listed for a manual decision.
+The --apply mode skips protected wiki pages.
 """
 import argparse
 import difflib
@@ -14,6 +15,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # -I drops the script dir; tools/ is ours
 import brainlib
+import wiki_edits
 from check_wiki import norm, raw_index
 
 LOCATOR = r"(?:\d+:\d{2}(?::\d{2})?|¶\d+|p\.\s*\d+)"
@@ -73,9 +75,17 @@ def main() -> None:
         sys.exit(f"raw file not found: {raw}")
     esc = re.escape(raw)
     page_q = re.compile(r'^(>\s*")(.+?)("\s*[—–-]*\s*[^\n(]*\(\[\[' + esc + r'(?:\.md)?\]\]\s*@\s*)(' + LOCATOR + r')(\))', re.M)
+    wiki = (brain / "wiki").resolve()
+    protected = wiki_edits.protected_pages(brain) if a.apply else set()
     for f in a.files:
         path = pathlib.Path(f)
-        text = path.read_text(encoding="utf-8")
+        resolved = path.resolve()
+        if resolved.is_relative_to(wiki):
+            name = resolved.relative_to(wiki).as_posix()
+            if name in protected:
+                print(f"skipped protected page: wiki/{name}")
+                continue
+        original = text = path.read_text(encoding="utf-8")
         changes = []
         if path.suffix == ".md":
             def fix(m):
@@ -111,7 +121,7 @@ def main() -> None:
         for r, at, label, old, new in changes:
             flag = "FIXED" if a.apply and r >= a.min else ("would fix" if r >= a.min else "MANUAL")
             print(f"{flag} {r:.2f} {f} @ {at} -> {label}\n    old: {old[:100]}\n    new: {new[:100]}")
-        if a.apply and changes:
+        if a.apply and text != original:
             path.write_text(text, encoding="utf-8", newline="\n")
 
 
