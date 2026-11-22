@@ -92,7 +92,7 @@ A source persona teaches what the expert's material says. The user's own persona
 
 | Folder | Who writes it | Rules |
 |---|---|---|
-| `raw/`, `library/*/raw/` | Capture tools only | Immutable after capture. Neither humans nor wiki agents edit it. Capture writers hash each file (`raw/.capture-hashes.json`, `library/<publisher>/.capture-hashes.json`); `raw_guard.py check` and `lint_wiki.py` flag post-capture edits. Fix problems by re-crawling. |
+| `raw/`, `library/*/raw/` | Capture tools only | Immutable after capture. Neither humans nor wiki agents edit it. Capture writers hash each file (`raw/.capture-hashes.json`, `library/<publisher>/.capture-hashes.json`); `raw_guard.py check` and `lint_wiki.py` fail when they find a changed or missing capture. Fix problems by re-crawling. |
 | `wiki/` | Agents during logged passes; humans may edit directly | Human edits are protected by `wiki_edits.py`. Agents never overwrite a human-edited page; they save a proposal under `ingest/proposals/` instead. |
 | `notes/` | Humans only | Agents never create, edit or delete files here. Checks ignore `notes/`; `build_wiki_index.py` lists them under **Your notes**. Notes may link to wiki pages; wiki pages never cite notes as sources. |
 | `.obsidian/` | `obsidian_setup.py`, Obsidian and the user | Setup merges defaults into `app.json` and `graph.json` (`--reset` rewrites). Workspace layout files (`/.obsidian/workspace*.json`) are gitignored. |

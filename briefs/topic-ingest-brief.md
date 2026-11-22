@@ -184,7 +184,7 @@ List canonical slugs, grouped by area, before dispatching. Reuse them. Add the e
 {{python}} -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <page files...> "{{workspace}}/{{brain_name}}/ingest/staging/<batch>.yaml"
 ```
 
-Pass paths that resolve from your working directory (or absolute paths). `check_wiki.py` verifies frontmatter, that citations resolve to a real block, that quotes are verbatim at the cited block, that each quote's speaker matches the block's speaker, and that key claims are cited. It does not enforce minimum quote counts, coverage depth or prose quality; check the brief's minimums separately. Fix every error and re-run until it prints `ok: N files`. "Found elsewhere: fix the timestamp" means the quote exists but you cited the wrong block. Never fix a speaker mismatch by renaming to a label you believe is wrong: drop the quote and log a `speaker_doubts` entry.
+Pass paths that resolve from your working directory (or absolute paths). `check_wiki.py` flags corrupt text, checks each raw link and locator, and verifies exact quotes and their speakers. Keep Key claims populated. Cite each claim in Key claims and Evidence, or label it as an inference. It does not enforce minimum quote counts, coverage depth or prose quality; check the brief's minimums separately. Fix every error and re-run until it prints `ok: N files`. "Found elsewhere: fix the timestamp" means the quote exists but you cited the wrong block. Never fix a speaker mismatch by renaming to a label you believe is wrong: drop the quote and log a `speaker_doubts` entry.
 
 ## Report back (short)
 

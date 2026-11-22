@@ -106,7 +106,7 @@ List canonical slugs, aliases and short definitions for frameworks, methods, pri
 python -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{brain_path}}" "{{brain_path}}/wiki/sources/<id>.md" ... "{{brain_path}}/ingest/staging/<batch>.yaml"
 ```
 
-Use absolute paths for the brain and page files. It verifies frontmatter, that every citation resolves to a real raw file and block, that every quote is verbatim at the cited block, and that every key claim is cited. Fix every error, then re-run until it prints `ok: N files`. A "found elsewhere: fix the timestamp" error means the quote exists but you cited the wrong block.
+Use absolute paths for the brain and page files. The checker flags corrupt text and checks each raw link and locator. Keep Key claims populated and cite each claim or label it as an inference. Use a real separator dash even when the quote uses the default speaker. Fix every error, then re-run until it prints `ok: N files`. A "found elsewhere: fix the timestamp" error means the quote exists but you cited the wrong block.
 
 ## Report back (short)
 

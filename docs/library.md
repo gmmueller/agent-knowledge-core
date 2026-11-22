@@ -111,7 +111,7 @@ A quote line in a topic brain always names its speaker:
 
 Observations from an example video (frames, cuts, on-screen text) cite the measured file with seconds: `([[library/example-publisher/examples/yt-abc123]] @ 1.5s)`. The checker confirms the file exists and the time is within the video. Quotes always cite a raw transcript.
 
-`tools/check_wiki.py` checks the words appear verbatim in the cited block (or the one before or after it), and that the named speaker matches the block's speaker prefix, using aliases from `people.yaml`.
+`tools/check_wiki.py` checks the words appear verbatim in the cited block (or the one before or after it), and that the named speaker matches the block's speaker prefix, using aliases from `people.yaml`. Timestamps must fall within the captured duration. If the file has no duration, the final timestamp is the limit. For `@ page text` in a source with speaker turns, the named speaker must have said the passage.
 
 ## `people.yaml`
 
@@ -162,7 +162,7 @@ Sources whose publisher already prints a speaker-labelled transcript (for exampl
 | Turn a user-supplied book or paper PDF into raw, updating `catalogue.tsv` and appending to `crawl-log.md` (`--published` accepts `YYYY`, `YYYY-MM`, `YYYY-MM-DD`; `--pages 1-12,40-55` keeps original PDF page numbers) | `book_to_raw.py --workspace <ws> <publisher> <pdf> --slug … --title … --author … --published DATE [--pages …]` |
 | Speaker pass: cluster voices, then name them | `diarize.py --workspace <ws> <publisher> <item>`, a naming agent, then `finalize_raw.py --workspace <ws> <publisher> <item>` |
 | Measure an example video (cuts, frames, opening lines) | `example_frames.py --workspace <ws> <publisher> <yt-id …>` |
-| Hash captured raw files (`library/<publisher>/.capture-hashes.json`) and detect post-capture edits | `raw_guard.py --workspace <ws> {record [--init],check}` |
+| Hash captured raw files (`library/<publisher>/.capture-hashes.json`) and detect changed or missing captures | `raw_guard.py --workspace <ws> {record [--init],check}` |
 | Shared helpers (paths, slugs, catalogue read/write, raw writing) | `library_raw.py` (imported by the tools above) |
 
 Each tool's `--help` lists its options. The pipeline order is in `docs/build-pipeline.md`.
