@@ -201,6 +201,20 @@ class TokenTools(unittest.TestCase):
         self.assertTrue(wave_report.same(n("./library/demo/raw/one.md"), n("raw\\one")))
         self.assertFalse(wave_report.same(n("library/a/raw/one.md"), n("library/b/raw/one.md")))
 
+    def test_explicit_capture_required_even_if_item_and_id_match(self):
+        brain = self.brain_fixture()
+        page = brain / "wiki/sources/one.md"
+        text = page.read_text(encoding="utf-8").replace("type: source\n", "type: source\nitem: acme/one\n")
+        self.write(page, text)
+        self.write(brain / "raw/one-v2.md", "New capture\n")
+        self.write(brain / "batches.yaml", "a:\n  items:\n    - item: acme/one\n      id: one\n      raw: raw/one-v2.md\n")
+        code, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
+        self.assertEqual(code, 1, out + err)
+        self.assertIn("missing: raw/one-v2.md", out)
+        self.write(page, text.replace("raw/one.md", "raw/one-v2.md"))
+        code, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
+        self.assertEqual(code, 0, out + err)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,7 @@
 """Verify quotes in an eval answers file with check_wiki's citation checker (speaker and verbatim).
 
 Usage: python -I tools/verify_eval_quotes.py --brain <brain-folder> <answers.md>
+Exit code 1 if either pass finds a problem.
 """
 import argparse
 import pathlib
@@ -22,9 +23,10 @@ def main():
     # unnamed quotes (inline, possibly several per line). The dash is optional for raw/ cites only: in topic brains an
     # undashed library quote usually names its speaker in the prose before it, which the second pass covers.
     pat = re.compile(r'["“]([^"”]{8,400})["”](\s*[—–-]\s*([A-Z][\w.\' -]{1,40}?)?)?\s*\(\s*\[\[((?:library|raw)/[^\]|#]+?)(?:\.md)?\]\]\s*@\s*([\d:]+|¶\d+|p\.\s*\d+|page text|post|c:[0-9a-f]{8})')
-    total, errors = 0, []
+    total, errors, checked = 0, [], set()
     for ln, line in enumerate(text.splitlines(), 1):
-        for quote, dash, speaker, rel, at in pat.findall(line):
+        for match in pat.finditer(line):
+            quote, dash, speaker, rel, at = (g or "" for g in match.groups())
             if not dash and not rel.startswith("raw/"):
                 continue
             total += 1
@@ -32,6 +34,7 @@ def main():
             cw.check_cite(brain, rel, at, quote, f"line {ln}", errors, speaker.strip() or None)
             if len(errors) > before:
                 errors[-1] += f"  [speaker: {speaker.strip() or '(default)'}]"
+            checked.add((ln, *match.span(1)))
     print(f"{total} attributed quotes checked, {len(errors)} problems")
     print("\n".join(errors))
 
@@ -40,13 +43,15 @@ def main():
     corpus = "\n".join(cw.norm(p.read_text(encoding="utf-8")).lower()
                        for root in (brainlib.library_dir(brainlib.workspace(brain)), brain / "raw") if root.exists()
                        for p in root.glob("*/raw/**/*.md" if root.name == "library" else "**/*.md"))
-    loose = [(ln, q) for ln, line in enumerate(text.splitlines(), 1)
-             for q in re.findall(r'["“]([^"”]{12,400})["”]', line) if len(q.split()) >= 5]
+    loose = [(ln, match[1]) for ln, line in enumerate(text.splitlines(), 1)
+             for match in re.finditer(r'["“]([^"”]{12,400})["”]', line)
+             if (ln, *match.span(1)) not in checked and len(match[1].split()) >= 5]
     missing = [(ln, q) for ln, q in loose if cw.norm(q).lower().rstrip(".,;:!?") not in corpus]
     print(f"{len(loose)} quoted phrases checked against all raw text, {len(missing)} not found verbatim "
           "(review each: a misquote, or a label, example line or user's own words in quote marks)")
     print("\n".join(f"line {ln}: \"{q[:90]}\"" for ln, q in missing))
+    return int(bool(errors or missing))
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
