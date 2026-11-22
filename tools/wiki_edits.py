@@ -36,8 +36,19 @@ def begin(brain):
     if hashes.load(manifest(brain)) is None:
         raise ValueError("baseline missing: use record --init first")
     protected = sorted(status(brain))
-    hashes.save(pass_file(brain), {"started": dt.datetime.now().isoformat(timespec="seconds"), "protected": protected})
+    current = snapshot(brain)
+    hashes.save(pass_file(brain), {"started": dt.datetime.now().isoformat(timespec="seconds"), "protected": protected,
+                                   "at_begin": {page: current.get(page) for page in protected}})
     return protected
+
+
+def changed_during_pass(brain):
+    """Protected pages whose content changed since the open pass began (a worker wrote instead of proposing)."""
+    open_pass = hashes.load(pass_file(brain))
+    if not open_pass or "at_begin" not in open_pass:
+        return []
+    current = snapshot(brain)
+    return sorted(page for page, digest in open_pass["at_begin"].items() if current.get(page) != digest)
 
 
 def protected_pages(brain):

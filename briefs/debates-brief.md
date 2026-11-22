@@ -17,6 +17,14 @@ Fill in every `{{placeholder}}` before dispatching a worker. This brief must sta
   - the concept pages under `{{brain_name}}/wiki/`, if they already exist (other writers are producing them now);
   - the source and example pages, mapped through `{{brain_name}}/ingest/item-pages.tsv`, and the raw files.
 
+## Reading budget
+
+- Read only the files this brief lists (`{{pages_brief_path}}`, the gold example, `ingest/page-groups.yaml`, `ingest/item-pages.tsv`, the bundles and concept pages for your listed concepts, `_conflicts.yaml` / `_findings.yaml`, and only the specific source pages or raw blocks needed to verify a conflict or quote).
+- Do not open `AGENTS.md`, `docs/workspace.md`, or other workspace-wide docs.
+- If you open a raw file, read it once in full.
+- Batch several small reads into one command where possible.
+- Do not re-read a file you just wrote to check it; run `check_wiki.py` instead.
+
 ## Page format
 
 Write each page at `{{brain_name}}/wiki/debates/<slug>.md`.

@@ -62,8 +62,8 @@ Rules start as `bench` (one source or voice) and become `active` once they're ba
 
 ```
 AGENTS.md / CLAUDE.md   rules for any agent working in a workspace
-docs/                   architecture, build pipeline (with lessons learned by stage), updates, library and triage
-                        (shared sources for topic brains), councils, tech choices, references
+docs/                   architecture, build pipeline (with lessons learned by stage), token budget, updates, library
+                        and triage (shared sources for topic brains), councils, tech choices, references
 template/               copy to start a persona brain: brain.md, sources.yaml, crawl.yaml, crawl-log.md, raw/, wiki/, notes/
 template-topic/         copy to start a topic brain: brain.md (topic keys), selection.yaml, evals.md, ingest/, wiki/ with every topic page folder, notes/
 briefs/                 ingest, page-writing and debate-writing briefs for parallel workers (persona and topic versions)
@@ -217,7 +217,7 @@ python -X utf8 -I tools/book_to_raw.py --workspace ../my-brains example-author b
 python -X utf8 -I tools/web_to_raw.py --workspace ../my-brains fetch example-author --urls https://example.com/chapter-1 --from-heading "Chapter 1" --to-heading "Chapter 2"
 ```
 
-See [`examples/README.md`](examples/README.md) for a full text-only topic brain. The full step-by-step guides, with model assignments and lessons learned by stage, are in [docs/build-pipeline.md](docs/build-pipeline.md).
+See [`examples/README.md`](examples/README.md) for a full text-only topic brain. The full step-by-step guides, with model assignments and lessons learned by stage, are in [docs/build-pipeline.md](docs/build-pipeline.md). See [docs/token-budget.md](docs/token-budget.md) for keeping orchestrator and worker token costs low across phases.
 
 ## View and edit in Obsidian
 
@@ -271,6 +271,7 @@ Then open the brain folder in Obsidian with **Open folder as vault**. Setup hide
 |---|---|
 | `triage_inputs.py`, `triage_merge.py`, `selection_override.py` | cut catalogues into triage inputs; merge scores into `selection.yaml`; hand overrides |
 | `check_wiki.py` | gate: frontmatter, citations resolve, quotes verbatim at the cited block, speakers match, claims cited (does not enforce minimum quote counts or synthesis depth) |
+| `wave_report.py` | check a finished wave of batches at once (`--batches`, `--wave`): staging files, source pages, `check_wiki.py`, `?` corruption scan and protected pages |
 | `requote.py` | re-anchor quotes (timestamps, `¶N` paragraph and `p. N` page locators) after a raw file is re-crawled |
 | `merge_staging.py` (persona), `merge_topic.py` (topic) | pool ingest staging by concept → per-concept bundles |
 | `rule_status.py` | recount topic-brain rule status by independent voice |
@@ -288,6 +289,7 @@ Then open the brain folder in Obsidian with **Open folder as vault**. Setup hide
 | `verify_eval_quotes.py`, `rubric_agreement.py` | check quotes in eval answers; compare two graders' rubric scores |
 | `generate_persona.py` | `brain.md` → subject-neutral skill (`SKILL.md` + agent metadata), persona or topic version; reads optional `skill.guidance` and `skill.boundaries` from `brain.md`, prints `consider skill.guidance:` hints when none are set, links `wiki/examples/` when present (`--relative-to <dir>` writes portable relative paths) |
 | `refresh_due.py` | which brains, sources or tool pages are due for a refresh (per-brain on/off switch, per-source cadence) |
+| `token_report.py` | measure token usage and input-equivalent cost across Claude Code transcripts, Codex sessions and optional T3 Code DB (`--workspace`, `--since`, `--ctx-warn`, `--json`) |
 | `install_qmd.ps1` | install qmd and run it under Bun on Windows (macOS/Linux: `npm install -g @tobilu/qmd`) |
 
 `requirements.txt` installs `requirements-core.txt` by default; optional heavy groups (Whisper, torch/diarization, OpenCV/frames) are commented inside `requirements.txt`. External programs `yt-dlp` and `ffmpeg` must be on `PATH`.

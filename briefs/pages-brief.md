@@ -2,7 +2,15 @@
 
 You write the shared **concept pages** of the {{brain_name}} brain wiki: topics, principles, methods, frameworks, rules and glossary terms taught across {{expert_name}}'s {{source_scope}}. The per-lesson source pages already exist. Your input is one **bundle** per concept, with everything the ingest workers extracted about it from every lesson.
 
-Read the workspace `AGENTS.md` first. Paths are relative to `{{brain_path}}` unless they start with `tools/` (relative to `{{framework_path}}`). Fill in every placeholder before dispatching a worker.
+Paths are relative to `{{brain_path}}` unless they start with `tools/` (relative to `{{framework_path}}`). Fill in every placeholder before dispatching a worker. This brief is self-contained: use primary sources only, keep source text private (never paste it into external services), write UTF-8 (never PowerShell `Set-Content`), and run Python as `python -X utf8 -I` (never `python3` on Windows, never a bare `python -`).
+
+## Reading budget
+
+- Read only the files this brief lists: your assigned bundles in `ingest/bundles/`, `ingest/bundles/_conflicts.yaml`, `ingest/page-groups.yaml`, and only the specific source pages or raw blocks needed to verify a quote's context or speaker.
+- Do not open `AGENTS.md`, `docs/workspace.md`, or other workspace-wide docs.
+- If you open a raw file, read it once in full.
+- Batch several small reads into one command where possible.
+- Do not re-read a page you just wrote to check it; run `check_wiki.py` instead.
 
 ## Inputs
 
