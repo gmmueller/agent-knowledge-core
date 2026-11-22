@@ -153,6 +153,12 @@ class TopicCheckers(unittest.TestCase):
         errors = self.errors(page)
         self.assertIn("evidence claim without citation: An unsupported paragraph.", errors)
         self.assertEqual(errors.count("claim without citation"), 1)
+        uncited = [line for line in errors.splitlines() if "claim without citation" in line]
+        self.assertTrue(uncited[0].startswith(check.WARNING), "uncited prose only warns")
+        page.write_text(text + "\n## Key points\n- An unsupported bullet.\n", encoding="utf-8")
+        uncited = [line for line in self.errors(page).splitlines() if "claim without citation" in line]
+        self.assertIn("key points claim without citation", uncited[0])
+        self.assertFalse(uncited[0].startswith(check.WARNING), "uncited bullets in claim sections fail")
         self.assertIn("raw link without a valid '@ <locator>'", errors)
         page.write_text(text + "\n## Key points\n\n", encoding="utf-8")
         self.assertIn("empty 'Key Points' section", self.errors(page))

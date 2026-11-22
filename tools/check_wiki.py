@@ -52,6 +52,7 @@ POST_HEAD = re.compile(r"^\*\*(.+?)\*\* \(@[^)]*\) · [\d-]+ [\d:]+\s*$")
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 TYPES = {"source", "topic", "principle", "method", "framework", "rule", "glossary", "example", "rubric", "tool", "debate"}
 CLAIM_SECTIONS = {"key claims", "key points", "why", "when it applies"}
+WARNING = "warning: "  # prefix for findings that print but don't fail the check
 
 
 @functools.lru_cache(maxsize=None)
@@ -376,7 +377,11 @@ def check_claims(body, page_type, where, errors):
                     continue
                 next_claim = claims[i + 1] if i + 1 < len(claims) else ""
                 if not ((claim.endswith(":") or (label and label[0] == prose)) and CITE.search(next_claim)):
-                    errors.append(f"{where}: {section} claim without citation: {claim[:70].splitlines()[0]}")
+                    # Bullets in the core claim sections must cite; prose and Evidence notes often state an
+                    # absence or give context, so they only warn.
+                    bullet = section in CLAIM_SECTIONS and re.match(r"(?:[-*+]|\d+[.)])\s", claim)
+                    errors.append(f"{'' if bullet else WARNING}{where}: {section} claim without citation: "
+                                  f"{claim[:70].splitlines()[0]}")
 
 
 def navigation_only(prose):
@@ -520,8 +525,12 @@ def main() -> None:
             errors.append(f"{display_path(brain, f)}: file not found")
             continue
         (check_staging if f.suffix == ".yaml" else check_page)(brain, f, errors)
-    print("\n".join(errors) if errors else f"ok: {len(files)} files")
-    sys.exit(1 if errors else 0)
+    hard = [e for e in errors if not e.startswith(WARNING)]
+    if errors:
+        print("\n".join(hard + [e for e in errors if e.startswith(WARNING)]))
+    if not hard:
+        print(f"ok: {len(files)} files" + (f" ({len(errors)} warnings)" if errors else ""))
+    sys.exit(1 if hard else 0)
 
 
 if __name__ == "__main__":
