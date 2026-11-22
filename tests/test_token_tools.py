@@ -144,8 +144,28 @@ class TokenTools(unittest.TestCase):
         self.assertIn("more lines", out)
         self.assertTrue(out.splitlines()[-1].startswith("wave:"))
 
+    def test_example_pages_and_publisher_identity(self):
+        brain = self.brain_fixture()
+        for publisher in ("pub-a", "pub-b"):
+            self.write(self.workspace / "library" / publisher / "raw/web/intro.md", "Demo source\n")
+        self.write(self.workspace / "library/pub-a/raw/web/case.md", "Demo case\n")
+        page = "---\ntype: {type}\nsources: [{source}]\nupdated: 2026-01-01\n---\n# Demo\n\n## Key claims\n- **Inference:** Demo.\n"
+        self.write(brain / "wiki/sources/pub-b-intro.md", page.format(type="source", source="library/pub-b/raw/web/intro.md"))
+        self.write(brain / "wiki/examples/pub-a-case.md", page.format(type="example", source="library/pub-a/raw/web/case.md"))
+        self.write(brain / "ingest/staging/x.yaml", "concepts: []\n")
+        self.write(brain / "ingest/staging/y.yaml", "concepts: []\n")
+        self.write(brain / "topic.yaml", "x:\n  items:\n    - raw: library/pub-a/raw/web/intro.md\n"
+                                         "y:\n  items:\n    - raw: library/pub-a/raw/web/case.md\n      page: example\n")
+        _, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "topic.yaml")
+        self.assertIn("missing: library/pub-a/raw/web/intro.md", out, err)  # pub-b's page with the same filename doesn't count
+        self.assertNotIn("missing: library/pub-a/raw/web/case.md", out)
+        self.assertRegex(out, r"y: (ok|FAIL)")
+        self.assertNotIn("y: ok (0 pages", out)
+
     def test_reference_normalization(self):
-        self.assertTrue(wave_report.aliases("./library/demo/raw/one.md") & wave_report.aliases("raw\\one"))
+        n = wave_report.normalized
+        self.assertTrue(wave_report.same(n("./library/demo/raw/one.md"), n("raw\\one")))
+        self.assertFalse(wave_report.same(n("library/a/raw/one.md"), n("library/b/raw/one.md")))
 
 
 if __name__ == "__main__":

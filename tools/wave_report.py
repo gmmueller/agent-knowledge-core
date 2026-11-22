@@ -15,6 +15,8 @@ import brainlib
 import wiki_edits
 
 CORRUPTION = re.compile(r"[A-Za-z]\?s\b|\d\?\d| \? ")
+LIBRARY = re.compile(r"^library/[^/]+/")
+PAGE_DIRS = ("sources", "examples")  # topic briefs write `page: example` items to wiki/examples/
 
 
 def normalized(value):
@@ -24,10 +26,13 @@ def normalized(value):
     return re.sub(r"\.md$", "", value)
 
 
-def aliases(value):
-    value = normalized(value)
-    short = re.sub(r"^library/[^/]+/", "", value)
-    return {value, short}
+def same(a, b):
+    """Match two references; two publisher-qualified ones must match in full."""
+    if a == b:
+        return True
+    if a.startswith("library/") and b.startswith("library/"):
+        return False
+    return LIBRARY.sub("", a) == LIBRARY.sub("", b)
 
 
 def references(fm):
@@ -39,7 +44,7 @@ def references(fm):
         for value in values:
             if isinstance(value, dict):
                 value = value.get("raw") or value.get("item") or value.get("id", "")
-            result.update(aliases(value))
+            result.add(normalized(value))
     return result
 
 
@@ -47,11 +52,8 @@ def batch_report(brain, name, batch, pages):
     problems, selected = [], set()
     for item in batch.get("items") or []:
         raw = item.get("raw") or item.get("item") or item.get("id", "")
-        wanted = aliases(raw)
-        for key in ("item", "id"):
-            if item.get(key):
-                wanted.update(aliases(item[key]))
-        matches = {path for path, refs in pages if wanted & refs}
+        wanted = {normalized(raw)} | {normalized(item[key]) for key in ("item", "id") if item.get(key)}
+        matches = {path for path, refs in pages if any(same(w, r) for w in wanted for r in refs)}
         selected.update(matches)
         if not matches:
             problems.append(f"missing: {raw}")
@@ -105,7 +107,7 @@ def main(argv=None):
             waves = {args.wave: data[args.wave]} if args.wave else data
             batches = [(name, batch) for wave in waves.values() for name, batch in wave.items()]
         pages = []
-        for path in sorted((brain / "wiki" / "sources").rglob("*.md")):
+        for path in sorted(p for d in PAGE_DIRS for p in (brain / "wiki" / d).rglob("*.md")):
             try:
                 pages.append((path, references(brainlib.read_frontmatter(path))))
             except (ValueError, yaml.YAMLError):
