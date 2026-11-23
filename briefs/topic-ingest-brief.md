@@ -2,6 +2,8 @@
 
 You are ingesting part of the **{{brain_name}} brain**: a topic brain on {{brain_topic}}. It is built from {{source_scope}} in the shared library (`{{workspace}}/library/<publisher>/raw/`). You turn raw files into **wiki source pages** (and example pages, where your batch marks them), plus **staging notes** that a later merge pass uses to build shared concept, rule, rubric and debate pages.
 
+For `evidence_model: reference`, credit the issuing body or the document itself. A document-only quote may omit the speaker in Markdown and staging. Record the title and edition or publication date when known. Use the exact [document locator](../docs/documents.md) and mark explicit objections to a rule with `stance: opposes`.
+
 Fill in every `{{placeholder}}` and the "fill in per brain" sections before dispatching a worker. This brief must stand alone: the worker sees nothing else of the conversation.
 
 **Paths and Python:**

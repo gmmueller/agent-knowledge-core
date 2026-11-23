@@ -44,6 +44,8 @@ Built on Andrej Karpathy's "LLM wiki" idea, extended with a full capture → ing
   </tr>
 </table>
 
+Topic brains can also use current authoritative documents as their evidence. See [reference topic brains](docs/agent-reference.md#reference-topic-brains) and [local document capture](docs/documents.md).
+
 ## How it works
 
 ### Persona brain flow

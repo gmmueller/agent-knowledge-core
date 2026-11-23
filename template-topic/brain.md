@@ -2,6 +2,9 @@
 name: my-topic
 display_name: "My Topic"
 kind: topic
+# evidence_model: reference    # For document collections. Omit for expert evidence.
+# In reference mode, experts and voice settings are optional. Set authority, version and
+# supersedes in sources.yaml. See docs/agent-reference.md for the reference workflow.
 status: scoping
 updated: YYYY-MM-DD
 build:
@@ -20,9 +23,9 @@ evidence_types: [research, synthesis, official, practitioner, example]   # check
 refresh:
   reminders: true             # false = refresh_due.py never lists this brain
 skill:
-  description: "Consult the my-topic brain: <scope in one sentence>, compiled from the experts' own words into a cited wiki. Use for <tasks>, or when the user says \"consult my-topic\". Answers cite sources and name whose method."
+  description: "Consult the my-topic brain: <scope in one sentence>. Use for <tasks>, or when the user says \"consult my-topic\". Answers cite sources."
   short_description: "<One line: what the brain knows>"
-  default_prompt: "Use $my-topic to answer this, citing sources and naming whose method it is."
+  default_prompt: "Use $my-topic to answer this with citations."
   # guidance:                 # optional: subject-specific rules rendered under "## This brain's guidance"
   #   - "State the date on time-sensitive claims and prefer the newest official source."
   # boundaries:               # optional: extra bullets appended to "## Boundaries"
@@ -30,6 +33,10 @@ skill:
 ---
 
 # My Topic
+
+<!-- For a reference brain, describe its document collection instead of its experts. In the task loop,
+     apply current authoritative documents and cite their titles with versions or dates. See docs/build-pipeline.md
+     for reference rule statuses. Keep only the rubrics or checklists the brain actually has. -->
 
 One paragraph: what this brain is a specialist in, which experts it draws on, and what it is compiled from. It has no imitated voice: it applies the experts' methods, names whose they are, and cites every claim to the library.
 

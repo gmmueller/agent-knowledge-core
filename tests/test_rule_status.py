@@ -31,7 +31,7 @@ class RuleStatus(unittest.TestCase):
     def tool(self, name, *args):
         result = subprocess.run([sys.executable, "-X", "utf8", "-I", str(TOOLS / name), "--brain", str(self.brain), *args],
                                 capture_output=True, text=True, encoding="utf-8")
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result.stdout
 
     def page(self, slug, status="bench", extra="", body=""):
@@ -189,6 +189,102 @@ class RuleStatus(unittest.TestCase):
                 rule_status.audit(self.brain, write=True)
         self.assertEqual(page.read_text(encoding="utf-8"), owner)
         self.assertTrue(wiki_edits.pass_file(self.brain).exists())
+
+    def test_reference_rules_use_current_authorities_in_merge_and_audit(self):
+        self.settings(evidence_model="reference", hosts=["Moderator"])
+        brainlib.write_text(self.root / "library" / "acme" / "sources.yaml", yaml.safe_dump({"sources": [
+            {"id": "old", "authority": "official", "version": "1", "published": "2025-03-01"},
+            {"id": "current", "authority": "official", "version": "2", "supersedes": "old"},
+            {"id": "alternate", "authority": "primary"},
+        ]}))
+        old = self.source(None, "old")
+        current = self.source(None, "current")
+        dissent = self.source(None, "alternate", stance="opposes")
+        other = self.source(None, "secondary")
+        cases = {
+            "retired": ("bench", [old]),
+            "current": ("active", [current]),
+            "conflict": ("contested", [current, dissent]),
+            "secondary": ("bench", [other]),
+            "outdated-dissent": ("active", [current, dict(old, stance="opposes")]),
+            "host-support": ("bench", [dict(current, speaker="Moderator")]),
+            "host-dissent": ("active", [current, dict(dissent, speaker="Moderator")]),
+            "locked": ("bench", [current]),
+            "independent": ("active", [other, self.source(None, "second"), self.source(None, "third")]),
+            "debated": ("contested", [current, self.source("Cam", "debate", stance="opposes")]),
+        }
+        for slug, (_, points) in cases.items():
+            self.rule(slug, points)
+            self.page(slug, "contested" if slug in {"retired", "debated"} else "bench",
+                      extra="status_locked: true\n" if slug == "locked" else "")
+        self.tool("merge_topic.py", "bundles")
+        report = self.tool("rule_status.py", "--write")
+        self.assertIn("warning: retired: rule cites only superseded supporting sources", report)
+        for slug, (status, _) in cases.items():
+            with self.subTest(slug=slug):
+                self.assertEqual(self.bundle(slug)["status"], status)
+                self.assertEqual(brainlib.read_frontmatter(self.brain / "wiki" / "rules" / f"{slug}.md")["status"], status)
+
+    def test_reference_quotes_resolve_local_date_supersession_and_official_bodies(self):
+        self.settings(evidence_model="reference", official=["Standards Board"], experts=["Ada", "Bea"])
+        brainlib.write_text(self.brain / "sources.yaml", yaml.safe_dump({"sources": [
+            {"id": "old", "published": "2025-03-01", "authority": "primary"},
+            {"id": "current", "supersedes": "2025-03-01"},
+        ]}))
+        for edition in ("old", "current"):
+            brainlib.write_text(self.brain / "raw" / f"{edition}.md",
+                                f"---\nsource_id: {edition}\nspeakers: [Standards Board]\n---\n**[p. 1]** Example.\n")
+            self.page(edition, extra=f"sources: [raw/{edition}]\nupdated: 2026-03-01\n",
+                      body=f'> "Example." — ([[raw/{edition}]] @ p. 1)\n')
+        report = self.tool("rule_status.py")
+        self.assertIn("warning: old: rule cites only superseded supporting sources", report)
+        self.assertRegex(report, r"current\s+bench -> active")
+        self.tool("check_wiki.py", str(self.brain / "wiki/rules/current.md"))
+        self.rule("expert-consensus", [self.source("Ada", "one"), self.source("Bea", "two")])
+        self.page("expert-consensus")
+        self.tool("merge_topic.py", "bundles")
+        self.assertEqual(self.bundle("expert-consensus")["status"], "consensus")
+
+    def test_reference_unbundled_quotes_from_two_publishers_stay_active(self):
+        self.settings(evidence_model="reference")
+        bodies = []
+        for publisher in ("acme", "globex"):
+            raw = self.source(None, "guide", publisher=publisher)["cite"]["raw"]
+            bodies.append(f'> "Example." — Writer ([[{raw}]] @ 1:00)\n')
+        self.page("two-publishers", "active", body="".join(bodies))
+        report = self.tool("rule_status.py")
+        self.assertNotRegex(report, r"two-publishers\s+active -> bench")
+
+    def test_reference_unbundled_brain_local_quotes_from_two_publishers_stay_active(self):
+        self.settings(evidence_model="reference")
+        bodies = []
+        for publisher in ("acme", "globex"):
+            brainlib.write_text(self.brain / "raw" / f"{publisher}.md",
+                                f"---\npublisher: {publisher}\nsource_id: guide\n---\nExample.\n")
+            bodies.append(f'> "Example." — Writer ([[raw/{publisher}]] @ 1:00)\n')
+        self.page("local-publishers", "active", body="".join(bodies))
+        report = self.tool("rule_status.py")
+        self.assertNotRegex(report, r"local-publishers\s+active -> bench")
+        self.rule("local-publishers", [dict(speaker="Writer", text="Example.", cite=dict(raw=f"raw/{p}", at="1:00"))
+                                       for p in ("acme", "globex")])
+        self.tool("merge_topic.py", "bundles")
+        self.assertEqual({p["item"] for p in self.bundle("local-publishers")["points"]},
+                         {"acme/guide", "globex/guide"})
+        report = self.tool("rule_status.py")
+        self.assertNotRegex(report, r"local-publishers\s+active -> bench")
+
+    def test_reference_warns_when_page_still_cites_an_old_edition(self):
+        self.settings(evidence_model="reference")
+        brainlib.write_text(self.root / "library" / "acme" / "sources.yaml", yaml.safe_dump({"sources": [
+            {"id": "current", "authority": "official", "supersedes": "old"},
+        ]}))
+        old, current = self.source(None, "old"), self.source(None, "current")
+        self.rule("rule", [current])
+        self.page("rule", body=f'> "Example." — ([[{old["cite"]["raw"]}]] @ 1:00)\n')
+        self.tool("merge_topic.py", "bundles")
+        report = self.tool("rule_status.py")
+        self.assertIn("warning: rule: rule cites only superseded supporting sources", report)
+        self.assertRegex(report, r"rule\s+bench -> active")
 
 
 if __name__ == "__main__":

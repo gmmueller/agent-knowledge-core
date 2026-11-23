@@ -13,6 +13,8 @@ When creating a workspace, ask the owner whether to keep a backup and where, suc
 
 Library layout and formats: `docs/library.md`. Item selection: `docs/triage.md`. Topic brains add the page types `example`, `rubric`, `tool` and `debate`, and the rule statuses `consensus` and `contested`.
 
+A topic brain can set `evidence_model: reference` in `brain.md` for a handbook, specification, policy or other document collection. Its expert list is optional. Evidence comes from current authoritative editions, tracked in `sources.yaml`. Capture documents with [the document tool](documents.md).
+
 **Rebuilds.** Library raw, catalogues and `selection.yaml` are inputs. A brain's `wiki/` is a build output tagged `build: { pipeline: N }` in `brain.md`. To rebuild with a better method, build on a branch, run the same `evals.md` on old and new, and merge only if the new one scores at least as well.
 
 ## Pieces

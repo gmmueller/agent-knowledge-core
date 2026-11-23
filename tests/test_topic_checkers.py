@@ -415,6 +415,31 @@ class TopicCheckers(unittest.TestCase):
             triage.merge(self.brain)
         self.assertEqual((self.brain / "selection.yaml").read_text(encoding="utf-8"), original)
 
+    def test_reference_triage_uses_authority_and_currency(self):
+        self.write("topic-fixture/brain.md", "---\nkind: topic\nevidence_model: reference\n---\n")
+        self.write("library/acme/sources.yaml", "sources:\n"
+                   "- {id: old, authority: official, version: v1}\n"
+                   "- {id: new, authority: official, version: v2, supersedes: old}\n")
+        self.write("library/acme/catalogue.tsv", "id\tkind\ttitle\tpublished\n"
+                   "old\tdoc\tOld edition\t2025-01-01\nnew\tdoc\tNew edition\t2026-01-01\n")
+        result = subprocess.run([sys.executable, "-X", "utf8", "-I", str(TOOLS / "triage_inputs.py"),
+                                 "--brain", str(self.brain), "acme"],
+                                capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        with (self.brain / "ingest/triage/input/acme-1.tsv").open(encoding="utf-8") as stream:
+            items = {row["item"]: row for row in csv.DictReader(stream, delimiter="\t")}
+        self.assertEqual((items["acme/old"]["authority"], items["acme/old"]["superseded"]), ("official", "yes"))
+        self.assertEqual((items["acme/new"]["version"], items["acme/new"]["superseded"]), ("v2", "no"))
+        self.write("topic-fixture/ingest/triage/acme-1.tsv",
+                   "\t".join(["item", *triage.REFERENCE_SCORES, "example", "speakers", "why"])
+                   + "\nacme/new\t3\t3\t3\t1\t3\t0\t\tCurrent edition\n"
+                   + "acme/old\t3\t3\t3\t1\t0\t0\t\tRetired edition\n"
+                   + "acme/commentary\t3\t3\t1\t1\t3\t0\t\tSecondary\n")
+        triage.merge(self.brain)
+        selection = yaml.safe_load((self.brain / "selection.yaml").read_text(encoding="utf-8"))
+        self.assertEqual({row["item"]: row["tier"] for row in selection["items"]},
+                         {"acme/new": "A", "acme/old": "B", "acme/commentary": "B"})
+
     def test_triage_keeps_and_sorts_unscored_overrides(self):
         self.write("topic-fixture/selection.yaml", yaml.safe_dump({"items": [
             {"item": "acme/z", "override": "A", "why": "Added by hand"},

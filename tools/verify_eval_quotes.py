@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
 import check_wiki as cw  # noqa: E402
+from reference_sources import enabled as reference_mode
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -18,22 +19,23 @@ def main():
     parser.add_argument("answers", type=pathlib.Path)
     args = parser.parse_args()
     brain = brainlib.brain_dir(args.brain)
+    reference = reference_mode(cw.frontmatter(brain / "brain.md"))
     text = args.answers.read_text(encoding="utf-8")
     # "quote" — Speaker ([[library/...]] @ t), or "quote" ([[raw/...]] @ t | page text | post | c:<id8>) for a persona's
-    # unnamed quotes (inline, possibly several per line). The dash is optional for raw/ cites only: in topic brains an
-    # undashed library quote usually names its speaker in the prose before it, which the second pass covers.
+    # unnamed quotes (inline, possibly several per line). In expert topic brains an undashed library quote usually
+    # names its speaker in the preceding prose, which the second pass covers.
     # \w without digits or underscore allows a Unicode initial letter.
     pat = re.compile(
         r"""["“]([^"”]{8,400})["”](\s*[—–-]\s*([^\W\d_][\w.'’ -]*?(?:\([^()\n]+\))?)?)?"""
         r"\s*\(\s*\[\[((?:library|raw)/[^\]|#]+?)(?:\.md)?\]\]\s*@\s*"
-        r"([\d:]+|¶\d+|p\.\s*\d+|page text|post|c:[0-9a-f]{8})"
+        rf"({cw.QUOTE_LOCATOR}|[\d:]+)(?![\w:]|\.\d)"
     )
     total, errors, masked_lines = 0, [], []
     for ln, line in enumerate(text.splitlines(), 1):
         spans = []
         for match in pat.finditer(line):
             quote, dash, speaker, rel, at = (g or "" for g in match.groups())
-            if not dash and not rel.startswith("raw/"):
+            if not dash and not rel.startswith("raw/") and not reference:
                 continue
             total += 1
             before = len(errors)

@@ -53,6 +53,8 @@ sources:
 
 ## `catalogue.tsv`
 
+Reference brains can mark document editions with `authority`, `version` and `supersedes` in the publisher's `sources.yaml`. See [reference topic brains](agent-reference.md#reference-topic-brains) and [local document capture](documents.md).
+
 UTF-8, tab-separated, header row, no tabs or newlines inside fields. Writers lock the catalogue during a merge and publish the result atomically. New items are added and existing rows update metadata. Fields are whitespace-cleaned, so read and write with plain tab splitting, not a CSV library: its quote escaping multiplies backslashes on every rewrite.
 
 | Column | Meaning |

@@ -13,6 +13,16 @@ Catalogues list everything an expert has published. Triage scores each item agai
 
 Automatic tier A requires `unique` of at least 1, in addition to the teaching scores. A hand override can still place a duplicate in A. Within a tier, unscored entries follow scored entries and sort by item ID.
 
+## Reference brains
+
+With `evidence_model: reference` in `brain.md`, the input TSV also shows `authority`, `version` and `superseded` from [source metadata](agent-reference.md#reference-topic-brains). Score how directly the document addresses the extraction areas and how much usable information it contains.
+
+- Score `authority` in place of `voice`. Use 3 for the issuing body, 2 for another authoritative primary document, 1 for secondary analysis and 0 for unsupported material.
+- Score `currency` in place of `fresh`. Use 3 for a confirmed current edition, 2 for older material still confirmed in force, 1 when currency is unknown and 0 for a superseded version.
+- Use the same output TSV below with the two renamed columns. `speakers` may be empty. Tier A requires relevance, density, authority and currency of at least 2, uniqueness of at least 1 and a total of at least 9. Currency always counts.
+
+When switching an existing brain, move its old score TSVs out of `ingest/triage/` before merging reference scores. Existing selection entries and hand overrides carry forward. Review their tiers when the new scoring changes what should be ingested.
+
 ## Who runs it
 
 A low-cost volume model, one agent per publisher catalogue or per about 150 rows. The orchestrator spot-checks 10 random rows per file before merging.
