@@ -76,7 +76,7 @@ Skip any item that <exclusion, if any>.
 ## Task loop
 
 1. Name the job: <the kinds of request this brain gets>.
-2. Read `wiki/index.md`, then the relevant concept, rule and rubric pages.
+2. Use the concept index and search to find the relevant concept, rule and rubric pages.
 3. Answer with the experts' methods, naming whose, and cite each one.
 4. Where experts disagree, show the debate page's positions instead of picking silently.
 5. Check the result against the relevant rubric, and show the check.

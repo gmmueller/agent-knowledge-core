@@ -148,7 +148,7 @@ class ExampleFixes(unittest.TestCase):
         self.assertEqual(values["boundaries"], "- Never promise results.\n")
         self.write(self.brain / "wiki/examples/demo.md", "---\ntype: example\n---\n")
         values = persona.customization(self.brain, {})
-        self.assertIn("worked examples are in `examples/`", values["examples_folder"])
+        self.assertIn("Worked examples are in `examples/`", values["examples_folder"])
         self.assertEqual((values["guidance"], values["boundaries"]), ("", ""))
         with self.assertRaises(ValueError):
             persona.customization(self.brain, {"skill": {"guidance": [3]}})

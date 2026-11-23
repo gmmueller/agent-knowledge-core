@@ -13,7 +13,7 @@ Each item has **must include** points, **must not** traps, and the pages that ho
 2. A fresh agent with no other context loads the `my-topic` skill and answers each item independently.
 3. The orchestrator grades each item as pass, partial or fail.
 4. The orchestrator runs `python -X utf8 -I <framework>/tools/verify_eval_quotes.py --brain <brain-folder> <answers.md>` on the answers.
-5. File the results as `evals-run-<date>.md` and summarise them under Results. Fix any gaps in the wiki or `brain.md`, then regenerate the skill if `brain.md` or rule counts changed.
+5. File the results as `evals-run-<date>.md` and summarise them under Results. Fix any gaps in the wiki or `brain.md`. Use `generate_persona.py --check` and regenerate the skill if it differs.
 
 A rebuilt wiki must score at least as well. If a failure traces to an eval criterion that contradicts the sources, fix the criterion and say so in the run file.
 

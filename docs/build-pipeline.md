@@ -15,9 +15,9 @@ Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py …` (with 
 | 5 | **Verify crawl.** Compare counts against the outline, check for empty or short transcripts, retry failures | `crawl-log.md` | Mechanical worker / script |
 | 6 | **Ingest.** Run `wiki_edits.py begin` (after `record --init` once), pass protected pages to workers, and assign one module per task in parallel. Check the wave once with `wave_report.py`, then update `hot.md` and `log.md` and close the pass with `build_wiki_index.py` before starting a merge pass. Review proposals with the user | `wiki/` | Volume workers; orchestrator merges |
 | 7 | **Extract rules.** Principles, frameworks and rules with quotes; bench vs active | `brain.md`, `wiki/rules/` | orchestrator |
-| 8 | **Generate.** Skill from `brain.md` into the explicit output directory (`--out` or `AGENT_KNOWLEDGE_CORE_SKILLS_DIR`). Read any `consider skill.guidance:` suggestions, add what fits to `brain.md`, and regenerate | agent files | orchestrator |
+| 8 | **Generate.** Write a thin skill from `brain.md` into `--out` or `AGENT_KNOWLEDGE_CORE_SKILLS_DIR`. Add `consider skill.guidance:` suggestions that fit and regenerate. Use `--check` to detect drift in an installed copy | agent files | orchestrator |
 | 9 | **Evaluate.** 5–10 questions with known answers; check citations, drift and inference labels | `evals.md` | orchestrator + user |
-| 10 | **Search.** Index `raw/` + `wiki/` with qmd once the brain is past about 100 sources | qmd collection | script |
+| 10 | **Search.** Set up qmd collections `<brain>-wiki` and `<brain>-raw`. Without qmd, the skill uses grep | qmd collections | script |
 
 ## Topic brain pipeline
 
@@ -34,10 +34,10 @@ library → catalogue → triage → fetch → speaker pass → ingest waves →
 | 7 | **Ingest waves.** Start each pass with `wiki_edits.py begin` (after `record --init` once). Workers write source pages and staging and propose updates to protected pages. Check each publisher group's wave once with `wave_report.py`, then update `hot.md` and `log.md` and close the pass with `build_wiki_index.py` | `wiki_edits.py begin`, `briefs/topic-ingest-brief.md`, `check_wiki.py`, `wave_report.py` | `wiki/sources/`, `ingest/staging/` | volume workers |
 | 8 | **Merge.** Start with `wiki_edits.py begin`; survey concepts, fix duplicate slugs, write bundles, `page-groups.yaml` and `item-pages.tsv`, then concept pages (propose updates to protected pages), checking the whole wave once with `check_wiki.py` over the assigned concept pages (`wave_report.py` covers ingest waves only) | `wiki_edits.py begin`, `merge_topic.py survey`, `ingest/slug-map.yaml`, `merge_topic.py bundles`, `briefs/topic-pages-brief.md`, `check_wiki.py` | `ingest/bundles/`, `wiki/{topics,principles,…}/` | volume workers; orchestrator plans groups |
 | 9 | **Debates.** One page per question on which sources disagree (propose updates to protected pages) | `briefs/debates-brief.md` | `wiki/debates/` | volume workers |
-| 10 | **Rule audit.** Recount rule status by independent voice, lint, update `hot.md` and `log.md`, then rebuild the index to close the pass. Review open proposals with the user | `rule_status.py --write`, `lint_wiki.py --fix-slug-map`, `build_wiki_index.py`, `wiki_edits.py proposals` | `wiki/rules/`, `index.md` | orchestrator |
+| 10 | **Rule audit.** Recount rule status by independent voice, lint, update `hot.md` and `log.md`, then rebuild both indexes to close the pass. Review open proposals with the user | `rule_status.py --write`, `lint_wiki.py --fix-slug-map`, `build_wiki_index.py`, `wiki_edits.py proposals` | `wiki/rules/`, `wiki/index.md`, `wiki/sources-index.md` | orchestrator |
 | 11 | **Rubrics** (optional). Calibrate scoring checklists with two cold graders | `rubric_agreement.py` | `wiki/rubrics/`, `rubric-calibration/` | volume workers + orchestrator |
 | 12 | **Draft skill and evaluate.** Generate a draft skill; read any `consider skill.guidance:` suggestions, add what fits to `brain.md`, and regenerate; run cold evals with a fresh agent (including traps), check quotes, fix gaps | `generate_persona.py`, `evals.md`, `verify_eval_quotes.py` | draft skill, `evals-run-<date>.md` | orchestrator |
-| 13 | **Final skill and search.** Regenerate the skill if `brain.md` or rule counts changed; index the wiki and library with qmd | `generate_persona.py`, qmd | skill, qmd collections | orchestrator / script |
+| 13 | **Final skill and search.** Use `--check` and regenerate if the skill differs. Set up `<brain>-wiki` and the shared `library` qmd collection | `generate_persona.py`, qmd | skill, qmd collections | orchestrator / script |
 | 14 | **Keep current.** Re-catalogue, triage the new rows, ingest a new wave | `docs/updates.md`, `refresh_due.py` | updated wiki | as above |
 
 Work in waves: ingest the best-covered publishers first, run the merge pass on what you have, and check the gate and the evals before adding the next wave. Each wave adds source pages and staging; each merge pass rebuilds bundles and concept pages from all staging so far.
@@ -116,11 +116,11 @@ Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py --brain <wo
 - Measure: `token_report.py --workspace <path> [--since YYYY-MM-DD] [--claude-dir D] [--codex-dir D] [--t3-db F] [--ctx-warn 200000] [--top 30] [--json]` (reads Claude Code transcripts, Codex sessions and optional T3 Code DB; prints context size, token breakdown and cost by trigger).
 - Obsidian: `obsidian_setup.py --brain <path>` or `--workspace <workspace> --all [--gitignore-hub] [--reset]`.
 - Evaluate with `verify_eval_quotes.py --brain <path> <answers.md>`. It exits 1 on quote problems. Compare rubric scores with `rubric_agreement.py <grader-a.tsv> <grader-b.tsv>`.
-- Generate: `generate_persona.py --brain <path> --out <skills-directory> [--relative-to <dir>]`.
+- Generate with `generate_persona.py --brain <path> --out <skills-directory> [--relative-to <dir>]`. Add `--check` to compare both generated files without writing. It exits 1 if either file is missing or differs.
 - Remind: `refresh_due.py --workspace <workspace> --all`.
 - Search: qmd (`tools/install_qmd.ps1` on Windows; `npm install -g @tobilu/qmd` on macOS/Linux, after `brew install sqlite` on macOS).
 
-Product headings in the index use registry titles in `sources.yaml` order, with `outline.yaml` titles as fallback. Associate a source with its product using `product:` or `code:`, `crawl.yaml`'s `source_id`, a matching outline product URL, or legacy `(product code main)` notes. Unregistered product codes are still listed.
+The builder lists concepts in `wiki/index.md` and links to `wiki/sources-index.md`, where each source gets its own bullet. Both indexes are covered by the wiki baseline and human-edit protection. Product headings in `wiki/sources-index.md` use registry titles in `sources.yaml` order, with `outline.yaml` titles as fallback. Associate a source with its product using `product:` or `code:`, `crawl.yaml`'s `source_id`, a matching outline product URL, or legacy `(product code main)` notes. Unregistered product codes are still listed.
 
 ## Port checks
 
@@ -213,13 +213,14 @@ Each line says what to do and what happened. They are grouped by stage.
 
 - **Calibrate every rubric.** A 0/1/2 scale without anchors gives different scores from different graders. Use 8 to 10 non-overlapping criteria, each with a concrete **Test** and cited 0/1/2 anchors (experts' own before/after examples for the low end, annotated examples for the high end), plus a calibration set. Have two cold graders score held-out items and synthetic items written to spread scores, compare with `rubric_agreement.py`, and turn each disagreement into an edge-case rule. Expect three runs to reach 83 to 100% exact agreement per criterion.
 - **A rubric is a gate and a diagnosis, not a forecast.** Test it on the owner's real content too: in one trial, hook scores did not predict views but cut rhythm did.
-- **Run evals cold:** generate a draft skill first (`generate_persona.py`), then have a fresh agent with only that skill answer each item. Grade pass, partial or fail against `must include` and `must not` points, run `verify_eval_quotes.py` on the answers, fix gaps, and regenerate the skill if `brain.md` or rule counts changed.
+- **Run evals cold.** Generate a draft skill, then have a fresh agent with only that skill answer each item. Grade pass, partial or fail against `must include` and `must not` points, run `verify_eval_quotes.py` on the answers and fix gaps. Use `generate_persona.py --check` to see whether the skill needs regenerating.
 - **Include trap items:** a question with a missing premise, a request that breaks a hard rule, a claim the research doesn't support, and a premise that is wrong.
 - **Fix the eval when the eval is wrong.** If a graded failure traces to an eval criterion that contradicts the sources, correct the criterion and say so in the run file.
 - **A rebuilt wiki must score at least as well** as the one it replaces.
 
 ### Skills and search
 
+- **Read at use time.** The skill loads `brain.md` and the concept index `wiki/index.md`. Search with qmd or grep for relevant pages. Open `wiki/sources-index.md` to locate a specific source.
 - **`generate_persona.py --out` takes the skills parent folder.** Passing the skill folder itself writes a nested `<brain>/<brain>/` copy. Then run your sync step.
 - **Sync scripts that mirror a whole skills folder** also copy other people's in-place edits. When only brain skills changed, copy those folders instead.
 - **qmd:** on Windows, Node crashes (access violation) when loading `sqlite-vec`, so run it under Bun (`tools/install_qmd.ps1` installs qmd and rewrites the npm shims; re-run it after every upgrade, and register MCP as `bun <npm>\node_modules\@tobilu\qmd\dist\cli\qmd.js mcp`). On macOS/Linux, install with `npm install -g @tobilu/qmd` (on macOS, run `brew install sqlite` first). Index each persona brain as two collections, `<brain>-wiki` and `<brain>-raw`, each with a `qmd context`. Topic brains get `<brain>-wiki` only and share the `library` collection.

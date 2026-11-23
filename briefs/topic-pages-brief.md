@@ -33,7 +33,7 @@ Core rules (self-contained): use primary sources only, cite every claim or mark 
 
 ## What you write (and nothing else)
 
-One page per slug in your group (`{{brain_name}}/ingest/page-groups.yaml` → `groups`) at `{{brain_name}}/wiki/<dir>/<slug>.md`, where the type maps to a folder: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, rubric → `rubrics`, tool → `tools`, glossary → `glossary`. Don't edit any other file: not source pages, not other groups' pages, not `notes/`, not `library/`, and not `index.md`, `hot.md`, `log.md` or `brain.md`. No git, no installs. Other writers work on other groups at the same time.
+One page per slug in your group (`{{brain_name}}/ingest/page-groups.yaml` → `groups`) at `{{brain_name}}/wiki/<dir>/<slug>.md`, where the type maps to a folder: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, rubric → `rubrics`, tool → `tools`, glossary → `glossary`. Edit only your assigned pages. The orchestrator owns both indexes, `hot.md`, `log.md` and `brain.md`. No git, no installs. Other writers work on their assigned groups at the same time.
 
 **Protected pages (from `wiki_edits.py begin`):** {{protected_pages}}
 
