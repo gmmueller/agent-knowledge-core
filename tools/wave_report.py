@@ -47,9 +47,18 @@ def references(fm, keys):
     return result
 
 
+def stages_item(item, entry):
+    if item.get("raw") and entry.get("raw"):
+        return normalized(item["raw"]) == normalized(entry["raw"])
+    keys = ("raw", "item", "id")
+    return any(same(wanted, staged) for wanted in references(item, keys)
+               for staged in references(entry, keys))
+
+
 def batch_report(brain, name, batch, pages):
     problems, selected = [], set()
-    for item in batch.get("items") or []:
+    assigned = batch.get("items") or []
+    for item in assigned:
         raw = item.get("raw")
         wanted = {normalized(item[key]) for key in ("item", "id") if item.get(key)}
         # Q&A digests share one page id and need not cite brief-reply threads; every other item
@@ -66,8 +75,19 @@ def batch_report(brain, name, batch, pages):
     files = [staging, *sorted(selected)]
     try:
         data = yaml.safe_load(staging.read_text(encoding="utf-8"))
-        if not isinstance(data, dict):
-            raise ValueError("expected a YAML mapping")
+        if not isinstance(data, dict) or not data:
+            raise ValueError("expected a nonempty YAML mapping")
+        staged = []
+        for key in ("lessons", "items"):
+            entries = data.get(key, [])
+            if not isinstance(entries, list) or any(not isinstance(entry, dict) for entry in entries):
+                raise ValueError(f"'{key}' must be a list of mappings")
+            staged.extend(entries)
+        if not staged:
+            raise ValueError("expected entries in 'lessons' or 'items'")
+        for item in assigned:
+            if not any(stages_item(item, entry) for entry in staged):
+                problems.append(f"staging missing: {item.get('raw') or item.get('item') or item.get('id', '')}")
     except (OSError, ValueError, yaml.YAMLError) as exc:
         problems.append(f"staging: {str(exc).splitlines()[0]}")
     if files:

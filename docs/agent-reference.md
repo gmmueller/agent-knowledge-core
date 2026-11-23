@@ -179,7 +179,7 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 |---|---|
 | `triage_inputs.py`, `triage_merge.py`, `selection_override.py` | Cut catalogues into triage inputs; merge scores into `selection.yaml`; hand overrides |
 | `check_wiki.py` | Check `brain.md`, wiki pages and staging for corrupt text, invalid locators, misquotes, speaker attribution and uncited claims in key sections |
-| `wave_report.py` | Check a finished wave (`--batches`, `--wave`). Run `check_wiki.py` on staging and pages, match explicit capture paths, and check protected pages |
+| `wave_report.py` | Check a finished wave (`--batches`, `--wave`). Match assignments to staging and pages, run `check_wiki.py` on both, and check protected pages |
 | `requote.py` | Re-anchor quotes (timestamps, `¶N` paragraph and `p. N` page locators) after a raw file is re-crawled |
 | `merge_staging.py` (persona), `merge_topic.py` (topic) | Pool ingest staging by concept → per-concept bundles |
 | `rule_status.py` | Recount topic-brain rule status by independent voice |
@@ -191,8 +191,8 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 |---|---|
 | `lint_wiki.py`, `build_wiki_index.py` | Broken links, orphans, rule status, slug drift (`--fix-slug-map`), human edit and proposal warnings, errors for changed captures; rebuild `wiki/index.md` (concepts, plus `notes/` under **Your notes**) and `wiki/sources-index.md` (sources), and record the wiki baseline |
 | `obsidian_setup.py` | Configure a brain folder in place as its own Obsidian vault (`.obsidian/` settings, `notes/`, topic-brain `library` link, `.gitignore`; `--workspace <ws> --all [--gitignore-hub] [--reset]` also writes `.cores-hub/`) |
-| `wiki_edits.py` | Detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `mark-written`, `record`, `propose`, `proposals`, `accept`) |
-| `raw_guard.py` | Record capture hashes and fail on edited or missing captures. Workspace checks cover the library and each brain |
+| `wiki_edits.py` | Detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `mark-written`, `record`, `propose`, `proposals`, `accept`) so agent passes never overwrite them |
+| `raw_guard.py` | Record capture hashes and check for edited, deleted or unrecorded captures. Workspace checks cover the library and each brain |
 | `content_hashes.py` | Shared SHA-256 hash-manifest and file-lock helpers used by `wiki_edits.py` and `raw_guard.py` |
 | `verify_eval_quotes.py`, `rubric_agreement.py` | Fail on reported eval quote problems, or compare two graders' rubric scores |
 | `generate_persona.py` | `brain.md` → subject-neutral skill (`SKILL.md` + agent metadata), persona or topic version; reads optional `skill.guidance` and `skill.boundaries` from `brain.md`, prints `consider skill.guidance:` hints when none are set, links `wiki/examples/` when present (`--relative-to <dir>` writes portable relative paths; `--check` reports drift without writing) |
@@ -201,6 +201,13 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 | `install_qmd.ps1` | Install qmd and run it under Bun on Windows (macOS/Linux: `npm install -g @tobilu/qmd`) |
 
 `requirements.txt` installs `requirements-core.txt` by default; optional heavy groups (Whisper, torch/diarization, OpenCV/frames) are commented inside `requirements.txt`. External programs `yt-dlp` and `ffmpeg` must be on `PATH`.
+
+### Refresh results
+
+- `library_yt.py catalogue` retains the existing source, kind and URL of known videos while refreshing title, publication date, duration, views and description. Use `library_yt.py add --source <source>` to deliberately assign a video to a different source.
+- `web_to_raw.py fetch --catalogue` advances `last_crawled` after an error-free run over the full catalogue, and only for sources with at least one page fetched. `--urls`, `--items`, `--match`, and a truncating `--limit` leave freshness dates unchanged. Fetch exits `1` if any selected item fails and `0` on success, including successful subset and cache-only runs.
+- `skool_feed_index.py` exits `0` after a complete scan and `3` after a page-cap, rate-limit or request-budget stop. `skool_bulk.py` retries rate limits after a cooldown, up to eight retries. Bulk exits `0` when all phases finish, `1` on failure or exhausted rate-limit retries, `2` when login is needed, and `3` with `INCOMPLETE` after a page-cap or budget stop.
+- `raw_guard.py check` exits `0` for clean captures, `1` for changed, deleted or unrecorded captures, and `2` on usage or read errors. Retrying library YouTube or web fetch records a missing hash for an existing capture without rewriting it. Use `raw_guard.py record` to adopt other reviewed files without hashes in a workspace with an existing manifest, or `record --init` for first-time adoption.
 
 ---
 

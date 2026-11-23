@@ -78,6 +78,30 @@ class TopicCheckers(unittest.TestCase):
                                  ({"speaker": "Someone Else"}, "block speaker 'Alex Author, Blair Author'")):
             self.assertIn(expected, self.errors(self.page(**kwargs)))
 
+    def test_paragraph_quote_must_be_in_the_cited_block(self):
+        raw = "library/test/raw/web/paragraphs"
+        self.write(raw + ".md", "**[¶1]** Opening text.\n**[¶2]** The exact quoted words.\n")
+        self.assertEqual(self.errors(self.page(quote="The exact quoted words.", at="¶2", raw=raw)), "")
+        self.assertIn("quote not at ¶1", self.errors(self.page(quote="The exact quoted words.", at="¶1", raw=raw)))
+        self.assertEqual(self.errors(self.page(at="p. 3")), "")  # PDF pages still tolerate adjacent quotes
+
+    def test_eval_attribution_handles_unicode_and_parenthetical_speakers(self):
+        raw = "library/test/raw/yt/discussion"
+        quote = "Keep a fresh copy of each draft."
+        answers = self.brain / "answers.md"
+        for speaker in ("Éloi Varen", "Tessa Vale (Draft Room)", "Mira O’Venn"):
+            with self.subTest(speaker=speaker):
+                self.write(raw + ".md", f"---\nspeakers: [{speaker}, Kel Orin]\n---\n"
+                           f"**[0:00]** {speaker}: {quote}\n**[0:10]** Kel Orin: {quote}\n")
+                for at, code, message in (("0:00", 0, "1 attributed quotes checked, 0 problems"),
+                                           ("0:10", 1, "does not match block speaker 'Kel Orin'")):
+                    self.write("topic-fixture/answers.md", f'“{quote}” — {speaker} ([[{raw}]] @ {at})\n')
+                    result = subprocess.run([sys.executable, "-X", "utf8", "-I", "-B",
+                                             str(TOOLS / "verify_eval_quotes.py"), "--brain", str(self.brain), str(answers)],
+                                            capture_output=True, text=True, encoding="utf-8")
+                    self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+                    self.assertIn(message, result.stdout)
+
     def test_transcript_speakers_aliases_and_text(self):
         raw = "library/test/raw/yt/interview"
         for speaker in ("Sample Expert", "Sample"):
@@ -188,13 +212,16 @@ class TopicCheckers(unittest.TestCase):
 
     def test_timestamp_bounds_with_and_without_duration(self):
         raw = "library/test/raw/yt/timed"
-        blocks = "**[0:00]** Opening words.\n**[0:30]** Last block.\n"
+        blocks = "**[0:10]** Opening words.\n**[0:30]** Last block.\n"
         self.write(raw + ".md", f'---\nduration: "0:45"\n---\n{blocks}')
         self.assertEqual(self.errors(self.page(quote="", at="0:45", raw=raw)), "")
-        self.assertIn("past the end", self.errors(self.page(quote="", at="99:59", raw=raw)))
+        self.assertIn("past the end", self.errors(self.page(quote="", at="0:46", raw=raw)))
+        self.assertEqual(self.errors(self.page(quote="Last block.", at="0:10", raw=raw)), "")
         self.write(raw + ".md", blocks)
+        self.assertIn("before first block", self.errors(self.page(quote="", at="0:09", raw=raw)))
         self.assertEqual(self.errors(self.page(quote="", at="0:30", raw=raw)), "")
-        self.assertIn("past the end", self.errors(self.page(quote="", at="0:31", raw=raw)))
+        self.assertEqual(self.errors(self.page(quote="Last block.", speaker="Sample Expert", at="0:31", raw=raw)), "")
+        self.assertIn("quote not at 0:31", self.errors(self.page(quote="Invented words.", at="0:31", raw=raw)))
 
     def test_page_text_attribution_requires_the_speakers_words(self):
         raw = "library/test/raw/yt/turns"

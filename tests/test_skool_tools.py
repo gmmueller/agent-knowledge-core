@@ -195,7 +195,7 @@ sources:
         output = io.StringIO()
         with patch.object(sys, "argv", command), patch.object(module, "sync_playwright", MagicMock()), contextlib.redirect_stdout(output):
             failed = module.main()
-        return bool(failed), output.getvalue()
+        return failed, output.getvalue()
 
     def test_feed_keeps_cursor_and_pending_changes_across_retries(self):
         feed = skool_feed_index
@@ -233,10 +233,12 @@ sources:
                     self.run_crawler(feed, "--mode", "refresh", "--max-pages", "1")
             self.assertFalse(self.load(cursor_path)["scan_complete"])
             self.assertEqual(set(self.load(cursor_path)["pending_changes"]), {first})
-            self.run_crawler(feed, "--mode", "refresh", "--max-pages", "1")
+            code, report = self.run_crawler(feed, "--mode", "refresh", "--max-pages", "1")
+            self.assertEqual(code, 3, report)
+            self.assertIn("max-pages", report)
             self.assertEqual(self.load(cursor_path)["activity_ns"], 200)
             self.assertEqual(set(self.load(cursor_path)["pending_changes"]), {first})
-            self.run_crawler(feed, "--mode", "refresh")
+            self.assertEqual(self.run_crawler(feed, "--mode", "refresh")[0], 0)
         self.assertEqual(pages_seen, [1, 1, 1, 2, 3])
         self.assertEqual(self.load(cursor_path)["activity_ns"], 300)
         self.assertEqual(set(self.load(cursor_path)["pending_changes"]), {first, second, "older"})
@@ -272,8 +274,23 @@ sources:
                 self.run_crawler(feed, "--mode", "backfill", "--max-pages", "5")
         self.assertEqual(self.load(cursor_path)["backfill"]["next_page"], 11)
         with patch.object(feed, "next_data", side_effect=next_page):
-            self.run_crawler(feed, "--mode", "backfill", "--max-pages", "5")
+            self.assertEqual(self.run_crawler(feed, "--mode", "backfill", "--max-pages", "5")[0], 3)
         self.assertEqual(self.load(cursor_path)["backfill"]["next_page"], 14)
+
+    def test_feed_reports_incomplete_recache_on_rate_limit_or_budget_stop(self):
+        feed = skool_feed_index
+        args = ("--mode", "recache", "--until", "2026-01-01")
+        for stop in (skool_session.RateLimited, skool_session.BudgetExhausted):
+            with self.subTest(stop=stop.__name__), patch.object(feed, "next_data", side_effect=stop("fixture")):
+                code, report = self.run_crawler(feed, *args)
+                self.assertEqual(code, 3, report)
+                self.assertIn(f"{stop.__name__}: fixture", report)
+                cursor = self.load("state/feed_cursor.json")
+                self.assertFalse(cursor["recache"]["complete"])
+                self.assertIn(stop.__name__, cursor["last_run"]["stop"])
+        with patch.object(feed, "next_data", return_value={"pageProps": {"postTrees": []}}):
+            self.assertEqual(self.run_crawler(feed, *args)[0], 0)
+        self.assertTrue(self.load("state/feed_cursor.json")["recache"]["complete"])
 
     def outline(self, with_files=False):
         lessons = [dict(id=f"lesson-{i}", source_id=f"acme-00{i}", title=f"Lesson {i}", url=f"{self.site}/classroom/{i}",
@@ -346,18 +363,19 @@ sources:
             def wait(self):
                 return self.returncode
 
-        calls = [
-            FakeProc(["stopped: RateLimited: 403\n", "done: 0 written, 1 errors\n"], 1),
-            FakeProc(["done: 1 written, 0 errors\n"], 0),
-        ]
-        with patch.object(skool_bulk.subprocess, "Popen", side_effect=calls), \
-                patch.object(skool_bulk.time, "sleep") as sleep, \
-                patch.object(sys, "argv", ["skool_bulk.py", "--brain", str(self.brain), "--phases", "expert", "--cooldown", "5"]), \
-                contextlib.redirect_stdout(io.StringIO()) as out:
-            code = skool_bulk.main()
-        self.assertEqual(code, 0, out.getvalue())
-        sleep.assert_called_once_with(5)
-        self.assertIn("cooling down 5s", out.getvalue())
+        for phase, code, summary in (("expert", 1, "stopped: RateLimited: 403"),
+                                     ("recache", 3, "incomplete: RateLimited: 403")):
+            with self.subTest(phase=phase):
+                calls = [FakeProc([summary + "\n"], code), FakeProc(["done\n"], 0)]
+                args = ["skool_bulk.py", "--brain", str(self.brain), "--phases", phase, "--cooldown", "5",
+                        "--recache-until", "2026-01-01"]
+                with patch.object(skool_bulk.subprocess, "Popen", side_effect=calls) as launch, \
+                        patch.object(skool_bulk.time, "sleep") as sleep, patch.object(sys, "argv", args), \
+                        contextlib.redirect_stdout(io.StringIO()) as out:
+                    self.assertEqual(skool_bulk.main(), 0, out.getvalue())
+                self.assertEqual(launch.call_count, 2)
+                sleep.assert_called_once_with(5)
+                self.assertIn("cooling down 5s", out.getvalue())
 
         with patch.object(skool_bulk.subprocess, "Popen", return_value=FakeProc(["done: 0 written, 1 errors\n"], 1)), \
                 patch.object(skool_bulk.time, "sleep") as sleep, \
@@ -367,6 +385,36 @@ sources:
         self.assertEqual(code, 1, out.getvalue())
         sleep.assert_not_called()
         self.assertIn("FAILED: expert exit 1", out.getvalue())
+
+    def test_bulk_stops_on_budget_or_page_cap_without_marking_phase_done(self):
+        args = ["skool_bulk.py", "--brain", str(self.brain), "--phases", "recache,expert", "--recache-until", "2026-01-01"]
+        for rc, summary in ((3, "incomplete: max-pages"), (0, "stopped: BudgetExhausted: used 20 requests")):
+            with self.subTest(summary=summary):
+                proc = Mock(stdout=iter([summary + "\n"]), returncode=rc)
+                with patch.object(skool_bulk.subprocess, "Popen", return_value=proc) as launch, \
+                        patch.object(skool_bulk.time, "sleep") as sleep, patch.object(sys, "argv", args), \
+                        contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(skool_bulk.main(), 3, output.getvalue())
+                launch.assert_called_once()
+                sleep.assert_not_called()
+                path = skool_bulk.scratch_dir(self.brain.resolve(), "logs") / "bulk_status.json"
+                status = json.loads(path.read_text(encoding="utf-8"))
+                self.assertEqual(status["state"], "INCOMPLETE")
+                self.assertEqual(status["phases"]["recache"]["state"], "incomplete")
+                self.assertIn(summary, status["note"])
+                self.assertNotIn("expert", status["phases"])
+
+    def test_bulk_stops_after_eight_rate_limit_cooldowns(self):
+        def rate_limited(*args, **kwargs):
+            return Mock(stdout=iter(["incomplete: RateLimited: 403\n"]), returncode=3)
+
+        args = ["skool_bulk.py", "--brain", str(self.brain), "--phases", "expert", "--cooldown", "5"]
+        with patch.object(skool_bulk.subprocess, "Popen", side_effect=rate_limited) as launch, \
+                patch.object(skool_bulk.time, "sleep") as sleep, patch.object(sys, "argv", args), \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(skool_bulk.main(), 1)
+        self.assertEqual(launch.call_count, 9)
+        self.assertEqual(sleep.call_count, 8)
 
 
 if __name__ == "__main__":

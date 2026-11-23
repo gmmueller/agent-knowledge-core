@@ -12,8 +12,13 @@ def manifest(raw):
     return (raw if (raw.parent / "brain.md").exists() else raw.parent) / ".capture-hashes.json"
 
 
+def captures(raw):
+    # Skip "<capture>.lock" files: capture writers lock each raw path, and on macOS/Linux the lock file stays behind.
+    return (p for p in brainlib.iter_files(raw) if not p.name.endswith(".lock"))
+
+
 def snapshot(raw):
-    return {p.relative_to(raw).as_posix(): hashes.file_hashes(p) for p in brainlib.iter_files(raw)}
+    return {p.relative_to(raw).as_posix(): hashes.file_hashes(p) for p in captures(raw)}
 
 
 def check(raw):
@@ -27,7 +32,7 @@ def check(raw):
 def unrecorded(raw):
     """Files with no capture hash yet (captured before the guard was adopted, or by a tool that doesn't record)."""
     before = hashes.load(manifest(raw)) or {}
-    return sorted(p.relative_to(raw).as_posix() for p in brainlib.iter_files(raw)
+    return sorted(p.relative_to(raw).as_posix() for p in captures(raw)
                   if p.relative_to(raw).as_posix() not in before)
 
 
@@ -51,7 +56,7 @@ def record(raw, *, init=False):
 
 
 def record_capture(path):
-    """Called only after a capture writes a file; update exactly that file, never its neighbours."""
+    """Record a capture if its hash is missing and return whether a hash was added."""
     path = path.resolve()
     raw = next((p for p in path.parents if p.name == "raw"), None)
     if raw is None:
@@ -59,8 +64,12 @@ def record_capture(path):
     target = manifest(raw)
     with hashes.locked(target):
         files = hashes.load(target) or {}
-        files[path.relative_to(raw).as_posix()] = hashes.digest(path)
+        name = path.relative_to(raw).as_posix()
+        if name in files:
+            return False
+        files[name] = hashes.digest(path)
         hashes.save(target, files)
+    return True
 
 
 def cited_raw_dirs(brain):
@@ -111,7 +120,7 @@ def main():
         print(f"{count} raw files changed after capture")
         if missing:
             print(f"{missing} raw files have no capture hash yet (run record, or record --init once when adopting)")
-    return int(bool(count))
+    return int(bool(count or missing))
 
 
 if __name__ == "__main__":

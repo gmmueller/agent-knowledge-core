@@ -109,6 +109,31 @@ class WikiTools(unittest.TestCase):
         self.assertIn("cross-brain wikilink", result.stdout)
         self.assertIn("unresolved wikilink", result.stdout)
 
+    def test_brain_card_requires_evidence_for_each_rule_row(self):
+        card = self.brain / "brain.md"
+        text = card.read_text(encoding="utf-8") + (
+            "\n## Rules\n\n### Active\n\n"
+            "| # | Rule | Evidence |\n|---|---|---|\n"
+            '| 1 | [[rule-practice|Practice regularly]] | "Practice every day to build skill." '
+            '— [[raw/main/m01/l01]] @ 0:00 |\n'
+            "\n### Bench\n\n| Rule | Status | Evidence |\n|---|---|---|\n"
+            "| Record each attempt | bench | [[raw/main/m01/l01]] @ 0:30 |\n"
+            "| Leave time to review | bench | [[rule-practice]] |\n"
+            "\n## Key points\n- Review your records.\n"
+            "\n## Frameworks\n| Rule | Evidence |\n|---|---|\n| Workflow example | none |\n"
+        )
+        self.write("brain.md", text)
+        result = self.run_tool("check_wiki.py", "--brain", self.brain, card)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count("rule without an exact quote"), 2, result.stdout)
+        self.assertIn("key points claim without citation", result.stdout)
+        self.write("brain.md", text
+                   .replace("| bench | [[", '| bench | "Keep a record of your progress." — [[')
+                   .replace('— [[rule-practice]] |', '— [[raw/main/m01/l01]] @ 0:30 |')
+                   .replace("Review your records.", "Review your records. ([[raw/main/m01/l01]] @ 0:30)"))
+        result = self.run_tool("check_wiki.py", "--brain", self.brain, card)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_eval_quote_errors_exit_nonzero(self):
         answers = self.brain / "answers.md"
         two_on_one_line = ('If "short" is too strong for the original "term", compare '

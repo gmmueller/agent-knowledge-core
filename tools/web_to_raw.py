@@ -21,6 +21,7 @@ import xml.etree.ElementTree as ET
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import brainlib
 import library_raw as lr
+import raw_guard
 import trafilatura
 from source_helpers import match_source, stamp_crawl
 from bs4 import BeautifulSoup
@@ -407,7 +408,7 @@ def fetch(args, cfg, client):
     else:
         by_url = {r['url']: r for r in catalogue.values()}
         selected = [by_url.get(u, {"url": u}) for u in args.urls]
-    complete = args.limit is None or args.limit >= len(selected)
+    complete = args.catalogue and not args.match and (args.limit is None or args.limit >= len(selected))
     if args.limit is not None:
         selected = selected[:args.limit]
     failures, sources = 0, set()
@@ -419,8 +420,9 @@ def fetch(args, cfg, client):
         url = old["url"]
         try:
             source = old.get("source") or source_id(cfg, url)
-            sources.add(source)
             previous, previous_front = captured.get(url, (None, {}))
+            if previous and raw_guard.record_capture(previous):
+                log(args.publisher, f"recorded missing capture hash: {previous.name}")
             if previous and not (args.recapture or recheck):
                 log(args.publisher, f"skip captured URL: {url}")
                 continue

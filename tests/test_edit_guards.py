@@ -358,9 +358,13 @@ class EditGuards(unittest.TestCase):
         raw_guard.record_capture(self.brain / "raw/source.md")
         self.assertEqual(raw_guard.check(self.brain / "raw"), {})
         self.assertEqual(raw_guard.unrecorded(self.brain / "raw"), ["older.md"])
+        result = self.run_tool("raw_guard.py", "check")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("1 raw files have no capture hash yet", result.stdout)
         result = self.run_tool("raw_guard.py", "record")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(raw_guard.unrecorded(self.brain / "raw"), [])
+        self.assertEqual(self.run_tool("raw_guard.py", "check").returncode, 0)
         self.write("raw/older.md", "Edited\n")
         self.assertEqual(self.run_tool("raw_guard.py", "record").returncode, 2)
 

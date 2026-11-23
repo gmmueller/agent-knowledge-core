@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import brainlib
 import library_raw as lr
 import library_yt as yt
+import raw_guard
 import web_to_raw as web
 
 SCRATCH = None
@@ -37,9 +38,10 @@ class LibraryTools(unittest.TestCase):
                             f"  type: {kind}\n  url: https://example.com\n  last_crawled: null\n{extra}")
         return path
 
-    def fetch(self, client, *urls, recheck=False):
-        args = SimpleNamespace(publisher="acme", items=None, catalogue=False, urls=urls, limit=None,
-                               transcript=False, recapture=False, recheck=recheck, kind="doc")
+    def fetch(self, client, *urls, **overrides):
+        options = dict(publisher="acme", items=None, catalogue=False, urls=urls, limit=None, match=None,
+                       transcript=False, recapture=False, recheck=False, kind="doc")
+        args = SimpleNamespace(**(options | overrides))
         with contextlib.redirect_stdout(io.StringIO()):
             return web.fetch(args, web.config("acme"), client)
 
@@ -61,6 +63,7 @@ class LibraryTools(unittest.TestCase):
     def test_youtube_add_stamps_selected_source_only_on_complete_success(self):
         path = self.source_file("youtube-selected")
         meta = {"id": "abcdefghijk", "title": "Picked Video", "upload_date": "20260512", "duration": 300}
+        lr.merge_catalogue("acme", [{"id": "yt-abcdefghijk", "source": "channel"}])
         with patch.object(yt, "metadata", side_effect=[meta, RuntimeError("network")]), \
                 patch.object(sys, "argv", ["library_yt.py", "--workspace", str(self.root), "add", "acme",
                                            "--source", "acme-source", "abcdefghijk", "bcdefghijkl"]), \
@@ -77,6 +80,58 @@ class LibraryTools(unittest.TestCase):
                 yt.main()
         self.assertEqual(exited.exception.code, 0)
         self.assertEqual(str(brainlib.load_yaml(path)["sources"][0]["last_crawled"]), dt.date.today().isoformat())
+        self.assertEqual(lr.read_catalogue("acme")["yt-abcdefghijk"]["source"], "acme-source")
+
+    def test_youtube_channel_scan_preserves_routing_and_refreshes_metadata(self):
+        self.source_file("youtube-channel")
+        item = "yt-abcdefghijk"
+        lr.merge_catalogue("acme", [{"id": item, "source": "interviews", "kind": "stream", "title": "Old title",
+                                     "url": "https://youtu.be/abcdefghijk", "views": 100},
+                                    {"id": "yt-bcdefghijkl"}])
+        # The manually routed item needs enrichment. The other item has metadata cached from a prior fetch.
+        entries = [{"id": "abcdefghijk", "title": "Flat title"}, {"id": "bcdefghijkl", "view_count": 200}]
+        cached = {"id": "bcdefghijkl", "title": "Cached title", "upload_date": "20260501", "view_count": 100}
+        brainlib.write_text(lr.pub_dir("acme") / "media/meta/bcdefghijkl.json", json.dumps(cached))
+        details = {"id": "abcdefghijk", "title": "New title", "upload_date": "20260512",
+                   "duration": 300, "view_count": 500, "description": "New description"}
+        with patch.object(yt, "ytdlp", return_value=json.dumps({"entries": entries})), \
+                patch.object(yt, "metadata", return_value=details) as enrich, contextlib.redirect_stdout(io.StringIO()):
+            self.assertFalse(yt.catalogue("acme", web.config("acme"), 1))
+        enrich.assert_called_once_with("acme", "abcdefghijk")
+        rows = lr.read_catalogue("acme")
+        self.assertEqual((rows[item]["source"], rows[item]["kind"], rows[item]["url"]),
+                         ("interviews", "stream", "https://youtu.be/abcdefghijk"))
+        self.assertEqual((rows[item]["title"], rows[item]["published"], rows[item]["duration_s"],
+                          rows[item]["views"], rows[item]["description"]),
+                         ("New title", "2026-05-12", "300", "500", "New description"))
+        self.assertEqual((rows["yt-bcdefghijkl"]["source"], rows["yt-bcdefghijkl"]["views"]), ("acme-source", "200"))
+
+    def test_youtube_fetch_repairs_unrecorded_capture_without_refetch_or_rewrite(self):
+        self.source_file("youtube-selected", "  format: solo\ndefault_speaker: Example Speaker\n")
+        item = "yt-abcdefghijk"
+        meta = {"id": "abcdefghijk", "title": "Example", "upload_date": "20260512", "duration": 300}
+        lr.merge_catalogue("acme", [yt.youtube_row(meta, "acme-source", "video")])
+        config = web.config("acme")
+        raw = lr.pub_dir("acme") / "raw"
+        with patch.object(yt, "metadata", return_value=meta), patch.object(yt, "captions", return_value=("fixture.json", "auto")), \
+                patch.object(yt, "json3_lines", return_value=[{"text": ["A capture."], "start": 0, "end": 5}]), \
+                patch.object(raw_guard.hashes, "save", side_effect=OSError("hash write interrupted")), \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertTrue(yt.fetch("acme", config, [item]))
+        capture, = (raw / "yt").glob("*.md")
+        original = capture.read_bytes(), capture.stat().st_mtime_ns
+        Path(str(capture) + ".lock").write_text("", encoding="utf-8")  # macOS/Linux leave the writer's lock file
+        self.assertEqual(raw_guard.unrecorded(raw), [f"yt/{capture.name}"])
+
+        with patch.object(yt, "metadata") as metadata, contextlib.redirect_stdout(io.StringIO()):
+            self.assertFalse(yt.fetch("acme", config, [item]))
+        metadata.assert_not_called()
+        self.assertEqual((capture.read_bytes(), capture.stat().st_mtime_ns), original)
+        self.assertEqual(raw_guard.unrecorded(raw), [])
+        capture.write_text("A changed capture.\n", encoding="utf-8")
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertFalse(yt.fetch("acme", config, [item]))
+        self.assertEqual(raw_guard.check(raw), {f"yt/{capture.name}": "changed"})
 
     def test_web_browser_falls_back_to_playwright_chromium_and_closes(self):
         page = Mock()
@@ -105,10 +160,12 @@ class LibraryTools(unittest.TestCase):
     def test_web_stamps_only_successful_run(self):
         path = self.source_file()
         good, bad = "https://example.com/good", "https://example.com/bad"
+        lr.merge_catalogue("acme", [{"id": f"web-{label}", "url": url, "kind": "doc", "source": "acme-source"}
+                                    for label, url in (("good", good), ("bad", bad))])
         client = Mock()
         client.get.side_effect = [("<h1>Good</h1>", good), OSError("unavailable")]
         with patch.object(web, "paragraphs", return_value=["Useful text."]):
-            self.assertEqual(self.fetch(client, good, bad), 1)
+            self.assertEqual(self.fetch(client, catalogue=True), 1)
         self.assertIsNone(brainlib.load_yaml(path)["sources"][0]["last_crawled"])
         args = SimpleNamespace(publisher="acme", sitemap=None, rss=None, index="https://example.com",
                                datasette=None, link_match="/good", next_selector=None, match=None, kind="doc")
@@ -117,6 +174,65 @@ class LibraryTools(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             web.listings(args, web.config("acme"), client)
         self.assertEqual(str(brainlib.load_yaml(path)["sources"][0]["last_crawled"]), dt.date.today().isoformat())
+
+    def test_web_subset_fetches_keep_the_source_due(self):
+        path = self.source_file()
+        urls = ["https://example.com/first", "https://example.com/second"]
+        lr.merge_catalogue("acme", [{"id": f"web-{label}", "url": url, "kind": "doc", "title": label,
+                                     "source": "acme-source"} for label, url in zip(("first", "second"), urls)])
+        client = Mock()
+        client.get.side_effect = lambda url: ("<h1>Fixture</h1>", url)
+        for url_args, options, fetched in ((urls[:1], {}, urls[0]), ([], {"items": ["web-first"]}, urls[0]),
+                                           ([], {"catalogue": True, "match": "first"}, urls[0]),
+                                           ([], {"catalogue": True, "limit": 1}, urls[1])):
+            with self.subTest(options=options), patch.object(web, "paragraphs", return_value=["Useful text."]):
+                client.get.reset_mock()
+                self.assertEqual(self.fetch(client, *url_args, recheck=True, **options), 0)
+                client.get.assert_called_once_with(fetched)
+                self.assertIsNone(brainlib.load_yaml(path)["sources"][0]["last_crawled"])
+
+    def test_web_full_catalogue_does_not_stamp_sources_served_from_cache(self):
+        path = self.source_file(extra="- id: other-source\n  url: https://example.com/other\n  last_crawled: null\n")
+        cached_url, new_url = "https://example.com/cached", "https://example.com/other/new"
+        client = Mock()
+        client.get.side_effect = lambda url: ("<h1>Fixture</h1>", url)
+        with patch.object(web, "paragraphs", return_value=["Useful text."]):
+            self.assertEqual(self.fetch(client, cached_url), 0)
+            lr.merge_catalogue("acme", [{"id": "web-new", "url": new_url, "kind": "doc", "source": "other-source"}])
+            client.get.reset_mock()
+            self.assertEqual(self.fetch(client, catalogue=True), 0)
+            client.get.assert_called_once_with(new_url)
+            sources = brainlib.load_yaml(path)["sources"]
+            self.assertIsNone(sources[0]["last_crawled"])
+            self.assertEqual(str(sources[1]["last_crawled"]), dt.date.today().isoformat())
+
+            path.write_text(path.read_text(encoding="utf-8").replace(dt.date.today().isoformat(), "2020-01-01"), encoding="utf-8")
+            client.get.reset_mock()
+            self.assertEqual(self.fetch(client, catalogue=True), 0)
+            client.get.assert_not_called()
+            self.assertEqual(str(brainlib.load_yaml(path)["sources"][1]["last_crawled"]), "2020-01-01")
+
+            self.assertEqual(self.fetch(client, catalogue=True, recheck=True, limit=2), 0)
+            self.assertEqual(client.get.call_count, 2)
+            self.assertEqual({str(s["last_crawled"]) for s in brainlib.load_yaml(path)["sources"]},
+                             {dt.date.today().isoformat()})
+
+    def test_web_retry_repairs_hash_without_creating_another_capture(self):
+        self.source_file()
+        url = "https://example.com/page"
+        client = Mock()
+        client.get.return_value = ("<h1>Fixture</h1>", url)
+        with patch.object(web, "paragraphs", return_value=["Useful text."]), \
+                patch.object(raw_guard.hashes, "save", side_effect=OSError("hash write interrupted")):
+            self.assertEqual(self.fetch(client, url), 1)
+        raw = lr.pub_dir("acme") / "raw"
+        capture, = (raw / "web").glob("*.md")
+        original = capture.read_bytes(), capture.stat().st_mtime_ns
+        client.get.reset_mock()
+        self.assertEqual(self.fetch(client, url), 0)
+        client.get.assert_not_called()
+        self.assertEqual((capture.read_bytes(), capture.stat().st_mtime_ns), original)
+        self.assertEqual(raw_guard.unrecorded(raw), [])
 
     def test_web_same_title_and_date_preserve_both_urls(self):
         self.source_file()
@@ -162,7 +278,7 @@ class LibraryTools(unittest.TestCase):
         self.assertEqual(original.read_bytes(), original_bytes)
         self.assertEqual(len(list(raw.glob("*.md"))), 3)
         self.assertEqual(client.get.call_count, 5)
-        self.assertEqual(str(brainlib.load_yaml(path)["sources"][0]["last_crawled"]), dt.date.today().isoformat())
+        self.assertIsNone(brainlib.load_yaml(path)["sources"][0]["last_crawled"])
 
     def test_catalogue_serializes_merges_and_publishes_atomically(self):
         publisher = "acme"
