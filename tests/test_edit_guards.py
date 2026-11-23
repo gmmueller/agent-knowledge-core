@@ -69,9 +69,13 @@ class EditGuards(unittest.TestCase):
         # The agents write other pages during the pass.
         self.write("wiki/topics/agent.md", PAGE + "Agent addition\n")
         self.write("wiki/topics/new-agent-page.md", PAGE)
+        status = self.run_tool("wiki_edits.py", "status")
+        self.assertIn("agent pass: open (1 protected pages)", status.stdout)
+        self.assertIn("3 pages differ from the baseline", status.stdout)
         result = self.run_tool("build_wiki_index.py")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse(wiki_edits.pass_file(self.brain).exists())
+        self.assertIn("agent pass: closed (1 protected pages)", self.run_tool("wiki_edits.py", "status").stdout)
         self.assertEqual(wiki_edits.status(self.brain), {"topics/example.md": "changed"})
         result = self.run_tool("wiki_edits.py", "accept", "topics/example.md")
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -80,6 +84,57 @@ class EditGuards(unittest.TestCase):
     def test_begin_requires_baseline(self):
         with self.assertRaises(ValueError):
             wiki_edits.begin(self.brain)
+
+    def test_pass_stays_open_until_protected_page_is_restored(self):
+        self.init_wiki()
+        original = PAGE + "Owner addition\n"
+        name = "wiki/topics/example.md"
+        self.write(name, original)
+        wiki_edits.begin(self.brain)
+        baseline = wiki_edits.manifest(self.brain).read_bytes()
+        pass_path = wiki_edits.pass_file(self.brain)
+        saved_pass = pass_path.read_bytes()
+        # Even writing back the old baseline over an owner edit must be detected.
+        self.write(name, PAGE)
+        self.assertEqual(wiki_edits.protected_pages(self.brain), {"topics/example.md"})
+        for tool, args in (("wiki_edits.py", ("record",)), ("build_wiki_index.py", ())):
+            result = self.run_tool(tool, *args)
+            self.assertEqual(result.returncode, 2)
+            for expected in ("Protected pages changed", name, "propose", "restore", "accept <page>"):
+                self.assertIn(expected, result.stderr)
+        self.assertEqual(self.run_tool("wiki_edits.py", "begin").returncode, 2)
+        self.assertEqual(self.run_tool("wiki_edits.py", "record", "--init").returncode, 2)
+        self.assertEqual(pass_path.read_bytes(), saved_pass)
+        self.assertEqual(wiki_edits.manifest(self.brain).read_bytes(), baseline)
+        status = self.run_tool("wiki_edits.py", "status")
+        self.assertEqual(status.returncode, 1)
+        self.assertIn(f"protected page changed during pass: {name}", status.stdout)
+        self.write(name, original)
+        result = self.run_tool("build_wiki_index.py")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(pass_path.exists())
+        self.assertEqual(wiki_edits.protected_pages(self.brain), {"topics/example.md"})
+
+    def test_explicit_accept_only_acknowledges_named_protected_pages(self):
+        self.init_wiki()
+        self.write("wiki/topics/example.md", PAGE + "Owner addition\n")
+        self.write("wiki/topics/other.md", PAGE)
+        wiki_edits.begin(self.brain)
+        self.write("wiki/topics/example.md", PAGE + "Owner correction\n")
+        (self.brain / "wiki/topics/other.md").unlink()
+        self.write("wiki/topics/agent.md", PAGE)
+        self.assertEqual(self.run_tool("wiki_edits.py", "accept", "--all").returncode, 2)
+        result = self.run_tool("wiki_edits.py", "accept", "topics/example.md")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(wiki_edits.changed_during_pass(self.brain), ["topics/other.md"])
+        self.assertEqual(self.run_tool("wiki_edits.py", "record").returncode, 2)
+        result = self.run_tool("wiki_edits.py", "accept", "topics/other.md")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(wiki_edits.status(self.brain), {"topics/agent.md": "added"})
+        result = self.run_tool("wiki_edits.py", "record")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(wiki_edits.pass_file(self.brain).exists())
+        self.assertEqual(wiki_edits.status(self.brain), {})
 
     def test_accept_specific_and_all_including_deletion(self):
         self.init_wiki()
@@ -103,7 +158,7 @@ class EditGuards(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         proposals = wiki_edits.proposals(self.brain)
         self.assertEqual(len(proposals), 1)
-        self.assertEqual(proposals[0].name, "example.md")
+        self.assertEqual(proposals[0].relative_to(self.brain).as_posix(), "ingest/proposals/wiki/topics/example.md")
         text = proposals[0].read_text(encoding="utf-8")
         for expected in ("Date:", "Page: wiki/topics/example.md", "Why: New evidence", "Agent proposal"):
             self.assertIn(expected, text)
@@ -111,6 +166,20 @@ class EditGuards(unittest.TestCase):
         self.assertIn(proposals[0].name, self.run_tool("wiki_edits.py", "proposals").stdout)
         self.assertEqual(self.run_tool("wiki_edits.py", "propose", "../../notes/note.md", "--from", source).returncode, 2)
         self.assertEqual(self.run_tool("wiki_edits.py", "propose", "topics/example.md", "--from", source).returncode, 2)
+
+    def test_proposals_use_page_paths_and_list_legacy_files(self):
+        self.write("ingest/proposals/example.md", "# Proposed wiki change\n\nDate: 2026-01-01\nPage: wiki/methods/example.md\n")
+        source = self.root / "proposal.md"
+        brainlib.write_text(source, PAGE)
+        for name in ("rules/example.md", "topics/example.md"):
+            result = self.run_tool("wiki_edits.py", "propose", name, "--from", source)
+            self.assertEqual(result.returncode, 0, result.stderr)
+        duplicate = self.run_tool("wiki_edits.py", "propose", "methods/example.md", "--from", source)
+        self.assertEqual(duplicate.returncode, 2)
+        result = self.run_tool("wiki_edits.py", "proposals")
+        self.assertEqual(result.stdout.splitlines(), ["ingest/proposals/example.md",
+                                                      "ingest/proposals/wiki/rules/example.md",
+                                                      "ingest/proposals/wiki/topics/example.md"])
 
     def test_index_preserves_human_pages_and_records_own_output(self):
         self.write("wiki/sources/lesson.md", "---\ntype: source\nsources: []\nupdated: 2026-01-01\nmodule: Example\nlesson: Lesson\nurl: https://example.com\nduration: 90\n---\n# Lesson\n")

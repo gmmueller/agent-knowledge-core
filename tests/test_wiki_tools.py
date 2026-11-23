@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import brainlib
 import build_wiki_index
 import check_wiki
+import wiki_edits
 
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
 SCRATCH = None
@@ -140,6 +141,30 @@ class WikiTools(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.run_tool("check_wiki.py", "--brain", self.brain).returncode, 0)
 
+    def test_requote_skips_protected_and_unchanged_pages(self):
+        protected = self.brain / "wiki/sources/main-m01-l01.md"
+        editable = self.brain / "wiki/rules/rule-practice.md"
+        unchanged = self.brain / "wiki/topics/manual.md"
+        self.write("wiki/topics/manual.md", '> "A completely unrelated quote." -- ([[raw/main/m01/l01]] @ 0:00)\n')
+        original = unchanged.read_bytes().replace(b"\n", b"\r\n")
+        unchanged.write_bytes(original)
+        wiki_edits.record(self.brain, init=True)
+        for path in (protected, editable):
+            bad = path.read_text(encoding="utf-8").replace('> "Practice every day', '> "Practice daily')
+            path.write_text(bad, encoding="utf-8")
+            if path == protected:
+                wiki_edits.begin(self.brain)
+        owner_copy = protected.read_bytes()
+        result = self.run_tool("requote.py", "--brain", self.brain, "raw/main/m01/l01", protected,
+                               editable, unchanged, "--min", "0.7", "--apply")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("skipped protected page: wiki/sources/main-m01-l01.md", result.stdout)
+        self.assertIn("FIXED", result.stdout)
+        self.assertIn("MANUAL", result.stdout)
+        self.assertEqual(protected.read_bytes(), owner_copy)
+        self.assertIn('> "Practice every day', editable.read_text(encoding="utf-8"))
+        self.assertEqual(unchanged.read_bytes(), original)
+
     def test_merge_and_slug_map(self):
         self.write("ingest/batches.yaml", "a:\n  items: [{id: main-m01-l01, raw: raw/main/m01/l01}]\n")
         self.write("ingest/slug-map.yaml", "old-practice: rule-practice\n")
@@ -155,6 +180,45 @@ class WikiTools(unittest.TestCase):
         result = self.run_tool("lint_wiki.py", "--brain", self.brain, "--fix-slug-map")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("slug map applied to 1 pages", result.stdout)
+
+    def test_slug_map_updates_agent_pages_during_pass(self):
+        self.write("ingest/slug-map.yaml", "old-practice: rule-practice\n")
+        self.write("wiki/topics/old-practice.md", "---\ntype: topic\n---\n# Old practice\n")
+        wiki_edits.record(self.brain, init=True)
+        protected = self.brain / "wiki/sources/main-m01-l01.md"
+        original = protected.read_text(encoding="utf-8") + "\nOwner link: [[old-practice]]\n"
+        self.write("wiki/sources/main-m01-l01.md", original)
+        wiki_edits.begin(self.brain)
+        self.write("wiki/topics/agent.md", "---\ntype: topic\n---\n# New page\n\n[[old-practice]]\n")
+        result = self.run_tool("lint_wiki.py", "--brain", self.brain, "--fix-slug-map")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("slug map applied to 1 pages", result.stdout)
+        self.assertEqual(protected.read_text(encoding="utf-8"), original)
+        self.assertIn("[[rule-practice]]", (self.brain / "wiki/topics/agent.md").read_text(encoding="utf-8"))
+
+    def test_link_examples_skips_protected_and_unchanged_pages(self):
+        self.write("wiki/topics/owner.md", "# Owner\n")
+        self.write("wiki/topics/agent.md", "# Agent\n\n## Related\n\n- [[owner]]\n")
+        self.write("wiki/topics/untouched.md", "# Untouched")
+        self.write("wiki/examples/sample.md", "# Worked example\n")
+        self.write("ingest/staging/examples-acme.yaml", "examples: [{page: sample, techniques: [owner, agent]}]\n")
+        wiki_edits.record(self.brain, init=True)
+        self.write("wiki/topics/owner.md", "# Owner\n\nOwner edit.\n")
+        wiki_edits.begin(self.brain)
+        args = ("--brain", self.brain)
+        result = self.run_tool("link_examples.py", *args)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("skipped protected page: wiki/topics/owner.md", result.stdout)
+        self.assertEqual((self.brain / "wiki/topics/owner.md").read_bytes(), b"# Owner\n\nOwner edit.\n")
+        self.assertEqual((self.brain / "wiki/topics/untouched.md").read_bytes(), b"# Untouched")
+        path = self.brain / "wiki/topics/agent.md"
+        original = path.read_bytes().replace(b"\n", b"\r\n")
+        self.assertIn(b"[[sample]]", original)
+        path.write_bytes(original)
+        result = self.run_tool("link_examples.py", *args)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("updated Examples lists on 0 concept pages", result.stdout)
+        self.assertEqual(path.read_bytes(), original)
 
     def test_incremental_merge_carries_batch_date_and_freshness(self):
         self.write("ingest/batches-2026-01-02.yaml", "update:\n  items: [{id: update-lesson, raw: raw/update}]\n")

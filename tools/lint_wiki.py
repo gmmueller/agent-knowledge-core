@@ -53,9 +53,10 @@ def main() -> None:
         print(f"note: {unguarded} raw files have no capture hash yet; run raw_guard.py record --init once")
     if a.fix_slug_map:
         slug_map = yaml.safe_load((brain / "ingest" / "slug-map.yaml").read_text(encoding="utf-8")) or {}
+        protected = wiki_edits.protected_pages(brain)
         n = 0
         for p in brainlib.wiki_pages(brain):
-            if wiki_edits.manifest(brain).exists() and p.relative_to(wiki).as_posix() in edits:
+            if p.relative_to(wiki).as_posix() in protected:
                 continue
             t = p.read_text(encoding="utf-8")
             new = LINK.sub(lambda m: m.group(0).replace(m.group(1), slug_map[m.group(1)]) if m.group(1) in slug_map else m.group(0), t)

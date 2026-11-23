@@ -142,7 +142,10 @@ def main() -> None:
     else:
         (wiki / "index.md").write_text("\n".join(out), encoding="utf-8", newline="\n")
         written["index.md"] = wiki_edits.hashes.digest(wiki / "index.md")
-    wiki_edits.record(brain, written=written)
+    try:
+        wiki_edits.record(brain, written=written)
+    except ValueError as exc:
+        ap.exit(2, f"Could not record the wiki baseline. {exc}\n")
     total = sum(len(v) for v in by_type.values())
     print(f"index.md: {total} concept pages, {sum(len(i) for m in sources.values() for i in m.values())} source pages; "
           f"normalised {fixed} durations")
