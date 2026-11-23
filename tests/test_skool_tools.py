@@ -279,6 +279,15 @@ sources:
         self.assertEqual(set(self.load("state/classroom_crawled.json")), {"acme-001", "acme-002"})
         self.assertEqual(str(brainlib.load_yaml(path)["sources"][1]["last_crawled"]), dt.date.today().isoformat())
 
+    def test_classroom_with_files_leaves_the_date_to_the_attachment_crawler(self):
+        self.outline(with_files=True)
+        classroom = skool_classroom_crawl
+        with patch.object(classroom, "module_meta", return_value=({"metadata": {"desc": "A lesson."}}, None)):
+            failed, report = self.run_crawler(classroom)
+        self.assertFalse(failed)
+        self.assertIn("classroom date waits for skool_attachments.py", report)
+        self.assertIsNone(brainlib.load_yaml(self.brain / "sources.yaml")["sources"][1]["last_crawled"])
+
     def test_attachments_keep_good_items_and_retry_failed_download(self):
         lessons = self.outline(with_files=True)
         cache = skool_session.scratch_dir(self.brain, "modules")

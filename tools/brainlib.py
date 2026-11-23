@@ -98,11 +98,14 @@ def write_text(path: pathlib.Path, text: str) -> None:
 
 
 def file_lock(path: pathlib.Path):
-    """Serialize read-modify-write operations on a shared file."""
-    from filelock import SoftFileLock
+    """Serialize read-modify-write operations on a shared file.
+
+    An OS lock (not a marker file), so a crawler killed mid-write can't leave the file locked for later runs.
+    """
+    from filelock import FileLock
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    return SoftFileLock(str(path) + ".lock", timeout=60)
+    return FileLock(str(path) + ".lock", timeout=60)
 
 
 @contextmanager

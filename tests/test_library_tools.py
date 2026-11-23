@@ -188,6 +188,14 @@ class LibraryTools(unittest.TestCase):
         self.assertEqual([row["item"] for row in people["ada"]["appearances"]], ["acme/pod-second", "acme/pod-first"])
         self.assertEqual(people["bea"]["appearances"], [{"item": "acme/pod-second", "role": "guest"}])
 
+    def test_lock_file_left_by_a_killed_process_does_not_block(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "catalogue.tsv"
+            Path(str(path) + ".lock").write_text("left behind by a crashed crawler", encoding="utf-8")
+            lock = brainlib.file_lock(path)
+            with lock.acquire(timeout=1):
+                self.assertTrue(lock.is_locked)
+
     def test_slugify(self):
         self.assertEqual(lr.slugify("Café: A useful title!"), "cafe-a-useful-title")
         self.assertEqual(lr.slugify("?!"), "untitled")

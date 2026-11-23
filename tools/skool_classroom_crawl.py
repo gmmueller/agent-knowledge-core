@@ -117,7 +117,7 @@ def main():
     state = json.loads(state_p.read_text(encoding="utf-8")) if state_p.exists() else {}
     today = dt.date.today().isoformat()
 
-    todo = []
+    todo, has_files = [], False
     for c in outline["courses"]:
         if not c.get("access"):
             continue
@@ -125,6 +125,7 @@ def main():
             for les in sec.get("lessons") or []:
                 if les.get("duplicate_of") or les.get("module_access") is False:
                     continue
+                has_files |= any(not r.get("url") for r in les.get("resources") or [])
                 if args.only and les["source_id"] not in args.only:
                     continue
                 prev = state.get(les["source_id"])
@@ -256,7 +257,10 @@ def main():
             save_state()
     if not errors and not (args.only or args.limit) and not any(
             state.get(les["source_id"], {}).get("method") == "needs_whisper" for _, _, les in todo):
-        stamp_skool(brain, config["site"] + "/classroom")
+        if has_files:  # the source is complete only once its attachments are; skool_attachments.py stamps it
+            print("classroom date waits for skool_attachments.py (lessons have downloadable files)", flush=True)
+        else:
+            stamp_skool(brain, config["site"] + "/classroom")
     print(f"done: {done} written, {errors} errors", flush=True)
     return bool(errors)
 
