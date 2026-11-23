@@ -56,7 +56,7 @@ library ─▶ catalogue ─▶ triage ─▶ fetch ─▶ speaker pass ─▶ i
 5. **Merge.** `merge_topic.py` pools staging into per-concept bundles. Workers write the concept pages (`briefs/topic-pages-brief.md`) and then the debate pages (`briefs/debates-brief.md`). `rule_status.py` recounts rule status by independent voice.
 6. **Generate, evaluate and refine.** Generate a draft skill (`generate_persona.py`), have a fresh agent with only that skill answer `evals.md` (including trap questions), verify its quotes with `verify_eval_quotes.py`, fix gaps, and regenerate the skill if `brain.md` or rule counts changed.
 
-Rules start as `bench` (one source or voice) and become `active` once they're backed by independent sources. Topic brains add `consensus` (two or more listed experts) and `contested` (a source argues against the rule, with a debate page). Quotes by anyone other than the expert carry the speaker's name.
+Rules start as `bench` and become `active` once they're backed by independent sources. Topic brains add `consensus` (at least two listed experts support the rule and none oppose it) and `contested` (a source argues against the rule, with a debate page). Quotes by anyone other than the expert carry the speaker's name.
 
 ## Layout
 

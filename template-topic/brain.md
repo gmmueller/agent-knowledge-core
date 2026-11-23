@@ -8,7 +8,7 @@ build:
   pipeline: 2                 # docs/build-pipeline.md; library-based topic brain
 triage:
   weight_fresh: false         # true = count the `fresh` score in tiers (fast-moving topics). triage_merge.py reads this
-experts: [The Expert, Another Expert]   # rule consensus: 2+ of these. merge_topic.py, rule_status.py, generate_persona.py read this
+experts: [The Expert, Another Expert]   # rule consensus: 2+ of these support, none oppose
 expert_aliases:               # speaker label -> the expert it counts as (nicknames, duos that count once)
   Expert: The Expert
   Another: Another Expert
@@ -85,10 +85,10 @@ Skip any item that <exclusion, if any>.
 ## Rules
 
 Rule pages live in `wiki/rules/`, each with exact, speaker-named quotes. Status:
-- `consensus`: 2+ listed experts explicitly support it.
+- `consensus`: 2+ listed experts explicitly support it and none oppose it.
 - `active`: 2+ independent voices.
 - `contested`: a source argues against the rule, and the rule links a debate page.
-- `bench`: one voice.
+- `bench`: fewer than two independent supporting voices.
 
 ## Deliverables (definition of done)
 
