@@ -38,15 +38,27 @@ class Client:
     def __init__(self, browser=False):
         self.last = 0
         self.browser = browser
-        self._pw = self._ctx = None
+        self._pw = self._browser = self._ctx = None
+
+    def close(self):
+        for resource, method in ((self._ctx, "close"), (self._browser, "close"), (self._pw, "stop")):
+            if resource is not None:
+                try:
+                    getattr(resource, method)()
+                except Exception:
+                    pass
+        self._pw = self._browser = self._ctx = None
 
     def _browser_get(self, url):
-        """Render with headless system Chrome (JS-built or bot-blocked pages); returns (html, final_url)."""
+        """Render with headless system Chrome, falling back to Playwright Chromium; returns (html, final_url)."""
         if self._ctx is None:
             from playwright.sync_api import sync_playwright
             self._pw = sync_playwright().start()
-            b = self._pw.chromium.launch(channel="chrome", headless=True)
-            self._ctx = b.new_context(user_agent=UA, locale="en-US")
+            try:
+                self._browser = self._pw.chromium.launch(channel="chrome", headless=True)
+            except Exception:
+                self._browser = self._pw.chromium.launch(headless=True)
+            self._ctx = self._browser.new_context(user_agent=UA, locale="en-US")
         page = self._ctx.new_page()
         try:
             page.goto(url, wait_until="networkidle", timeout=60000)
@@ -558,10 +570,13 @@ def main():
     if args.command == "fetch" and args.transcript and (args.from_heading is not None or args.to_heading is not None):
         parser.error("heading selection cannot be used with --transcript")
     cfg, client = config(args.publisher), Client(browser=getattr(args, "browser", False))
-    if args.command == "list":
-        listings(args, cfg, client)
-    else:
-        sys.exit(bool(fetch(args, cfg, client)))
+    try:
+        if args.command == "list":
+            listings(args, cfg, client)
+        else:
+            sys.exit(bool(fetch(args, cfg, client)))
+    finally:
+        client.close()
 
 
 if __name__ == "__main__":

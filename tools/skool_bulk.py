@@ -112,17 +112,17 @@ def main():
                 save(state="NEEDS_USER", note=f"Skool session expired: log in again in the configured Chrome window (port {config.get('cdp_port')}, profile {config.get('profile', 'unspecified')}), then re-run")
                 print("NEEDS_USER: Skool login needed", flush=True)
                 return 2
-            if proc.returncode != 0:
-                status["phases"][phase]["state"] = "failed"
-                save(state="FAILED", note=f"{phase} exited {proc.returncode}; see bulk-{phase}.log")
-                print(f"FAILED: {phase} exit {proc.returncode}", flush=True)
-                return 1
             if "RateLimited" in out:
                 status["phases"][phase]["state"] = "cooldown"
                 save(note=f"{phase} rate-limited; cooling down {args.cooldown}s")
                 print(f"{phase}: rate-limited, cooling down {args.cooldown}s", flush=True)
                 time.sleep(args.cooldown)
                 continue
+            if proc.returncode != 0:
+                status["phases"][phase]["state"] = "failed"
+                save(state="FAILED", note=f"{phase} exited {proc.returncode}; see bulk-{phase}.log")
+                print(f"FAILED: {phase} exit {proc.returncode}", flush=True)
+                return 1
             status["phases"][phase]["state"] = "done"
             save()
             print(f"{phase}: done ({tail[-1] if tail else ''})", flush=True)

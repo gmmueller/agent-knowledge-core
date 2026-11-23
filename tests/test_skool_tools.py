@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import brainlib
 import mux_captions
 import skool_attachments
+import skool_bulk
 import skool_classroom_crawl
 import skool_classroom_map
 import skool_feed_index
@@ -335,6 +336,37 @@ sources:
             self.assertFalse(self.run_crawler(attachments)[0])
         self.assertEqual(set(self.load("state/attachments.json")), {"file-1", "file-2"})
         self.assertEqual(str(brainlib.load_yaml(path)["sources"][1]["last_crawled"]), dt.date.today().isoformat())
+
+    def test_bulk_retries_rate_limited_nonzero_exit_and_fails_on_other_errors(self):
+        class FakeProc:
+            def __init__(self, lines, code):
+                self.stdout = iter(lines)
+                self.returncode = code
+
+            def wait(self):
+                return self.returncode
+
+        calls = [
+            FakeProc(["stopped: RateLimited: 403\n", "done: 0 written, 1 errors\n"], 1),
+            FakeProc(["done: 1 written, 0 errors\n"], 0),
+        ]
+        with patch.object(skool_bulk.subprocess, "Popen", side_effect=calls), \
+                patch.object(skool_bulk.time, "sleep") as sleep, \
+                patch.object(sys, "argv", ["skool_bulk.py", "--brain", str(self.brain), "--phases", "expert", "--cooldown", "5"]), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            code = skool_bulk.main()
+        self.assertEqual(code, 0, out.getvalue())
+        sleep.assert_called_once_with(5)
+        self.assertIn("cooling down 5s", out.getvalue())
+
+        with patch.object(skool_bulk.subprocess, "Popen", return_value=FakeProc(["done: 0 written, 1 errors\n"], 1)), \
+                patch.object(skool_bulk.time, "sleep") as sleep, \
+                patch.object(sys, "argv", ["skool_bulk.py", "--brain", str(self.brain), "--phases", "expert", "--cooldown", "5"]), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            code = skool_bulk.main()
+        self.assertEqual(code, 1, out.getvalue())
+        sleep.assert_not_called()
+        self.assertIn("FAILED: expert exit 1", out.getvalue())
 
 
 if __name__ == "__main__":
