@@ -421,8 +421,8 @@ def fetch(args, cfg, client):
         try:
             source = old.get("source") or source_id(cfg, url)
             previous, previous_front = captured.get(url, (None, {}))
-            if previous and raw_guard.record_capture(previous):
-                log(args.publisher, f"recorded missing capture hash: {previous.name}")
+            if previous:
+                raw_guard.require_recorded_capture(previous, publisher / "raw")
             if previous and not (args.recapture or recheck):
                 log(args.publisher, f"skip captured URL: {url}")
                 continue

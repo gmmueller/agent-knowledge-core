@@ -132,10 +132,14 @@ def atomic_write(path: pathlib.Path, text: str) -> None:
 def edit_yaml(path: pathlib.Path, edit) -> None:
     """Update YAML with its existing comments, ordering and quotes."""
     from ruamel.yaml import YAML
+    from ruamel.yaml.representer import SafeRepresenter
 
     with file_lock(path):
         parser = YAML()
         parser.preserve_quotes = True
+        parser.representer.yaml_representers = {
+            **parser.representer.yaml_representers, type(None): SafeRepresenter.represent_none,
+        }
         data = parser.load(path.read_text(encoding="utf-8")) if path.exists() else None
         data = {} if data is None else data
         if edit(data):

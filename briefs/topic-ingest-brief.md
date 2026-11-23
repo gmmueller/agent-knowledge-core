@@ -114,6 +114,8 @@ A live diagnosis or demonstration of one real case. The page is a **case**, writ
 
 ## Staging file: `{{brain_name}}/ingest/staging/<batch>.yaml`
 
+List each page in `items` with its `item` catalogue ID or `raw` library path, the `page` slug and `speakers`. The wave report matches raw paths to catalogue IDs in either direction. Include a `concepts` list, which may be empty if the batch yields no concepts. Older staging files may omit `kind`.
+
 ```yaml
 batch: a
 items:                        # every page you wrote

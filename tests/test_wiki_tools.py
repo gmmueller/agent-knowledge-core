@@ -109,6 +109,30 @@ class WikiTools(unittest.TestCase):
         self.assertIn("cross-brain wikilink", result.stdout)
         self.assertIn("unresolved wikilink", result.stdout)
 
+    def test_markdown_links_outside_brain_warn_or_fail_if_missing(self):
+        brainlib.write_text(self.root / "other-vault/brain.md", "# Other")
+        brainlib.write_text(self.root / "other-vault/wiki/guide (draft).md", "# Guide")
+        page = self.brain / "wiki/topics/link-test.md"
+        self.write("wiki/topics/link-test.md", """---
+type: topic
+sources: []
+updated: 2026-01-01
+---
+## Key points
+
+[Other](<../../../other-vault/wiki/guide (draft).md#heading> "Guide")
+
+[Local](../../brain.md) [Anchor](#key-points) [External](https://example.org/missing)
+""")
+        result = self.run_tool("check_wiki.py", "--brain", self.brain, page)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count("Markdown link leaves the brain folder"), 1)
+        with page.open("a", encoding="utf-8") as stream:
+            stream.write("\n[Missing](../../../other-vault/wiki/missing.md#anchor)\n")
+        result = self.run_tool("check_wiki.py", "--brain", self.brain, page)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("unresolved Markdown link outside the brain folder", result.stdout)
+
     def test_brain_card_requires_evidence_for_each_rule_row(self):
         card = self.brain / "brain.md"
         text = card.read_text(encoding="utf-8") + (

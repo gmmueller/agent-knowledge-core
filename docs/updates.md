@@ -37,8 +37,8 @@ Once a brain is `active` and its refresh script runs unattended, schedule it wit
 
 ## Reminders
 
-- **Per brain:** `refresh: { reminders: false }` in the brain's `brain.md` frontmatter switches reminders off for that whole brain (default: on). Use it for brains you don't plan to update.
-- **Per source:** the `refresh` cadence in `sources.yaml`. `manual` or `never` means no reminder for that source.
+- **Per brain** — `refresh: { reminders: false }` in `brain.md` switches off reminders for the brain. A library source is also muted when every brain using it has reminders off. The checker finds usage through selected catalogue items and wiki source-page citations.
+- **Per source** — `reminders: false` on an entry in `sources.yaml` switches reminders off for that source. A `refresh` cadence of `manual` or `never` also suppresses them. Library sources with no known users follow their own settings.
 - **Check:** `python -X utf8 -I <framework>/tools/refresh_due.py --workspace <workspace> [--all]` (`--root` also works) lists overdue sources and periodic sources that have captures but no `last_crawled` date. It reads files only. `--all` also shows sources that are not due.
 - **Schedule:** a weekly scheduled reminder runs the check and reports the list to the user. Run the reminder in a fresh session (or a separate thread), never inside a build thread, so a routine "nothing due" check does not rebuild a long conversation's context. When items are due, the user starts the refresh in a new thread, because most sources need the logged-in browser.
 
