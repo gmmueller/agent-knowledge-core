@@ -34,12 +34,21 @@ def main() -> None:
     a = ap.parse_args()
     brain = brainlib.brain_dir(a.brain)
     wiki = brain / "wiki"
+    touched_protected = []
     if wiki_edits.manifest(brain).exists():
-        edits = wiki_edits.status(brain)
-        if edits or wiki_edits.proposals(brain):
-            print(f"warning: {len(edits)} human-edited pages; {len(wiki_edits.proposals(brain))} open proposals")
+        open_proposals = len(wiki_edits.proposals(brain))
+        if wiki_edits.pass_file(brain).exists():
+            protected = wiki_edits.protected_pages(brain)
+            touched_protected = wiki_edits.changed_during_pass(brain)
+            if protected or open_proposals:
+                print(f"warning: {len(protected)} protected human-edited pages; {open_proposals} open proposals")
+            for page in touched_protected:
+                print(f"error: protected page changed during pass: wiki/{page}")
+        else:
+            edits = wiki_edits.status(brain)
+            if edits or open_proposals:
+                print(f"warning: {len(edits)} human-edited pages; {open_proposals} open proposals")
     else:
-        edits = {}
         print("note: no wiki edit baseline yet; run wiki_edits.py --brain <brain> record --init")
     roots = [r for r in [brain / "raw", *raw_guard.cited_raw_dirs(brain)] if r.is_dir()]
     changed_raw = unguarded = 0
@@ -102,7 +111,7 @@ def main() -> None:
         m = re.search(r"^status:\s*(\w+)", p.read_text(encoding="utf-8"), re.M)
         status[m.group(1) if m else "missing"] += 1
     print(f"rules: {dict(status)}")
-    sys.exit(1 if broken or changed_raw else 0)
+    sys.exit(1 if broken or changed_raw or touched_protected else 0)
 
 
 if __name__ == "__main__":

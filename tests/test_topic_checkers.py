@@ -122,12 +122,16 @@ class TopicCheckers(unittest.TestCase):
 
     def test_staging_matches_topic_schema(self):
         concept = {"slug": "test-rule", "type": "rule", "status": "consensus", "quotes": [
-            {"speaker": "Alex Author", "text": QUOTE, "cite": {"raw": BOOK, "at": "p. 15"}}]}
+            {"speaker": "Alex Author", "text": QUOTE, "stance": "supports", "cite": {"raw": BOOK, "at": "p. 15"}}]}
         def errors():
             path = self.write("topic-fixture/ingest/staging/test.yaml", yaml.safe_dump({"concepts": [concept]}))
             result = []
             check.check_staging(self.brain, path, result)
             return "\n".join(result)
+        self.assertEqual(errors(), "")
+        concept["quotes"][0]["stance"] = "oppose"
+        self.assertIn("stance must be one of", errors())
+        concept["quotes"][0]["stance"] = "opposes"
         self.assertEqual(errors(), "")
         del concept["quotes"][0]["speaker"]
         self.assertIn("missing speaker", errors())

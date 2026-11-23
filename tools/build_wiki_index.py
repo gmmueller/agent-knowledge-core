@@ -137,10 +137,9 @@ def main() -> None:
     for name, lines in (("index.md", out), ("sources-index.md", source_out)):
         content = "\n".join(lines)
         if name in protected:
-            proposal = brain / "ingest" / "proposals" / name
-            if not proposal.exists():
-                brainlib.write_text(proposal, f"# Proposed index rebuild\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: index has human edits; review before replacing.\n\n---\n\n" + content)
-            print(f"{name} has human edits; proposal: ingest/proposals/{name}")
+            proposal = brain / "ingest" / "proposals" / "wiki" / name
+            brainlib.write_text(proposal, f"# Proposed index rebuild\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: index has human edits; review before replacing.\n\n---\n\n" + content)
+            print(f"{name} has human edits; proposal: ingest/proposals/wiki/{name}")
         else:
             (wiki / name).write_text(content, encoding="utf-8", newline="\n")
             written[name] = wiki_edits.hashes.digest(wiki / name)

@@ -37,7 +37,8 @@ class ObsidianSetup(unittest.TestCase):
         graph = self.brain / ".obsidian/graph.json"
         self.assertEqual(json.loads(app.read_text(encoding="utf-8")), setup.APP)
         settings = json.loads(graph.read_text(encoding="utf-8"))
-        self.assertEqual(len(settings["colorGroups"]), 11)
+        self.assertEqual(len(settings["colorGroups"]), 12)
+        self.assertIn('path:"wiki/tools/"', [g["query"] for g in settings["colorGroups"]])
         self.assertIn('path:"wiki/"', settings["search"])
         self.assertIn('-path:"raw/"', settings["search"])
         self.assertIn('-path:"library/"', settings["search"])

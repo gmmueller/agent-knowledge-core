@@ -37,7 +37,8 @@ RAW_LINK = re.compile(r"\[\[(?:raw/|library/)")
 WIKI_LINK = re.compile(r"\[\[([^\[\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
 MARKDOWN_LINK = re.compile(r"\[[^\[\]\n]+\]\([^)\n]+\)")
 INLINE_CODE = re.compile(r"`[^`\n]+`")
-CORRUPTION = re.compile(r"[A-Za-z]\?s\b|\d\?\d| \? ")
+URL = re.compile(r"https?://\S+")
+CORRUPTION = re.compile(r"[A-Za-z]\?(?:s|t|re|ve|ll|m|d)\b|\d\?\d|\w \? \w|[\"”\]] \? [\(\[\w]")
 EXAMPLE = re.compile(r"^library/[^/]+/examples/[^/]+$")  # measured example facts (docs/library.md); cited @ <seconds>s
 QUOTE_MARKER = re.compile(r'^\s*(?:>\s*|[-*+]\s+)["“]')
 DASH = r"(?:[—–]|-{1,2})"
@@ -51,6 +52,7 @@ THREAD_HEAD = re.compile(r"^((?:> )*)\*\*(.+?)\*\* \(@[^)]*\)(?: · \*\*\w+\*\*)
 POST_HEAD = re.compile(r"^\*\*(.+?)\*\* \(@[^)]*\) · [\d-]+ [\d:]+\s*$")
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 TYPES = {"source", "topic", "principle", "method", "framework", "rule", "glossary", "example", "rubric", "tool", "debate"}
+STANCES = {"supports", "nuances", "opposes"}
 CLAIM_SECTIONS = {"key claims", "key points", "why", "when it applies"}
 WARNING = "warning: "  # prefix for findings that print but don't fail the check
 
@@ -316,7 +318,7 @@ def check_speaker(brain, idx, block_speaker, speaker, where, errors):
 
 def scan_corruption(text, where, errors):
     for ln, line in enumerate(text.splitlines(), 1):
-        if "http" not in line and CORRUPTION.search(line):
+        if CORRUPTION.search(URL.sub("", line)):
             errors.append(f"{where}:{ln}: possible corruption")
 
 
@@ -492,6 +494,9 @@ def check_staging(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None
             errors.append(f"{cw}: rule without a quote")
         for kind in ("points", "quotes"):
             for j, item in enumerate(c.get(kind) or []):
+                stance = item.get("stance")
+                if stance is not None and stance not in STANCES:
+                    errors.append(f"{cw}: {kind}[{j}] stance must be one of {sorted(STANCES)}")
                 cite = item.get("cite") or {}
                 if not cite.get("raw") or not cite.get("at"):
                     errors.append(f"{cw}: {kind}[{j}] missing cite.raw/cite.at")
