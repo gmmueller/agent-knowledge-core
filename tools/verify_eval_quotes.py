@@ -22,7 +22,12 @@ def main():
     # "quote" — Speaker ([[library/...]] @ t), or "quote" ([[raw/...]] @ t | page text | post | c:<id8>) for a persona's
     # unnamed quotes (inline, possibly several per line). The dash is optional for raw/ cites only: in topic brains an
     # undashed library quote usually names its speaker in the prose before it, which the second pass covers.
-    pat = re.compile(r'["“]([^"”]{8,400})["”](\s*[—–-]\s*([A-Z][\w.\' -]{1,40}?)?)?\s*\(\s*\[\[((?:library|raw)/[^\]|#]+?)(?:\.md)?\]\]\s*@\s*([\d:]+|¶\d+|p\.\s*\d+|page text|post|c:[0-9a-f]{8})')
+    # \w without digits or underscore allows a Unicode initial letter.
+    pat = re.compile(
+        r"""["“]([^"”]{8,400})["”](\s*[—–-]\s*([^\W\d_][\w.'’ -]*?(?:\([^()\n]+\))?)?)?"""
+        r"\s*\(\s*\[\[((?:library|raw)/[^\]|#]+?)(?:\.md)?\]\]\s*@\s*"
+        r"([\d:]+|¶\d+|p\.\s*\d+|page text|post|c:[0-9a-f]{8})"
+    )
     total, errors, masked_lines = 0, [], []
     for ln, line in enumerate(text.splitlines(), 1):
         spans = []

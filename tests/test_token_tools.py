@@ -152,7 +152,7 @@ class TokenTools(unittest.TestCase):
         self.write(brain / "brain.md", "---\nkind: persona\n---\n# Demo\n")
         self.write(brain / "raw/one.md", "Demo source\n")
         self.write(brain / "wiki/sources/one.md", "---\ntype: source\nsources: [raw/one.md]\nupdated: 2026-01-01\nmodule: Demo\nlesson: One\nduration: 90\nurl: https://example.org\n---\n# One\n\n## Key claims\n- **Inference:** Demo.\n")
-        self.write(brain / "ingest/staging/a.yaml", "concepts: []\n")
+        self.write(brain / "ingest/staging/a.yaml", "lessons: [{id: one}]\nconcepts: []\n")
         self.write(brain / "ingest/staging/b.yaml", "concepts: []\ncomment: expert?s\n")
         self.write(brain / "batches.yaml", "a:\n  words: 10\n  items:\n    - id: one\n      raw: ./raw/one\nb:\n  items:\n    - item: absent\n      raw: raw/absent.md\n")
         self.write(brain / "waves.yaml", "# Demo\nfirst:\n  a:\n    worker: demo\n    items:\n      - item: one\n        raw: raw/one.md\nsecond:\n  b:\n    items:\n      - item: absent\n        raw: raw/absent.md\n")
@@ -170,6 +170,26 @@ class TokenTools(unittest.TestCase):
         code, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "waves.yaml", "--wave", "first")
         self.assertEqual(code, 0, out + err)
         self.assertIn("wave: 1/1 batches ok", out)
+
+    def test_wave_requires_staging_to_cover_each_assignment(self):
+        brain = self.brain_fixture()
+        first_page = (brain / "wiki/sources/one.md").read_text(encoding="utf-8")
+        self.write(brain / "raw/two.md", "Another source\n")
+        self.write(brain / "wiki/sources/two.md", first_page.replace("raw/one.md", "raw/two.md"))
+        self.write(brain / "batches.yaml", "a:\n  items:\n"
+                   "    - {id: one, raw: raw/one.md}\n    - {item: sample/two, raw: raw/two.md}\n")
+        for staging, code, message in (
+            ("{}\n", 1, "nonempty YAML mapping"),
+            ("batch: a\nitems: []\n", 1, "expected entries in 'lessons' or 'items'"),
+            ("lessons: [{id: one}]\n", 1, "staging missing: raw/two.md"),
+            ("items: [{id: one}, {item: sample/two, raw: raw/one.md}]\n", 1, "staging missing: raw/two.md"),
+            ("items: [{id: one}, {item: sample/two}]\n", 0, "a: ok (2 pages, staging ok)"),
+        ):
+            with self.subTest(staging=staging):
+                self.write(brain / "ingest/staging/a.yaml", staging)
+                result, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
+                self.assertEqual(result, code, out + err)
+                self.assertIn(message, out)
 
     def test_wave_bad_staging_protection_and_truncation(self):
         brain = self.brain_fixture()
@@ -198,9 +218,10 @@ class TokenTools(unittest.TestCase):
         self.write(self.workspace / "library/pub-a/raw/web/case.md", "Demo case\n")
         page = "---\ntype: {type}\nsources: [{source}]\nupdated: 2026-01-01\n---\n# Demo\n\n## Key claims\n- **Inference:** Demo.\n"
         self.write(brain / "wiki/sources/pub-b-intro.md", page.format(type="source", source="library/pub-b/raw/web/intro.md"))
-        self.write(brain / "wiki/examples/pub-a-case.md", page.format(type="example", source="library/pub-a/raw/web/case.md"))
+        case = page.format(type="example", source="library/pub-a/raw/web/case.md")
+        self.write(brain / "wiki/examples/pub-a-case.md", case.replace("## Key claims", "## Key points"))
         self.write(brain / "ingest/staging/x.yaml", "concepts: []\n")
-        self.write(brain / "ingest/staging/y.yaml", "concepts: []\n")
+        self.write(brain / "ingest/staging/y.yaml", "items: [{raw: library/pub-a/raw/web/case.md}]\n")
         self.write(brain / "topic.yaml", "x:\n  items:\n    - raw: library/pub-a/raw/web/intro.md\n"
                                          "y:\n  items:\n    - raw: library/pub-a/raw/web/case.md\n      page: example\n"
                                          "z:\n  items:\n    - raw: library/pub-b/raw/web/intro.md\n      page: example\n"
@@ -208,7 +229,7 @@ class TokenTools(unittest.TestCase):
         _, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "topic.yaml")
         self.assertIn("missing: library/pub-a/raw/web/intro.md", out, err)  # pub-b's page with the same filename doesn't count
         self.assertNotIn("missing: library/pub-a/raw/web/case.md", out.split("z: ", 1)[0])
-        self.assertRegex(out, r"y: (ok|FAIL)")
+        self.assertIn("y: ok (1 pages, staging ok)", out)
         self.assertNotIn("y: ok (0 pages", out)
         # z asks for the other page kind of each: a source page doesn't satisfy `page: example`, nor the reverse
         z = out.split("z: ", 1)[1]
