@@ -1,8 +1,7 @@
-"""Detect human wiki edits: --brain <folder> status | begin | record [--init] | accept <page>... | propose <page> --from <file> | proposals.
+"""Detect human wiki edits and record verified agent writes.
 
-Agent pass: `begin` before dispatching workers (it lists the human-edited pages they must not touch), then the
-pass ends with `record`, which build_wiki_index.py runs at its end: agent changes join the baseline, and the pages
-that were human-edited at `begin` stay protected until the user runs `accept`.
+Use `begin` before dispatching workers and `mark-written` to register their intended output.
+`record` (also called by build_wiki_index.py) closes the pass and leaves undeclared changes protected.
 """
 import argparse
 import datetime as dt
@@ -20,11 +19,13 @@ def manifest(brain):
 
 
 def snapshot(brain):
-    return {p.relative_to(brain / "wiki").as_posix(): hashes.digest(p) for p in brainlib.wiki_pages(brain)}
+    return {p.relative_to(brain / "wiki").as_posix(): hashes.file_hashes(p) for p in brainlib.wiki_pages(brain)}
 
 
-def status(brain):
-    return hashes.differences(hashes.load(manifest(brain)) or {}, snapshot(brain))
+def status(brain, *, current=None):
+    if current is None:
+        current = snapshot(brain)
+    return hashes.differences(hashes.load(manifest(brain)) or {}, current)
 
 
 def pass_file(brain):
@@ -32,7 +33,7 @@ def pass_file(brain):
 
 
 def begin(brain):
-    """Start an agent pass: remember which pages are human-edited right now, so record() protects only those."""
+    """Start an agent pass and remember the current contents of already protected pages."""
     path = manifest(brain)
     with hashes.locked(path):
         baseline = hashes.load(path)
@@ -43,74 +44,99 @@ def begin(brain):
         current = snapshot(brain)
         protected = sorted(hashes.differences(baseline, current))
         hashes.save(pass_file(brain), {"started": dt.datetime.now().isoformat(timespec="seconds"), "protected": protected,
-                                       "at_begin": {page: current.get(page) for page in protected}})
+                                       "at_begin": {page: current[page].digest if page in current else None
+                                                    for page in protected}})
     return protected
 
 
 def changed_during_pass(brain, *, current=None):
     """Protected pages that differ from the open pass's saved hashes."""
     open_pass = hashes.load(pass_file(brain))
-    if not open_pass or "at_begin" not in open_pass:
+    if not open_pass or not open_pass.get("at_begin"):
         return []
     if current is None:
         current = snapshot(brain)
-    return sorted(page for page, digest in open_pass["at_begin"].items() if current.get(page) != digest)
+    return sorted(page for page, digest in open_pass["at_begin"].items()
+                  if not hashes.matches(current.get(page), digest))
 
 
-def protected_pages(brain):
-    """Pages agents must not write: those human-edited at the open pass's start, or every difference without a pass."""
-    if hashes.load(manifest(brain)) is None:
+def unrecordable(before, current, open_pass, written=None):
+    """Differences without matching agent output, or protected at the start of the pass."""
+    protected = set(open_pass.get("protected") or [])
+    expected = {**open_pass.get("written", {}), **(written or {})}
+    return {name for name in hashes.differences(before, current)
+            if name in protected or name not in expected or not hashes.matches(current.get(name), expected[name])}
+
+
+def protected_pages(brain, *, current=None):
+    """Pages agents must not write, including differences without matching agent output."""
+    before = hashes.load(manifest(brain))
+    if before is None:
         return set()
-    open_pass = hashes.load(pass_file(brain))
-    if open_pass is not None:
-        return set(open_pass.get("protected") or [])
-    return set(status(brain))
+    if current is None:
+        current = snapshot(brain)
+    open_pass = hashes.load(pass_file(brain)) or {}
+    return set(open_pass.get("protected") or []) | unrecordable(before, current, open_pass)
+
+
+def register_writes(brain, written, *, require_pass=False):
+    """Register intended content for an open pass without re-reading agent output from disk."""
+    if not written:
+        return
+    with hashes.locked(manifest(brain)):
+        path = pass_file(brain)
+        open_pass = hashes.load(path)
+        if open_pass is None:
+            if require_pass:
+                raise ValueError("no agent pass is open")
+            return
+        protected = sorted(written.keys() & set(open_pass.get("protected") or []))
+        if protected:
+            raise ValueError(f"cannot mark a page protected at the start of the pass: wiki/{protected[0]}")
+        open_pass.setdefault("written", {}).update(written)
+        hashes.save(path, open_pass)
+
+
+def ensure_protected_unchanged(brain, *, current=None):
+    touched = changed_during_pass(brain, current=current)
+    if touched:
+        pages = "\n".join(f"  wiki/{page}" for page in touched)
+        raise ValueError(f"Agent pass remains open. Protected pages changed:\n{pages}\n"
+                         "For agent changes, save the new version with `wiki_edits.py propose <page> --from <file>` "
+                         "and restore the pre-pass page.\n"
+                         "For owner changes, run `wiki_edits.py accept <page>` with each affected page named.\n"
+                         "Then retry the index rebuild or `wiki_edits.py record`.")
 
 
 def record(brain, *, init=False, written=None):
-    """Update the baseline after an agent pass.
-
-    With an open pass (begin), every change is the agents' except the pages that were human-edited when the
-    pass began; the pass closes only if those pages match their saved hashes. Without a pass, every difference is protected
-    unless the caller names the exact content it wrote (written), so a human edit is never absorbed silently.
-    """
+    """Close the pass and update the baseline for exact, declared agent writes."""
     path = manifest(brain)
     with hashes.locked(path):
         before = hashes.load(path)
         current = snapshot(brain)
         open_pass = hashes.load(pass_file(brain))
         if open_pass is not None:
-            touched = changed_during_pass(brain, current=current)
-            if touched:
-                pages = "\n".join(f"  wiki/{page}" for page in touched)
-                raise ValueError(f"Agent pass remains open. Protected pages changed:\n{pages}\n"
-                                 "For agent changes, save the new version with `wiki_edits.py propose <page> --from <file>` "
-                                 "and restore the pre-pass page.\n"
-                                 "For owner changes, run `wiki_edits.py accept <page>` with each affected page named.\n"
-                                 "Then retry the index rebuild or `wiki_edits.py record`.")
+            ensure_protected_unchanged(brain, current=current)
             if init:
                 raise ValueError("finish the open agent pass before running record --init")
         if before is None and not init:
             print("wiki baseline missing: run wiki_edits.py --brain <brain> record --init")
             return 0
-        differences = set() if init else set(hashes.differences(before, current))
-        if init:
-            blocked = set()
-        elif open_pass is not None:
-            blocked = differences & set(open_pass.get("protected") or [])
-        else:
-            blocked = {name for name in differences
-                       if name not in (written or {}) or current.get(name) != written[name]}
+        blocked = set() if init else unrecordable(before, current, open_pass or {}, written)
         result = dict(before or {})
         for name in (result.keys() | current.keys()) - blocked:
             if name in current:
-                result[name] = current[name]
+                result[name] = current[name].digest
             else:
                 result.pop(name, None)
         hashes.save(path, result)
         if open_pass is not None:
             pass_file(brain).unlink(missing_ok=True)
     print(f"wiki baseline recorded; left {len(blocked)} human-edited pages alone")
+    for name in sorted(blocked):
+        print(f"left unrecorded: wiki/{name}")
+    if blocked:
+        print("Review unrecorded changes with `wiki_edits.py status` and use `wiki_edits.py accept <page>` to acknowledge them.")
     return len(blocked)
 
 
@@ -141,14 +167,14 @@ def accept(brain, names=None):
         selected = set(hashes.differences(before, current)) if names is None else {page_name(brain, n) for n in names}
         for name in selected:
             if name in current:
-                before[name] = current[name]
+                before[name] = current[name].digest
             else:
                 before.pop(name, None)
         hashes.save(path, before)
         if open_pass is not None:
             at_begin = open_pass.get("at_begin", {})
             for name in selected & at_begin.keys():
-                at_begin[name] = current.get(name)
+                at_begin[name] = current[name].digest if name in current else None
             hashes.save(pass_file(brain), open_pass)
     return len(selected)
 
@@ -180,6 +206,11 @@ def main():
     commands.add_parser("begin", help="start an agent pass: protect the pages that are human-edited now")
     rec = commands.add_parser("record")
     rec.add_argument("--init", action="store_true")
+    mark = commands.add_parser("mark-written", help="register an agent's intended output from a separate draft")
+    mark.add_argument("page")
+    output = mark.add_mutually_exclusive_group(required=True)
+    output.add_argument("--from", dest="draft", type=pathlib.Path)
+    output.add_argument("--deleted", action="store_true")
     acc = commands.add_parser("accept")
     acc.add_argument("pages", nargs="*")
     acc.add_argument("--all", action="store_true")
@@ -192,13 +223,18 @@ def main():
     brain = brainlib.brain_dir(a.brain)
     try:
         if a.command == "status":
-            changes = status(brain)
+            current = snapshot(brain)
+            changes = status(brain, current=current)
             is_open = pass_file(brain).exists()
-            touched = changed_during_pass(brain)
+            touched = changed_during_pass(brain, current=current)
+            protected = protected_pages(brain, current=current)
             for name, kind in changes.items():
                 print(f"{kind}: wiki/{name}")
             print(f"{len(changes)} pages differ from the baseline")
-            print(f"agent pass: {'open' if is_open else 'closed'} ({len(protected_pages(brain))} protected pages)")
+            print(f"agent pass: {'open' if is_open else 'closed'} ({len(protected)} protected pages)")
+            if is_open:
+                for name in sorted(protected):
+                    print(f"protected: wiki/{name}")
             for name in touched:
                 print(f"protected page changed during pass: wiki/{name}")
             return int(bool(changes or touched))
@@ -209,6 +245,17 @@ def main():
             print(f"agent pass started; {len(protected)} human-edited pages are off limits (propose changes instead)")
         elif a.command == "record":
             record(brain, init=a.init)
+        elif a.command == "mark-written":
+            name = page_name(brain, a.page)
+            path = brain / "wiki" / name
+            if a.draft is not None and path.exists() and a.draft.samefile(path):
+                raise ValueError("use a separate draft containing the intended output")
+            expected = None if a.deleted else hashes.digest(a.draft)
+            current = hashes.file_hashes(path) if path.is_file() else None
+            if not hashes.matches(current, expected):
+                raise ValueError(f"wiki/{name} differs from the intended output")
+            register_writes(brain, {name: expected}, require_pass=True)
+            print(f"marked agent output: wiki/{name}")
         elif a.command == "accept":
             if bool(a.pages) == a.all:
                 ap.error("accept requires pages or --all")

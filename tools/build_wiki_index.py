@@ -78,6 +78,10 @@ def main() -> None:
     brain = brainlib.brain_dir(a.brain)
     products = product_names(brain)
     wiki = brain / "wiki"
+    try:
+        wiki_edits.ensure_protected_unchanged(brain)
+    except ValueError as exc:
+        ap.exit(2, f"Could not record the wiki baseline. {exc}\n")
     protected = wiki_edits.protected_pages(brain)
     written = {}
     fixed = 0
@@ -89,7 +93,7 @@ def main() -> None:
         if m and fmt_duration(m.group(1)):
             t = t[:m.start()] + f'duration: "{fmt_duration(m.group(1))}"' + t[m.end():]
             p.write_text(t, encoding="utf-8", newline="\n")
-            written[p.relative_to(wiki).as_posix()] = wiki_edits.hashes.digest(p)
+            written[p.relative_to(wiki).as_posix()] = wiki_edits.hashes.digest_bytes(t.encode("utf-8"))
             fixed += 1
     by_type = collections.defaultdict(list)
     sources = collections.defaultdict(lambda: collections.defaultdict(list))
@@ -135,6 +139,7 @@ def main() -> None:
         out += ["## Your notes", ""]
         out += [f"- [[{p.relative_to(brain).with_suffix('').as_posix()}]]" for p in notes]
         out.append("")
+    protected = wiki_edits.protected_pages(brain)
     for name, lines in (("index.md", out), ("sources-index.md", source_out)):
         content = "\n".join(lines)
         if name in protected:
@@ -148,8 +153,9 @@ def main() -> None:
             print(f"{name} has human edits; proposal: ingest/proposals/wiki/{name}")
         else:
             (wiki / name).write_text(content, encoding="utf-8", newline="\n")
-            written[name] = wiki_edits.hashes.digest(wiki / name)
+            written[name] = wiki_edits.hashes.digest_bytes(content.encode("utf-8"))
     try:
+        wiki_edits.register_writes(brain, written)
         wiki_edits.record(brain, written=written)
     except ValueError as exc:
         ap.exit(2, f"Could not record the wiki baseline. {exc}\n")

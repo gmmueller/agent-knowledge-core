@@ -39,6 +39,8 @@ One page per slug in your group (`{{brain_name}}/ingest/page-groups.yaml` → `g
 
 Never edit any page on that list, and never create, edit or delete anything in `{{brain_name}}/notes/`. If a slug in your group is protected, write the proposed full page to a temporary file and file it with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 
+Save each intended wiki page in a separate draft and check `wiki_edits.py status` before writing the live page. Register each completed write with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" mark-written <page> --from <draft>`.
+
 ## Page format
 
 ```markdown
@@ -113,6 +115,8 @@ The canonical concept list is in `{{brain_name}}/ingest/page-groups.yaml` (group
 - Promos (gear guides, affiliate tools, events, upsells) are never key points.
 
 ## Acceptance check
+
+Run this after writing all assigned concept and rule pages. The orchestrator checks the finished merge before rebuilding the indexes.
 
 ```sh
 {{python}} -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <page paths...>

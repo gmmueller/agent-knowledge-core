@@ -12,10 +12,13 @@ def manifest(raw):
     return (raw if (raw.parent / "brain.md").exists() else raw.parent) / ".capture-hashes.json"
 
 
-def snapshot(raw):
+def captures(raw):
     # Skip "<capture>.lock" files: capture writers lock each raw path, and on macOS/Linux the lock file stays behind.
-    return {p.relative_to(raw).as_posix(): hashes.digest(p) for p in brainlib.iter_files(raw)
-            if not p.name.endswith(".lock")}
+    return (p for p in brainlib.iter_files(raw) if not p.name.endswith(".lock"))
+
+
+def snapshot(raw):
+    return {p.relative_to(raw).as_posix(): hashes.file_hashes(p) for p in captures(raw)}
 
 
 def check(raw):
@@ -29,7 +32,8 @@ def check(raw):
 def unrecorded(raw):
     """Files with no capture hash yet (captured before the guard was adopted, or by a tool that doesn't record)."""
     before = hashes.load(manifest(raw)) or {}
-    return sorted(set(snapshot(raw)) - set(before))
+    return sorted(p.relative_to(raw).as_posix() for p in captures(raw)
+                  if p.relative_to(raw).as_posix() not in before)
 
 
 def has_manifest(raw):
@@ -48,7 +52,7 @@ def record(raw, *, init=False):
         if before is not None and not init and any(
                 kind != "added" for kind in hashes.differences(before, current).values()):
             raise ValueError("raw changed after capture: re-crawl instead of editing (or explicitly record --init)")
-        hashes.save(path, current)
+        hashes.save(path, {name: content.digest for name, content in current.items()})
 
 
 def record_capture(path):

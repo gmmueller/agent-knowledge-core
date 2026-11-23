@@ -92,6 +92,6 @@ Rule pages live in `wiki/rules/`, each with exact, speaker-named quotes. Status:
 
 ## Deliverables (definition of done)
 
-- Wiki: concept pages (topics, principles, methods, frameworks, rules, glossary), rubrics, example pages, tool pages and debate pages, all passing `check_wiki.py` and `lint_wiki.py`.
+- Wiki: concept pages (topics, principles, methods, frameworks, rules, glossary), rubrics, example pages, tool pages and debate pages. Run `check_wiki.py` and `lint_wiki.py` after writing these pages and before the final index rebuild.
 - `evals.md`: task-based evals plus traps, run by a fresh agent with only the skill.
 - Generated skill `/my-topic` via `tools/generate_persona.py`.

@@ -23,6 +23,8 @@ Never edit any page on that list, and never create, edit or delete anything in `
 
 Don't create or edit any other file. Never edit `raw/` (it is immutable). Don't run git. Don't install anything. Other workers are writing other batches at the same time.
 
+Save each intended wiki page in a separate draft and check `wiki_edits.py status` before writing the live page. Register each completed write with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" mark-written <page> --from <draft>`.
+
 ## Source page format
 
 Copy the shape of the gold example **`{{gold_source_page}}`** exactly (read it first; don't rewrite it).

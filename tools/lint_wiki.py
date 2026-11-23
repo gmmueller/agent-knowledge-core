@@ -63,16 +63,18 @@ def main() -> None:
     if a.fix_slug_map:
         slug_map = yaml.safe_load((brain / "ingest" / "slug-map.yaml").read_text(encoding="utf-8")) or {}
         protected = wiki_edits.protected_pages(brain)
-        n = 0
+        written = {}
         for p in brainlib.wiki_pages(brain):
-            if p.relative_to(wiki).as_posix() in protected:
+            name = p.relative_to(wiki).as_posix()
+            if name in protected:
                 continue
             t = p.read_text(encoding="utf-8")
             new = LINK.sub(lambda m: m.group(0).replace(m.group(1), slug_map[m.group(1)]) if m.group(1) in slug_map else m.group(0), t)
             if new != t:
                 p.write_text(new, encoding="utf-8", newline="\n")
-                n += 1
-        print(f"slug map applied to {n} pages")
+                written[name] = wiki_edits.hashes.digest_bytes(new.encode("utf-8"))
+        wiki_edits.register_writes(brain, written)
+        print(f"slug map applied to {len(written)} pages")
     all_pages = pages(wiki)
     inbound = collections.Counter()
     broken = collections.defaultdict(set)

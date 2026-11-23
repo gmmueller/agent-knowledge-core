@@ -1,12 +1,36 @@
 """Small hash-manifest primitives shared by the edit guards."""
 import hashlib
 import json
+from typing import NamedTuple
 
 from filelock import FileLock
 
 
 def digest(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return digest_bytes(path.read_bytes())
+
+
+def digest_bytes(data):
+    return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
+
+
+class FileHashes(NamedTuple):
+    digest: str
+    compatible: set[str]
+
+
+def file_hashes(path):
+    data = path.read_bytes()
+    normalized = data.replace(b"\r\n", b"\n")
+    # Old manifests may contain the digest of the original bytes, including a CRLF checkout.
+    canonical = hashlib.sha256(normalized).hexdigest()
+    legacy = {hashlib.sha256(version).hexdigest()
+              for version in {data, normalized.replace(b"\n", b"\r\n")} - {normalized}}
+    return FileHashes(canonical, legacy | {canonical})
+
+
+def matches(current, expected):
+    return expected is None if current is None else expected in current.compatible
 
 
 def load(path):
@@ -34,4 +58,4 @@ def locked(path):
 
 def differences(before, after):
     return {name: "added" if name not in before else "deleted" if name not in after else "changed"
-            for name in sorted(before.keys() | after.keys()) if before.get(name) != after.get(name)}
+            for name in sorted(before.keys() | after.keys()) if not matches(after.get(name), before.get(name))}

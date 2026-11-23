@@ -77,9 +77,11 @@ def main() -> None:
     page_q = re.compile(r'^(>\s*")(.+?)("\s*[—–-]*\s*[^\n(]*\(\[\[' + esc + r'(?:\.md)?\]\]\s*@\s*)(' + LOCATOR + r')(\))', re.M)
     wiki = (brain / "wiki").resolve()
     protected = wiki_edits.protected_pages(brain) if a.apply else set()
+    written = {}
     for f in a.files:
         path = pathlib.Path(f)
         resolved = path.resolve()
+        name = None
         if resolved.is_relative_to(wiki):
             name = resolved.relative_to(wiki).as_posix()
             if name in protected:
@@ -123,6 +125,9 @@ def main() -> None:
             print(f"{flag} {r:.2f} {f} @ {at} -> {label}\n    old: {old[:100]}\n    new: {new[:100]}")
         if a.apply and text != original:
             path.write_text(text, encoding="utf-8", newline="\n")
+            if name is not None and path.suffix == ".md":
+                written[name] = wiki_edits.hashes.digest_bytes(text.encode("utf-8"))
+    wiki_edits.register_writes(brain, written)
 
 
 if __name__ == "__main__":
