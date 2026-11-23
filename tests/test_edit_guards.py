@@ -8,9 +8,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import brainlib
+import build_wiki_index
 import check_wiki
 import library_raw
 import raw_guard
@@ -45,8 +47,7 @@ class EditGuards(unittest.TestCase):
     def write_agent(self, page, text):
         draft = self.root / "draft.md"
         brainlib.write_text(draft, text)
-        self.write(f"wiki/{page}", text)
-        result = self.run_tool("wiki_edits.py", "mark-written", page, "--from", draft)
+        result = self.run_tool("wiki_edits.py", "write", page, "--from", draft)
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_status_record_never_absorbs_changed_added_or_deleted(self):
@@ -107,6 +108,116 @@ class EditGuards(unittest.TestCase):
         self.assertFalse(wiki_edits.pass_file(self.brain).exists())
         self.assertEqual(wiki_edits.status(self.brain), {"index.md": "changed", "topics/example.md": "changed"})
 
+    def test_index_refuses_an_owner_save_after_the_protection_snapshot(self):
+        self.write("wiki/index.md", "# Original index\n")
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        protected_pages = wiki_edits.protected_pages
+
+        def save_after_snapshot(*args, **kwargs):
+            protected = protected_pages(*args, **kwargs)
+            self.write("wiki/index.md", "# Owner saved during rebuild\n")
+            return protected
+
+        with (patch.object(wiki_edits, "protected_pages", side_effect=save_after_snapshot),
+              patch.object(sys, "argv", ["build_wiki_index.py", "--brain", str(self.brain)]),
+              contextlib.redirect_stderr(io.StringIO()) as stderr, self.assertRaises(SystemExit) as failed):
+            build_wiki_index.main()
+        self.assertEqual(failed.exception.code, 2)
+        self.assertIn("Refused write to wiki/index.md", stderr.getvalue())
+        self.assertEqual((self.brain / "wiki/index.md").read_text(encoding="utf-8"), "# Owner saved during rebuild\n")
+        self.assertTrue(wiki_edits.pass_file(self.brain).exists())
+
+    def test_write_refuses_owner_changes_to_baseline_and_registered_content(self):
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        page = "topics/example.md"
+        draft = self.root / "next.md"
+        brainlib.write_text(draft, PAGE + "Agent revision\n")
+        self.write_agent("topics/agent.md", PAGE + "Agent addition\n")
+        for name in (page, "topics/agent.md"):
+            with self.subTest(name=name):
+                owner = PAGE + "Owner revision\n"
+                self.write(f"wiki/{name}", owner)
+                result = self.run_tool("wiki_edits.py", "write", name, "--from", draft)
+                self.assertEqual(result.returncode, 2, result.stdout)
+                self.assertIn(f"Refused write to wiki/{name}", result.stderr)
+                self.assertIn("propose", result.stderr)
+                self.assertEqual((self.brain / "wiki" / name).read_text(encoding="utf-8"), owner)
+
+    def test_write_rechecks_after_windows_sharing_violations(self):
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        original_replace = Path.replace
+        for save_during_retry in (False, True):
+            with self.subTest(save_during_retry=save_during_retry):
+                path = self.brain / "wiki/topics/example.md"
+                owner = PAGE + "Owner saved while file was busy\n"
+                replacements = 0
+
+                def replace(source, target):
+                    nonlocal replacements
+                    if target == path:
+                        replacements += 1
+                        if replacements == 1:
+                            if save_during_retry:
+                                self.write("wiki/topics/example.md", owner)
+                            busy = PermissionError("sharing violation")
+                            busy.winerror = 32
+                            raise busy
+                    return original_replace(source, target)
+
+                with patch.object(Path, "replace", replace), patch.object(wiki_edits.time, "sleep"):
+                    if save_during_retry:
+                        with self.assertRaisesRegex(ValueError, "protected by an owner edit"):
+                            wiki_edits.write_page(self.brain, path, PAGE + "Next agent revision\n")
+                        self.assertEqual(path.read_text(encoding="utf-8"), owner)
+                        self.assertEqual(replacements, 1)
+                    else:
+                        wiki_edits.write_page(self.brain, path, PAGE + "Agent revision\n")
+                        self.assertEqual(wiki_edits.protected_pages(self.brain), set())
+                        self.assertEqual(replacements, 2)
+                self.assertEqual(list(path.parent.glob(".*.tmp")), [])
+
+    def test_legacy_pass_without_snapshot_checks_each_protected_page(self):
+        self.init_wiki()
+        name = "topics/example.md"
+        self.write(f"wiki/{name}", PAGE + "Original owner revision\n")
+        wiki_edits.begin(self.brain)
+        path = wiki_edits.pass_file(self.brain)
+        state = wiki_edits.hashes.load(path)
+        del state["at_begin"]
+        wiki_edits.hashes.save(path, state)
+        owner = PAGE + "New owner revision\n"
+        self.write(f"wiki/{name}", owner)
+        for tool, args in (("wiki_edits.py", ("record",)), ("build_wiki_index.py", ())):
+            result = self.run_tool(tool, *args)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn(f"wiki/{name}", result.stderr)
+            self.assertIn("lack a pass snapshot", result.stderr)
+            self.assertTrue(path.exists())
+        self.assertEqual(self.run_tool("wiki_edits.py", "accept", name).returncode, 0)
+        self.assertEqual(self.run_tool("wiki_edits.py", "record").returncode, 0)
+        self.assertEqual((self.brain / "wiki" / name).read_text(encoding="utf-8"), owner)
+
+    def test_wiki_errors_keep_pass_open_and_warnings_print(self):
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        invalid = "topics/uncited.md"
+        self.write_agent(invalid, PAGE + "- Missing citation.\n")
+        self.write_agent("topics/context.md", PAGE + "\nUncited context paragraph.\n")
+        for tool, args in (("build_wiki_index.py", ()), ("wiki_edits.py", ("record",))):
+            result = self.run_tool(tool, *args)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn(f"wiki/{invalid}", result.stderr)
+            self.assertIn("claim without citation", result.stderr)
+            self.assertIn("warning: ", result.stdout)
+            self.assertIn("wiki/topics/context.md", result.stdout)
+            self.assertTrue(wiki_edits.pass_file(self.brain).exists())
+        self.write_agent(invalid, PAGE)
+        self.assertEqual(self.run_tool("build_wiki_index.py").returncode, 0)
+        self.assertFalse(wiki_edits.pass_file(self.brain).exists())
+
     def test_pass_keeps_later_changes_to_declared_agent_output_protected(self):
         self.init_wiki()
         wiki_edits.begin(self.brain)
@@ -119,6 +230,16 @@ class EditGuards(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(f"left unrecorded: wiki/{page}", result.stdout)
         self.assertEqual(wiki_edits.status(self.brain), {page: "changed"})
+
+    def test_owner_can_restore_original_content_after_agent_write(self):
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        page = "topics/example.md"
+        self.write_agent(page, PAGE + "Agent addition\n")
+        self.write(f"wiki/{page}", PAGE)
+        self.assertEqual(wiki_edits.protected_pages(self.brain), {page})
+        self.assertEqual(self.run_tool("wiki_edits.py", "record").returncode, 0)
+        self.assertEqual(wiki_edits.protected_pages(self.brain), {page})
 
     def test_record_accepts_declared_deletion_and_reports_undeclared_addition(self):
         self.init_wiki()

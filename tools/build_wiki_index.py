@@ -71,36 +71,34 @@ def fmt_duration(v):
     return None
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__)
-    brainlib.add_brain_arg(ap)
-    a = ap.parse_args()
-    brain = brainlib.brain_dir(a.brain)
+def rebuild(brain) -> None:
     products = product_names(brain)
     wiki = brain / "wiki"
-    try:
-        wiki_edits.ensure_protected_unchanged(brain)
-    except ValueError as exc:
-        ap.exit(2, f"Could not record the wiki baseline. {exc}\n")
-    protected = wiki_edits.protected_pages(brain)
+    current = wiki_edits.snapshot(brain)
+    wiki_edits.ensure_protected_unchanged(brain, current=current)
+    protected = wiki_edits.protected_pages(brain, current=current)
     written = {}
     fixed = 0
     for p in (wiki / "sources").glob("*.md"):
-        if p.relative_to(wiki).as_posix() in protected:
+        name = p.relative_to(wiki).as_posix()
+        if name in protected:
             continue
         t = p.read_text(encoding="utf-8")
         m = re.search(r"^duration:\s*['\"]?(\d+(?:\.\d+)?)['\"]?\s*$", t, re.M)
         if m and fmt_duration(m.group(1)):
             t = t[:m.start()] + f'duration: "{fmt_duration(m.group(1))}"' + t[m.end():]
-            p.write_text(t, encoding="utf-8", newline="\n")
-            written[p.relative_to(wiki).as_posix()] = wiki_edits.hashes.digest_bytes(t.encode("utf-8"))
+            written[name] = wiki_edits.write_page(brain, name, t, expected=initial_digest(current, name),
+                                                 require_pass=False)
             fixed += 1
     by_type = collections.defaultdict(list)
     sources = collections.defaultdict(lambda: collections.defaultdict(list))
     for p in sorted(brainlib.wiki_pages(brain)):
         if p.stem in ("index", "sources-index", "hot", "log"):
             continue
-        fm, body = split(p.read_text(encoding="utf-8"))
+        try:
+            fm, body = split(p.read_text(encoding="utf-8"))
+        except yaml.YAMLError as exc:
+            raise ValueError(f"{p.relative_to(brain).as_posix()}: bad frontmatter YAML: {exc}") from exc
         n = len(fm.get("sources") or [])
         title = (re.search(r"^# (.+)$", body, re.M) or [None, p.stem])[1]
         if fm.get("type") == "source" and fm.get("publisher"):  # topic brain: group by publisher
@@ -139,7 +137,6 @@ def main() -> None:
         out += ["## Your notes", ""]
         out += [f"- [[{p.relative_to(brain).with_suffix('').as_posix()}]]" for p in notes]
         out.append("")
-    protected = wiki_edits.protected_pages(brain)
     for name, lines in (("index.md", out), ("sources-index.md", source_out)):
         content = "\n".join(lines)
         if name in protected:
@@ -152,16 +149,26 @@ def main() -> None:
             brainlib.write_text(proposal, f"{AUTO_PROPOSAL}\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: index has human edits; review before replacing.\n\n---\n\n" + content)
             print(f"{name} has human edits; proposal: ingest/proposals/wiki/{name}")
         else:
-            (wiki / name).write_text(content, encoding="utf-8", newline="\n")
-            written[name] = wiki_edits.hashes.digest_bytes(content.encode("utf-8"))
-    try:
-        wiki_edits.register_writes(brain, written)
-        wiki_edits.record(brain, written=written)
-    except ValueError as exc:
-        ap.exit(2, f"Could not record the wiki baseline. {exc}\n")
+            written[name] = wiki_edits.write_page(brain, name, content, expected=initial_digest(current, name),
+                                                 require_pass=False)
+    wiki_edits.record(brain, written=written)
     total = sum(len(v) for v in by_type.values())
     source_total = sum(len(items) for modules in sources.values() for items in modules.values())
     print(f"index.md: {total} concept pages; sources-index.md: {source_total} source pages; normalised {fixed} durations")
+
+
+def initial_digest(current, name):
+    return current[name].digest if name in current else None
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    brainlib.add_brain_arg(ap)
+    args = ap.parse_args()
+    try:
+        rebuild(brainlib.brain_dir(args.brain))
+    except (ValueError, OSError) as exc:
+        ap.exit(2, f"Could not complete the index rebuild. {exc}\n")
 
 
 if __name__ == "__main__":

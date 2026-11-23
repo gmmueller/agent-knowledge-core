@@ -16,15 +16,15 @@ When setting up a new private workspace:
 
 ### Registering wiki writes
 
-Save each intended page in a separate draft outside `wiki/`, then check the `protected:` lines from `wiki_edits.py status` before changing the live page. After writing it, run:
+The orchestrator gives each worker its own draft folder outside `wiki/`, such as `<brain>/ingest/drafts/<worker>/` or a folder in the system temp directory. Save each full page there and publish it from the draft.
 
 ```sh
-python -X utf8 -I tools/wiki_edits.py --brain <brain> mark-written <page> --from <draft>
+python -X utf8 -I tools/wiki_edits.py --brain "<brain>" write "<page>" --from "<draft-folder>/<draft>.md"
 ```
 
-Use the draft you prepared for the write. For an intentional deletion, use `mark-written <page> --deleted` after removing the page. Register manual agent changes as you make them, including `wiki/hot.md` and `wiki/log.md`. The index builder and wiki maintenance tools track their own output during the pass.
+Use the same command for `wiki/hot.md` and `wiki/log.md`. It checks for owner edits just before replacing the page and registers the published version. If the write is refused, keep the draft and file it with `wiki_edits.py --brain <brain> propose <page> --from <draft> --why "<reason>"`. The index builder and wiki maintenance tools use the same guard. For an intentional deletion, use `mark-written <page> --deleted` after removing the page.
 
-When the pass closes, the tool lists undeclared changes and changes that no longer match registered output as `left unrecorded`. They remain protected. Review them with the owner, who can acknowledge the intended changes with `wiki_edits.py --brain <brain> accept <page>`.
+Closing the pass runs `check_wiki.py` page checks on matching registered content pages. Warnings print and errors keep the pass open. The close lists undeclared changes and changes that differ from registered output as `left unrecorded`. They remain protected. The owner can acknowledge them with `wiki_edits.py --brain <brain> accept <page>`. For an older pass missing a snapshot of a protected page, have the owner accept that page by name before closing.
 
 ---
 
@@ -191,7 +191,7 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 |---|---|
 | `lint_wiki.py`, `build_wiki_index.py` | Broken links, orphans, rule status, slug drift (`--fix-slug-map`), human edit and proposal warnings, errors for changed captures; rebuild `wiki/index.md` (concepts, plus `notes/` under **Your notes**) and `wiki/sources-index.md` (sources), and record the wiki baseline |
 | `obsidian_setup.py` | Configure a brain folder in place as its own Obsidian vault (`.obsidian/` settings, `notes/`, topic-brain `library` link, `.gitignore`; `--workspace <ws> --all [--gitignore-hub] [--reset]` also writes `.cores-hub/`) |
-| `wiki_edits.py` | Detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `mark-written`, `record`, `propose`, `proposals`, `accept`) so agent passes never overwrite them |
+| `wiki_edits.py` | Detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `write`, `mark-written`, `record`, `propose`, `proposals`, `accept`) |
 | `raw_guard.py` | Record capture hashes and check for edited, deleted or unrecorded captures. Workspace checks cover the library and each brain |
 | `content_hashes.py` | Shared SHA-256 hash-manifest and file-lock helpers used by `wiki_edits.py` and `raw_guard.py` |
 | `verify_eval_quotes.py`, `rubric_agreement.py` | Fail on reported eval quote problems, or compare two graders' rubric scores |

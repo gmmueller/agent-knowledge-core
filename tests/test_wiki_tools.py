@@ -301,9 +301,20 @@ class WikiTools(unittest.TestCase):
         self.assertIn("grep `wiki/` and `library/*/raw/`", skill)
         self.assertIn("Open `wiki/sources-index.md` only to locate a specific source", skill)
         self.assertIn("Worked examples are in `examples/`", skill)
+        self.assertIn(f"`platform-fact.md` in `{self.brain / 'wiki'}/tools/`", skill)
         self.assertNotIn("**Tools:**", skill)  # wiki/tools/ is distinct from brain-level tools/
         self.assertIn(str(self.root / "library"), skill)
         self.assertIn("if you paraphrase, drop the quote marks", skill)
+
+    def test_persona_lists_wiki_tool_pages_alongside_brain_tools(self):
+        self.write("tools/helper.py", "")
+        self.write("wiki/tools/platform-fact.md", "# Platform Fact\n")
+        result = self.run_tool("generate_persona.py", "--brain", self.brain, "--out", self.root / "skills",
+                               "--relative-to", self.root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        skill = (self.root / "skills/my-course/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("`my-course/tools` holds brain-specific tools", skill)
+        self.assertIn("`platform-fact.md` in `my-course/wiki/tools/`", skill)
 
     def test_community_index_groups_threads_by_month_and_courses(self):
         for slug, module, published in (("thread-old", "Community threads", "2024-01-01"),

@@ -6,12 +6,14 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import yaml
 
 TOOLS = pathlib.Path(__file__).resolve().parents[1] / "tools"
 sys.path.insert(0, str(TOOLS))
 import brainlib
+import rule_status
 import wiki_edits
 
 
@@ -42,9 +44,10 @@ class RuleStatus(unittest.TestCase):
         brainlib.write_text(self.root / (raw + ".md"), f"---\npublisher: {publisher}\nsource_id: {identity}\n---\nExample.\n")
         return dict(speaker=speaker, text="Example.", cite=dict(raw=raw, at="1:00"), **metadata)
 
-    def rule(self, slug, points, quotes=None):
-        stage = self.brain / "ingest" / "staging" / f"{slug}.yaml"
-        brainlib.write_text(stage, yaml.safe_dump(dict(concepts=[dict(slug=slug, type="rule", points=points, quotes=quotes or [])])))
+    def rule(self, slug, points, quotes=None, *, batch=None, **metadata):
+        stage = self.brain / "ingest" / "staging" / f"{batch or slug}.yaml"
+        brainlib.write_text(stage, yaml.safe_dump(dict(concepts=[dict(slug=slug, type="rule", points=points,
+                                                                       quotes=quotes or [], **metadata)])))
 
     def bundle(self, slug):
         return brainlib.load_yaml(self.brain / "ingest" / "bundles" / f"{slug}.yaml")
@@ -135,6 +138,57 @@ class RuleStatus(unittest.TestCase):
         self.assertIn("status: consensus # keep comment", agent.read_text(encoding="utf-8"))
         self.assertEqual(brainlib.read_frontmatter(human)["status"], "bench")
         self.assertEqual(wiki_edits.protected_pages(self.brain), {"rules/rule-human.md"})
+
+    def test_report_flags_explicit_status_drift_and_ignores_quoted_text(self):
+        page = self.page("rule-status", body="**Status:** active\n\nThis rule is consensus.\n"
+                         '> This rule is contested.\n\n"this rule is contested"\n'
+                         '```md\n**Status:** contested\n```\n')
+        original = page.read_bytes()
+        report = self.tool("rule_status.py")
+        self.assertIn("body says active, frontmatter says bench", report)
+        self.assertIn("body says consensus, frontmatter says bench", report)
+        self.assertNotIn("body says contested", report)
+        self.assertEqual(page.read_bytes(), original)
+
+    def test_report_flags_consensus_with_page_dissent_or_official_opposition(self):
+        self.settings(experts=["Ada", "Bea", "Cam"], expert_aliases={"Guest": "Cam"}, official=["Standards Board"])
+        supporters = [self.source("Ada", "one"), self.source("Bea", "two")]
+        for slug, body in (
+            ("rule-heading", "## Dissent\nGuest rejects the rule.\n"),
+            ("rule-contested-by", "## Contested by Cam\nSee the debate.\n"),
+            ("rule-quote", '> "Opposite." — Cam ([[library/acme/raw/three]] @ 1:00) · stance: opposes\n'),
+            ("rule-official", "## Dissent\nThe Standards Board rules the opposite.\n"),
+            ("rule-bundle", "Plain page.\n"),
+            ("rule-quoted-marker", '> "Set stance: opposes in that example." — Cam\n'),
+        ):
+            self.rule(slug, supporters)
+            self.page(slug, body=body)
+        self.rule("rule-bundle", [], [self.source("Publisher", "policy", stance="opposes")],
+                  batch="official-batch", evidence="official")
+        self.tool("merge_topic.py", "bundles")
+        report = self.tool("rule_status.py")
+        for slug in ("rule-heading", "rule-contested-by", "rule-quote"):
+            self.assertIn(f"{slug}: computes as consensus, but the page records dissent from Cam", report)
+        for slug in ("rule-official", "rule-bundle"):
+            self.assertIn(f"{slug}: computes as consensus, but an official source", report)
+        self.assertNotIn("warning: rule-quoted-marker", report)
+
+    def test_write_refuses_owner_edit_after_a_rule_was_read(self):
+        self.settings(experts=["Ada", "Bea"])
+        page = self.page("rule-race")
+        wiki_edits.record(self.brain, init=True)
+        wiki_edits.begin(self.brain)
+        owner = page.read_text(encoding="utf-8") + "Owner revision.\n"
+
+        def save_after_read(*_args):
+            brainlib.write_text(page, owner)
+            return [{"speaker": "Ada"}, {"speaker": "Bea"}]
+
+        with patch.object(rule_status, "evidence_for", side_effect=save_after_read):
+            with self.assertRaisesRegex(ValueError, "Refused write to wiki/rules/rule-race.md"):
+                rule_status.audit(self.brain, write=True)
+        self.assertEqual(page.read_text(encoding="utf-8"), owner)
+        self.assertTrue(wiki_edits.pass_file(self.brain).exists())
 
 
 if __name__ == "__main__":

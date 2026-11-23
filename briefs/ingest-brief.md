@@ -12,7 +12,7 @@ All paths below are relative to `{{brain_path}}` unless they start with `tools/`
 - Batch several small reads into one command where possible.
 - Do not re-read a file you just wrote to check it; run `check_wiki.py` instead.
 
-## What you write (and nothing else)
+## What you write
 
 1. `wiki/sources/<id>.md`: one page per item in your batch (ids and raw paths are listed in your task and in `ingest/batches.yaml`).
 2. `ingest/staging/<batch>.yaml`: one file for your whole batch.
@@ -21,9 +21,9 @@ All paths below are relative to `{{brain_path}}` unless they start with `tools/`
 
 Never edit any page on that list, and never create, edit or delete anything in `notes/`. If your batch needs to update a protected page, write the proposed full page to a temporary file and file it with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 
-Don't create or edit any other file. Never edit `raw/` (it is immutable). Don't run git. Don't install anything. Other workers are writing other batches at the same time.
+Limit your writes to the assigned pages, staging file, drafts and proposals. Never edit `raw/` (it is immutable). Don't run git. Don't install anything. Other workers are writing other batches at the same time.
 
-Save each intended wiki page in a separate draft and check `wiki_edits.py status` before writing the live page. Register each completed write with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" mark-written <page> --from <draft>`.
+Save each full wiki page, including proposals, in your assigned draft folder `{{draft_folder}}` outside `wiki/`. Publish with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" write "<page>" --from "{{draft_folder}}/<draft>.md"`. If the write is refused, file the draft with `propose`.
 
 ## Source page format
 
