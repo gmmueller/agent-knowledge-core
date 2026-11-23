@@ -13,7 +13,9 @@ def manifest(raw):
 
 
 def snapshot(raw):
-    return {p.relative_to(raw).as_posix(): hashes.digest(p) for p in brainlib.iter_files(raw)}
+    # Skip "<capture>.lock" files: capture writers lock each raw path, and on macOS/Linux the lock file stays behind.
+    return {p.relative_to(raw).as_posix(): hashes.digest(p) for p in brainlib.iter_files(raw)
+            if not p.name.endswith(".lock")}
 
 
 def check(raw):

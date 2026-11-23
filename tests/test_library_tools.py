@@ -120,6 +120,7 @@ class LibraryTools(unittest.TestCase):
             self.assertTrue(yt.fetch("acme", config, [item]))
         capture, = (raw / "yt").glob("*.md")
         original = capture.read_bytes(), capture.stat().st_mtime_ns
+        Path(str(capture) + ".lock").write_text("", encoding="utf-8")  # macOS/Linux leave the writer's lock file
         self.assertEqual(raw_guard.unrecorded(raw), [f"yt/{capture.name}"])
 
         with patch.object(yt, "metadata") as metadata, contextlib.redirect_stdout(io.StringIO()):
