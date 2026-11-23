@@ -141,7 +141,7 @@ items:
     why: "explains the framework with two worked examples"
 ```
 
-Triage scores (0–3 each): **relevance** to the brain's extraction areas, teaching **density**, **voice** (a listed expert teaching in their own words), **unique**ness vs items already in tier A, **fresh**ness (weighted only when `brain.md` sets `triage: { weight_fresh: true }`). `example` is 1 when the item is worth annotating as a demonstration (tier X). Triage agents write TSV rows with header `item	relevance	density	voice	unique	fresh	example	speakers	why` (speakers `;`-separated) to `<brain>/ingest/triage/<publisher>.tsv`. Details: `docs/triage.md`.
+Triage scores (0–3 each): **relevance** to the brain's extraction areas, teaching **density**, **voice** (a listed expert teaching in their own words), **unique**ness vs items already in tier A, **fresh**ness (weighted only when `brain.md` sets `triage: { weight_fresh: true }`). `example` is 1 when the item is worth annotating as a demonstration (tier X). Triage agents write TSV rows with header `item	relevance	density	voice	unique	fresh	example	speakers	why` (speakers `;`-separated) to `<brain>/ingest/triage/<publisher>.tsv` (or one `<publisher>-<n>.tsv` per input chunk). Details: `docs/triage.md`.
 
 ## Multi-speaker items: staging hand-off
 

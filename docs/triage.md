@@ -5,7 +5,7 @@ Catalogues list everything an expert has published. Triage scores each item agai
 ## Steps
 
 1. **Catalogue** each publisher (`library_yt.py catalogue`, `web_to_raw.py list`). Metadata only.
-2. **Cut inputs.** `triage_inputs.py --brain <brain> <publisher> [--kinds video,short] [--chunk 300] [--shorts-prefilter 150:20]` writes `<brain>/ingest/triage/input/<publisher>-<n>.tsv` with `item, kind, title, published, duration_s, views, description` (the first 200 characters). It skips items already scored, so you can re-run it after new crawls.
+2. **Cut inputs.** `triage_inputs.py --brain <brain> <publisher> [--kinds video,short] [--chunk 300] [--shorts-prefilter 150:20]` writes `<brain>/ingest/triage/input/<publisher>-<n>.tsv` with `item, kind, title, published, duration_s, views, description` (the first 200 characters). It skips items already scored (in `<publisher>.tsv`, any `<publisher>-<n>.tsv` chunk output, or `selection.yaml`), so you can re-run it after new crawls. When the first triage covered only a filtered subset of a large catalogue, refresh with `--since <last crawl date>` after `library_yt.py catalogue <publisher> --details N` has dated the new rows; undated rows are skipped and counted.
 3. **Score.** One triage agent per input file, using the brief below.
 4. **Spot-check** 10 random rows per file. Fix outliers with `selection_override.py` (step 6).
 5. **Merge.** `triage_merge.py --brain <brain>` reads `<brain>/ingest/triage/*.tsv` and builds `<brain>/selection.yaml` with tiers A (deep ingest), B (raw + search), C (skip) and X (annotate as example). It keeps hand overrides when you re-run it.
