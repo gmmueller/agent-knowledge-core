@@ -245,6 +245,16 @@ class RuleStatus(unittest.TestCase):
         self.tool("merge_topic.py", "bundles")
         self.assertEqual(self.bundle("expert-consensus")["status"], "consensus")
 
+    def test_reference_unbundled_quotes_from_two_publishers_stay_active(self):
+        self.settings(evidence_model="reference")
+        bodies = []
+        for publisher in ("acme", "globex"):
+            raw = self.source(None, "guide", publisher=publisher)["cite"]["raw"]
+            bodies.append(f'> "Example." — Writer ([[{raw}]] @ 1:00)\n')
+        self.page("two-publishers", "active", body="".join(bodies))
+        report = self.tool("rule_status.py")
+        self.assertNotRegex(report, r"two-publishers\s+active -> bench")
+
     def test_reference_warns_when_page_still_cites_an_old_edition(self):
         self.settings(evidence_model="reference")
         brainlib.write_text(self.root / "library" / "acme" / "sources.yaml", yaml.safe_dump({"sources": [
