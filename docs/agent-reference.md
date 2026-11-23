@@ -189,7 +189,8 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 
 - **Python flags:** Run tools with `-X utf8 -I` (UTF-8 I/O and isolated mode) on Windows, macOS and Linux. The tools add their own folder to the import path.
 - **`python` vs `python3`:** Use `python3` only to create the venv on macOS and Linux. On Windows, never use the `python3` Microsoft Store alias (it hangs in agent shells), and never pipe a script into a bare `python -`.
-- **Chrome:** Use `python -X utf8 -I tools/launch_chrome.py --brain <brain> [--chrome <executable>]` on every OS to open the brain's dedicated Chrome/Chromium profile with remote debugging.
+- **Chrome:** Use `python -X utf8 -I tools/launch_chrome.py --brain <brain> [--chrome <executable>]` on every OS to open the brain's dedicated system Chrome/Chromium profile with remote debugging. `web_to_raw.py fetch --browser` tries system Chrome first and falls back to Playwright's bundled Chromium (from `python -m playwright install chromium`).
+- **Selected-item YouTube sources (`type: youtube-selected`):** Use `refresh: manual` for hand-curated video lists; `library_yt.py add` records `last_crawled` when all requested videos succeed.
 - **qmd:** On Windows, Node crashes loading `sqlite-vec`, so run `tools/install_qmd.ps1` to run qmd under Bun. On macOS and Linux, install with `npm install -g @tobilu/qmd`; on macOS, run `brew install sqlite` first (per [tobi/qmd](https://github.com/tobi/qmd)).
 - **Whisper:** Uses CUDA when available, otherwise CPU (no Apple GPU backend). On Windows, the NVIDIA cuBLAS/cuDNN wheels' DLL folders are registered automatically.
 - **External tools:** `yt-dlp` and `ffmpeg` must be installed and on `PATH` for video/audio fetching and transcription.

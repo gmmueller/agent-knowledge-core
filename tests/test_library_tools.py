@@ -58,6 +58,50 @@ class LibraryTools(unittest.TestCase):
         self.assertEqual(str(brainlib.load_yaml(path)["sources"][0]["last_crawled"]), dt.date.today().isoformat())
         self.assertIn("# source comment", path.read_text(encoding="utf-8"))
 
+    def test_youtube_add_stamps_selected_source_only_on_complete_success(self):
+        path = self.source_file("youtube-selected")
+        meta = {"id": "abcdefghijk", "title": "Picked Video", "upload_date": "20260512", "duration": 300}
+        with patch.object(yt, "metadata", side_effect=[meta, RuntimeError("network")]), \
+                patch.object(sys, "argv", ["library_yt.py", "--workspace", str(self.root), "add", "acme",
+                                           "--source", "acme-source", "abcdefghijk", "bcdefghijkl"]), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(SystemExit) as exited:
+                yt.main()
+        self.assertEqual(exited.exception.code, 1)
+        self.assertIsNone(brainlib.load_yaml(path)["sources"][0]["last_crawled"])
+        with patch.object(yt, "metadata", return_value=meta), \
+                patch.object(sys, "argv", ["library_yt.py", "--workspace", str(self.root), "add", "acme",
+                                           "--source", "acme-source", "abcdefghijk"]), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(SystemExit) as exited:
+                yt.main()
+        self.assertEqual(exited.exception.code, 0)
+        self.assertEqual(str(brainlib.load_yaml(path)["sources"][0]["last_crawled"]), dt.date.today().isoformat())
+
+    def test_web_browser_falls_back_to_playwright_chromium_and_closes(self):
+        page = Mock()
+        page.content.return_value = "<h1>Rendered</h1>"
+        page.url = "https://example.com/rendered"
+        ctx = Mock()
+        ctx.new_page.return_value = page
+        browser = Mock()
+        browser.new_context.return_value = ctx
+        pw = Mock()
+        pw.chromium.launch.side_effect = [RuntimeError("chrome channel missing"), browser]
+        sync_api = SimpleNamespace(sync_playwright=lambda: SimpleNamespace(start=lambda: pw))
+        client = web.Client(browser=True)
+        with patch.dict(sys.modules, {"playwright": SimpleNamespace(sync_api=sync_api), "playwright.sync_api": sync_api}):
+            html, final = client._browser_get("https://example.com/rendered")
+        self.assertEqual((html, final), ("<h1>Rendered</h1>", "https://example.com/rendered"))
+        self.assertEqual(pw.chromium.launch.call_count, 2)
+        self.assertEqual(pw.chromium.launch.call_args_list[0].kwargs, {"channel": "chrome", "headless": True})
+        self.assertEqual(pw.chromium.launch.call_args_list[1].kwargs, {"headless": True})
+        page.close.assert_called_once()
+        client.close()
+        ctx.close.assert_called_once()
+        browser.close.assert_called_once()
+        pw.stop.assert_called_once()
+
     def test_web_stamps_only_successful_run(self):
         path = self.source_file()
         good, bad = "https://example.com/good", "https://example.com/bad"

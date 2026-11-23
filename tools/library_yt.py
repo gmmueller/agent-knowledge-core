@@ -24,7 +24,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
 import library_raw as lr
-from source_helpers import stamp_sources
+from source_helpers import stamp_crawl, stamp_sources
 from yt_to_raw import fetch_captions, json3_lines, upload_date
 
 TABS = {"videos": "video", "shorts": "short", "streams": "stream"}
@@ -186,7 +186,7 @@ class Transcriber:
             from whisper_runtime import model_options
             options = model_options()
             from faster_whisper import WhisperModel
-            self.model = WhisperModel("large-v3-turbo", local_files_only=True, **options)
+            self.model = WhisperModel("large-v3-turbo", **options)
         try:
             with wave.open(str(wav)) as f:
                 samples = np.frombuffer(f.readframes(f.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
@@ -342,6 +342,8 @@ def main():
         messages.insert(0, f"add {args.source}: {added} added, {updated} updated")
         log(args.publisher, "add", messages)
         failed = len(rows) < len(args.videos)
+        if not failed and rows:
+            stamp_crawl(lr.pub_dir(args.publisher), [args.source])
     else:
         ids = args.items
         if args.selection:
