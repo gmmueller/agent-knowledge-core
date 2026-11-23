@@ -21,7 +21,7 @@ Paths are relative to `{{brain_path}}` unless they start with `tools/` (relative
 
 ## What you write (and nothing else)
 
-One page per slug in your group, at `wiki/<dir>/<slug>.md`, where `<dir>` comes from the bundle `type`: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, glossary → `glossary`. Don't edit any other file: not source pages, not other groups' pages, not `notes/`, not `raw/`, and not `index.md`, `hot.md`, `log.md` or `brain.md`. No git, no installs.
+One page per slug in your group, at `wiki/<dir>/<slug>.md`, where `<dir>` comes from the bundle `type`: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, glossary → `glossary`. Edit only your assigned pages. The orchestrator owns both indexes, `hot.md`, `log.md` and `brain.md`. No git, no installs.
 
 **Protected pages (from `wiki_edits.py begin`):** {{protected_pages}}
 

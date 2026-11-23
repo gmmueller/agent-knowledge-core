@@ -54,7 +54,7 @@ library ─▶ catalogue ─▶ triage ─▶ fetch ─▶ speaker pass ─▶ i
 3. **Fetch and speaker pass.** Fetch the selected items. For interviews and panels, diarization clusters the voices, a naming agent labels them, and `finalize_raw.py` writes the raw file with speakers.
 4. **Ingest waves.** Batch workers write source pages and staging (`briefs/topic-ingest-brief.md`). Every quote names its speaker, and `check_wiki.py` verifies the speaker against the cited block.
 5. **Merge.** `merge_topic.py` pools staging into per-concept bundles. Workers write the concept pages (`briefs/topic-pages-brief.md`) and then the debate pages (`briefs/debates-brief.md`). `rule_status.py` recounts rule status by independent voice.
-6. **Generate, evaluate and refine.** Generate a draft skill (`generate_persona.py`), have a fresh agent with only that skill answer `evals.md` (including trap questions), verify its quotes with `verify_eval_quotes.py`, fix gaps, and regenerate the skill if `brain.md` or rule counts changed.
+6. **Generate, evaluate and refine.** Generate a draft skill (`generate_persona.py`), have a fresh agent with only that skill answer `evals.md` (including trap questions), verify its quotes with `verify_eval_quotes.py` and fix gaps. Use `generate_persona.py --check` to see whether the skill needs regenerating.
 
 Rules start as `bench` and become `active` once they're backed by independent sources. Topic brains add `consensus` (at least two listed experts support the rule and none oppose it) and `contested` (a source argues against the rule, with a debate page). Quotes by anyone other than the expert carry the speaker's name.
 
@@ -89,9 +89,9 @@ The workspace is the single home for everything your agents know from these sour
 - **Thin skills, live brains.** `generate_persona.py` writes a small skill (`SKILL.md`, plus `agents/openai.yaml` for Codex) into your agent's **user-level** skills folder, for example `~/.claude/skills/` for Claude Code. The skill holds no knowledge itself. By default it points by absolute path at the brain's `brain.md`, `wiki/` and sources, and the agent reads them at use time (pass `--relative-to <dir>` for a portable sample skill).
 - **Subject-neutral core, per-brain rules.** The generated wording is subject-neutral (topic brains link `wiki/examples/` automatically when present). Each brain adds its own guidance and boundaries in `brain.md` (`skill.guidance`, `skill.boundaries`), and the generator prints `consider skill.guidance:` suggestions based on the brain's contents when none are set yet.
 - **Every project sees the same brain.** A user-level skill is available in every project on the machine. An agent writing a script in one repo and an agent planning content in another consult the same cited pages.
-- **Update once, everywhere current.** Refresh a brain (`refresh_due.py` says when) and the next use in every project reads the new pages. Regenerate the skill when `brain.md` (`skill:` settings, name or scope) or rule counts change.
+- **Refresh the brain.** The next use reads the updated pages. Run `generate_persona.py --check` with the same output arguments to check whether an installed skill needs regenerating.
 - **Search across all of it.** Index `raw/`, `wiki/` and `library/` with [qmd](https://github.com/tobi/qmd) and any agent can search every brain from one local search server (MCP).
-- **Agents that don't read skills** can still use a brain: point them at `brain.md` and `wiki/index.md` and tell them to follow the "How to use it" steps in the generated `SKILL.md`.
+- **Use a brain directly.** Read `brain.md` and the concept index `wiki/index.md`. Find relevant pages with qmd or grep and use `wiki/sources-index.md` to locate a specific source.
 
 ## Example
 
@@ -296,13 +296,13 @@ Then open the brain folder in Obsidian with **Open folder as vault**. Setup hide
 
 | Tool | Does |
 |---|---|
-| `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`), human edit and proposal warnings, errors for changed captures; rebuild `index.md` (lists `notes/` under **Your notes** and records the wiki baseline) |
+| `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`), human edit and proposal warnings, errors for changed captures; rebuild `wiki/index.md` (concepts, plus `notes/` under **Your notes**) and `wiki/sources-index.md` (sources), and record the wiki baseline |
 | `obsidian_setup.py` | configure a brain folder in place as its own Obsidian vault (`.obsidian/` settings, `notes/`, topic-brain `library` link, `.gitignore`; `--workspace <ws> --all [--gitignore-hub] [--reset]` also writes `.cores-hub/`) |
 | `wiki_edits.py` | detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `propose`, `proposals`, `accept`) so agent passes never overwrite them |
 | `raw_guard.py` | Record capture hashes and fail on edited or missing captures. Workspace checks cover the library and each brain |
 | `content_hashes.py` | shared SHA-256 hash-manifest and file-lock helpers used by `wiki_edits.py` and `raw_guard.py` |
 | `verify_eval_quotes.py`, `rubric_agreement.py` | fail on reported eval quote problems, or compare two graders' rubric scores |
-| `generate_persona.py` | `brain.md` → subject-neutral skill (`SKILL.md` + agent metadata), persona or topic version; reads optional `skill.guidance` and `skill.boundaries` from `brain.md`, prints `consider skill.guidance:` hints when none are set, links `wiki/examples/` when present (`--relative-to <dir>` writes portable relative paths) |
+| `generate_persona.py` | `brain.md` → subject-neutral skill (`SKILL.md` + agent metadata), persona or topic version; reads optional `skill.guidance` and `skill.boundaries` from `brain.md`, prints `consider skill.guidance:` hints when none are set, links `wiki/examples/` when present (`--relative-to <dir>` writes portable relative paths; `--check` reports drift without writing) |
 | `refresh_due.py` | which brains, sources or tool pages are due for a refresh (per-brain on/off switch, per-source cadence) |
 | `token_report.py` | measure token usage and input-equivalent cost across Claude Code transcripts, Codex sessions and optional T3 Code DB (`--workspace`, `--since`, `--ctx-warn`, `--json`) |
 | `install_qmd.ps1` | install qmd and run it under Bun on Windows (macOS/Linux: `npm install -g @tobilu/qmd`) |

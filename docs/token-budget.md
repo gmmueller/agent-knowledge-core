@@ -86,6 +86,10 @@ Keep every worker brief self-contained and list the exact files the worker shoul
 
 Read files with line limits in the orchestrator thread, and avoid opening images or whole raw files there. Every large read stays in the conversation and is billed again on every later turn. Send "read and judge" work (reading long transcripts, comparing full pages, grading rubrics) to a fresh subagent that returns a short verdict.
 
+### Keep brain lookups small
+
+Start with `brain.md` and the concept index `wiki/index.md`. Find relevant pages with qmd or grep. Use `wiki/sources-index.md` only when locating a specific source.
+
 ### Measure
 
 Run `token_report.py` after each phase and compare numbers across builds so regressions show up immediately:

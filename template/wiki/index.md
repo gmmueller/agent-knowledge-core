@@ -1,6 +1,6 @@
 # Index
 
-Catalog of every wiki page: link, one-line summary, source count. Read this first on every query. Updated on every ingest.
+Catalog of wiki concepts with links, one-line summaries and source counts. Rebuilt by `tools/build_wiki_index.py` after every ingest.
 
 ## Topics
 
@@ -14,4 +14,4 @@ Catalog of every wiki page: link, one-line summary, source count. Read this firs
 
 ## Glossary
 
-## Sources
+To find a specific source page, see [[sources-index]].
