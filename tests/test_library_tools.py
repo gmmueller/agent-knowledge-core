@@ -401,6 +401,19 @@ class LibraryTools(unittest.TestCase):
         self.assertTrue((second / "library/example-publisher/catalogue.tsv").exists())
         self.assertFalse((self.root / "library/example-publisher/catalogue.tsv").exists())
 
+    def test_triage_inputs_skip_chunked_scores_and_selection(self):
+        import triage_inputs
+        brain = self.root / "demo"
+        triage = brain / "ingest" / "triage"
+        triage.mkdir(parents=True)
+        header = "item\trelevance\n"
+        brainlib.write_text(triage / "acme-1.tsv", header + "acme/yt-a\t3\n")
+        brainlib.write_text(triage / "acme-u1122.tsv", header + "acme/yt-b\t1\n")
+        brainlib.write_text(triage / "acme.tsv", header + "acme/yt-c\t2\n")
+        brainlib.write_text(brain / "selection.yaml", "items:\n- item: acme/yt-d\n  tier: A\n- item: other/yt-e\n")
+        self.assertEqual(triage_inputs.already_scored(brain, "acme"),
+                         {"acme/yt-a", "acme/yt-b", "acme/yt-c", "acme/yt-d"})
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

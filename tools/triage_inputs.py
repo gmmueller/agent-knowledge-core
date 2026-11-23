@@ -1,11 +1,15 @@
 """Cut library catalogues into triage input files for one brain (docs/triage.md).
 
 Usage: python -I tools/triage_inputs.py --brain <brain> <publisher> [--kinds video,short] [--chunk 300]
-                                       [--shorts-prefilter 150:20]
+                                       [--shorts-prefilter 150:20] [--since YYYY-MM-DD]
 
 Writes <brain>/ingest/triage/input/<publisher>-<n>.tsv with columns
 item, kind, title, published, duration_s, views, description (first 200 chars).
-Items already scored in <brain>/ingest/triage/<publisher>.tsv are skipped, so it can be re-run after new crawls.
+Items already scored in <brain>/ingest/triage/<publisher>.tsv or <publisher>-<n>.tsv, or already listed in
+<brain>/selection.yaml, are skipped, so it can be re-run after new crawls.
+--since DATE keeps only rows published on or after DATE, for refreshing a publisher whose first triage
+covered a filtered subset of its catalogue. Rows with no published date are skipped (and counted), so
+date new rows first with library_yt.py catalogue --details N.
 --shorts-prefilter TOP:PER_YEAR keeps only the TOP most-viewed shorts plus the PER_YEAR most-viewed per year
 (for publishers with thousands of Shorts, where Shorts are wanted as examples).
 """
@@ -28,6 +32,21 @@ def views(r):
         return 0
 
 
+def already_scored(brain: pathlib.Path, publisher: str) -> set:
+    """Item ids already scored for this publisher: triage outputs (whole or chunked) and selection.yaml."""
+    done = set()
+    triage = brain / "ingest" / "triage"
+    for scored in [triage / f"{publisher}.tsv", *sorted(triage.glob(f"{publisher}-*.tsv"))]:
+        if scored.exists():
+            done |= {ln.split("\t", 1)[0] for ln in scored.read_text(encoding="utf-8").splitlines()[1:]}
+    selection = brain / "selection.yaml"
+    if selection.exists():
+        prefix = f"- item: {publisher}/"
+        done |= {ln.split(": ", 1)[1].strip() for ln in selection.read_text(encoding="utf-8").splitlines()
+                 if ln.startswith(prefix)}
+    return done
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     brainlib.add_brain_arg(ap)
@@ -35,6 +54,7 @@ def main() -> None:
     ap.add_argument("--kinds", default="")
     ap.add_argument("--chunk", type=int, default=300)
     ap.add_argument("--shorts-prefilter", default="")
+    ap.add_argument("--since", default="", help="only rows published on or after this date (YYYY-MM-DD)")
     a = ap.parse_args()
 
     brain = brainlib.brain_dir(a.brain)
@@ -53,10 +73,14 @@ def main() -> None:
             keep |= {r["id"] for r in yr[:per_year]}
         rows = [r for r in rows if r["kind"] != "short" or r["id"] in keep]
 
-    done = set()
-    scored = brain / "ingest" / "triage" / f"{a.publisher}.tsv"
-    if scored.exists():
-        done = {ln.split("\t", 1)[0] for ln in scored.read_text(encoding="utf-8").splitlines()[1:]}
+    if a.since:
+        undated = sum(1 for r in rows if not r.get("published"))
+        rows = [r for r in rows if (r.get("published") or "") >= a.since]
+        if undated:
+            print(f"--since skipped {undated} rows with no published date; "
+                  "date new rows first with library_yt.py catalogue --details N")
+
+    done = already_scored(brain, a.publisher)
     rows = [r for r in rows if f"{a.publisher}/{r['id']}" not in done]
 
     out_dir = brain / "ingest" / "triage" / "input"
