@@ -242,7 +242,11 @@ def check_cite(brain, rel, at, quote, where, errors, speaker=None) -> None:
                 errors.append(f"{where}: quote attributed to '{who}' but {at} was written by '{author}': name the speaker")
         return
     if at == "page text":
-        if quote and (any(idx["block_speakers"]) or idx["anchors"]):
+        if quote and idx["page_text"] and norm(quote) in idx["page_text"]:
+            # Written page text (a mixed capture's "## Lesson page text" section) is checked as written text.
+            if topic(brain) and speaker:
+                check_speaker(brain, idx, None, speaker, where, errors)
+        elif quote and (any(idx["block_speakers"]) or idx["anchors"]):
             turns = [(name, " ".join(block[1] for _, block in turn))
                      for name, turn in itertools.groupby(zip(idx["block_speakers"], idx["blocks"]), key=lambda pair: pair[0])
                      if name]

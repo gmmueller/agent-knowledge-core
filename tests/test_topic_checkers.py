@@ -203,6 +203,11 @@ class TopicCheckers(unittest.TestCase):
             self.assertEqual(self.errors(self.page(speaker=speaker, quote=quote, at="page text", raw=raw)), "")
         for quote in ("Someone else's words.", "of the turn. A later turn."):
             self.assertIn("not spoken by", self.errors(self.page(speaker="Sample", quote=quote, at="page text", raw=raw)))
+        mixed = "library/test/raw/yt/mixed"
+        self.write(mixed + ".md", "---\nspeakers: [Sample Expert]\n---\n**[0:00]** Sample Expert: Spoken words.\n\n"
+                   "## Lesson page text\n\nWritten lesson instructions.\n")
+        self.assertEqual(self.errors(self.page(speaker="Sample", quote="Written lesson instructions.",
+                                               at="page text", raw=mixed)), "")
         self.write("topic-fixture/brain.md", "---\nkind: persona\ndefault_speaker: Sample Expert\n---\n")
         self.assertIn("not spoken by", self.errors(self.page(type="topic", speaker="", quote="Someone else's words.",
                                                              at="page text", raw=raw)))
