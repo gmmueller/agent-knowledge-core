@@ -4,6 +4,7 @@ Usage: token_report.py --workspace PATH [--since YYYY-MM-DD] [--json]
 Input-equivalent uses Anthropic's relative price ratios as a rough common unit:
 input + cache-read * 0.1 + cache-write * 1.25 + output * 5.
 Codex input includes cached input, which is subtracted before applying ratios.
+--since filters usage events by date, including those in sessions that started earlier.
 T3 end-of-turn context snapshots are not token totals and are excluded from costs.
 """
 import argparse
@@ -45,7 +46,7 @@ def finish(result, contexts):
     return result
 
 
-def claude(path, scheduled, workspace, need_cwd=False):
+def claude(path, scheduled, workspace, need_cwd=False, since=None):
     """Summarize one transcript, or None if its cwd lies outside workspace (or is absent and need_cwd)."""
     result = row("claude-sub" if "subagents" in path.parts else "claude", path.stem)
     contexts, seen, trigger, checked = [], set(), "user", False
@@ -54,7 +55,8 @@ def claude(path, scheduled, workspace, need_cwd=False):
             if not inside(event["cwd"], workspace):
                 return None
             checked = True
-        result["start"] = result["start"] or str(event.get("timestamp", ""))[:10]
+        date = str(event.get("timestamp") or "")[:10]
+        result["start"] = result["start"] or date
         message = event.get("message") or {}
         if event.get("type") == "user" and not event.get("isMeta"):
             content = message.get("content", "")
@@ -71,6 +73,8 @@ def claude(path, scheduled, workspace, need_cwd=False):
             continue
         if identity:
             seen.add(identity)
+        if since and date < since:
+            continue
         result["model"] = message.get("model", "unknown")
         values = [usage.get(k, 0) or 0 for k in ("input_tokens", "cache_read_input_tokens", "cache_creation_input_tokens", "output_tokens")]
         for key, value in zip(("input_tokens", "cache_read_tokens", "cache_write_tokens", "output_tokens"), values):
@@ -89,27 +93,35 @@ def inside(cwd, workspace):
         return False
 
 
-def codex(path, workspace):
-    result, contexts, belongs, total = row("codex", path.stem), [], False, {}
+def codex(path, workspace, since=None):
+    result, contexts, belongs = row("codex", path.stem), [], False
+    keys = ("input_tokens", "cached_input_tokens", "output_tokens")
+    usage, previous, date = dict.fromkeys(keys, 0), {}, ""
     for event in events(path):
         payload = event.get("payload") or {}
+        date = str(event.get("timestamp") or "")[:10] or date
         if event.get("type") == "session_meta":
             belongs = inside(payload.get("cwd"), workspace)
-            result["start"] = str(payload.get("timestamp") or event.get("timestamp", ""))[:10]
+            result["start"] = str(payload.get("timestamp") or date)[:10]
         if event.get("type") == "turn_context":
             result["model"] = payload.get("model", "unknown")
         if payload.get("type") == "token_count" and payload.get("info"):
             info = payload["info"]
-            if info.get("total_token_usage"):
-                total = info["total_token_usage"]
-            last = info.get("last_token_usage") or {}
-            if "input_tokens" in last:
-                contexts.append(last["input_tokens"])
+            total = info.get("total_token_usage")
+            if not since or (date or result["start"]) >= since:
+                if total:
+                    for key in keys:
+                        usage[key] += (total.get(key, 0) or 0) - (previous.get(key, 0) or 0)
+                last = info.get("last_token_usage") or {}
+                if "input_tokens" in last:
+                    contexts.append(last["input_tokens"])
+            if total:
+                previous = total
     if not belongs:
         return None
-    cached = total.get("cached_input_tokens", 0) or 0
-    result.update(input_tokens=max(0, (total.get("input_tokens", 0) or 0) - cached),
-                  cache_read_tokens=cached, output_tokens=total.get("output_tokens", 0) or 0)
+    cached = usage["cached_input_tokens"]
+    result.update(input_tokens=max(0, usage["input_tokens"] - cached),
+                  cache_read_tokens=cached, output_tokens=usage["output_tokens"])
     result["input_equivalent"] = result["input_tokens"] + cached * .1 + result["output_tokens"] * 5
     return finish(result, contexts)
 
@@ -162,15 +174,15 @@ def report(args):
             for path in [*project.glob("*.jsonl"), *project.glob("*/subagents/*.jsonl")]:
                 if path.resolve() not in seen:
                     seen.add(path.resolve())
-                    result = claude(path, re.compile(args.trigger_scheduled), workspace, need_cwd=name != slug)
+                    result = claude(path, re.compile(args.trigger_scheduled), workspace, need_cwd=name != slug, since=args.since)
                     if result:
                         rows.append(result)
     home = pathlib.Path(args.codex_dir or os.environ.get("CODEX_HOME", pathlib.Path.home() / ".codex")).expanduser()
     for path in (home / "sessions").rglob("rollout-*.jsonl"):
-        result = codex(path, workspace)
+        result = codex(path, workspace, since=args.since)
         if result:
             rows.append(result)
-    rows = [r for r in rows if r["turns"] and (not args.since or r["start"] >= args.since)]
+    rows = [r for r in rows if r["turns"] or r["input_equivalent"]]
     if args.t3_db:
         rows.extend(t3_rows(args.t3_db, workspace, args.since, notes))
         notes.append("T3 rows are end-of-turn context snapshots only; no token totals or cost are inferred.")

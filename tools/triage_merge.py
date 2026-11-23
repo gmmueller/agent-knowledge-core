@@ -13,7 +13,7 @@ import brainlib
 frontmatter = brainlib.read_frontmatter
 
 SCORES = ("relevance", "density", "voice", "unique", "fresh")
-TIERS = "ABCX"
+TIERS = ("A", "B", "C", "X")
 
 
 def merge(brain):
@@ -21,6 +21,15 @@ def merge(brain):
     selection = brain / "selection.yaml"
     data = yaml.safe_load(selection.read_text(encoding="utf-8")) or {} if selection.exists() else {}
     items = {entry["item"]: entry for entry in data.get("items") or []}
+    for entry in items.values():
+        if "override" in entry:
+            entry.setdefault("tier", entry["override"])
+            if entry["tier"] not in TIERS or entry["override"] not in TIERS:
+                raise ValueError(f"{selection}: invalid tier/override for {entry['item']}")
+
+    def total(scores):
+        return sum(scores[key] for key in SCORES if key != "fresh" or weight_fresh)
+
     seen = set()
     for path in sorted((brain / "ingest" / "triage").glob("*.tsv")):
         with path.open(encoding="utf-8", newline="") as stream:
@@ -38,18 +47,16 @@ def merge(brain):
                 example = int(row["example"])
                 if any(value not in range(4) for value in scores.values()) or example not in (0, 1):
                     raise ValueError(f"{where}: scores must be 0-3 and example 0-1")
-                score = sum(scores[key] for key in SCORES if key != "fresh" or weight_fresh)
-                tier = ("X" if example else "A" if min(scores[k] for k in ("relevance", "density", "voice")) >= 2 and score >= 9
-                        else "B" if scores["relevance"] >= 2 else "C")
+                qualifies = (min(scores[k] for k in ("relevance", "density", "voice")) >= 2
+                             and scores["unique"] >= 1 and total(scores) >= 9)
+                tier = "X" if example else "A" if qualifies else "B" if scores["relevance"] >= 2 else "C"
                 previous = items.get(item, {})
                 if "override" in previous:
-                    tier = previous.get("tier", previous["override"])
-                    if tier not in TIERS or previous["override"] not in TIERS:
-                        raise ValueError(f"{where}: invalid tier/override")
+                    tier = previous["tier"]
                 items[item] = {**previous, "item": item, "tier": tier, "scores": scores,
                                "speakers": [s.strip() for s in row["speakers"].split(";") if s.strip()], "why": row["why"]}
     def order(entry):
-        score = sum(entry["scores"][key] for key in SCORES if key != "fresh" or weight_fresh)
+        score = total(entry["scores"]) if entry.get("scores") else -1
         return TIERS.index(entry["tier"]), -score, entry["item"]
     merged = sorted(items.values(), key=order)
     data.update(brain=brain.name, triage_version=1, items=merged)

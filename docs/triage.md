@@ -11,6 +11,8 @@ Catalogues list everything an expert has published. Triage scores each item agai
 5. **Merge.** `triage_merge.py --brain <brain>` reads `<brain>/ingest/triage/*.tsv` and builds `<brain>/selection.yaml` with tiers A (deep ingest), B (raw + search), C (skip) and X (annotate as example). It keeps hand overrides when you re-run it.
 6. **Override.** `selection_override.py --brain <brain> <A|B|C|X> <publisher>/<id> … --why "reason"` changes items already in `selection.yaml`. For an item added by hand outside triage (a guest appearance, a single video), append it to `selection.yaml` directly with `override: A` and a `why`.
 
+Automatic tier A requires `unique` of at least 1, in addition to the teaching scores. A hand override can still place a duplicate in A. Within a tier, unscored entries follow scored entries and sort by item ID.
+
 ## Who runs it
 
 A low-cost volume model, one agent per publisher catalogue or per about 150 rows. The orchestrator spot-checks 10 random rows per file before merging.

@@ -128,7 +128,7 @@ expert:
 
 ## Brain side: `selection.yaml`
 
-Each topic brain lists the library items it uses. Built by `tools/triage_merge.py` from triage scores; tiers can be overridden by hand (`override: A`, see `tools/selection_override.py`).
+Each topic brain lists the library items it uses. `tools/triage_merge.py` builds the list from triage scores. To add an unscored item by hand, supply its `item`, `override` (for example `A`) and `why`. Use `tools/selection_override.py` to override items already in the list.
 
 ```yaml
 brain: my-topic

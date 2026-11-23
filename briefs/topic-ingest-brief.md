@@ -139,13 +139,14 @@ concepts:
         cite: {raw: library/example-publisher/raw/yt/20240512-abc123-example, at: "12:41"}
   - slug: rule-example-imperative
     type: rule                # guidance the brain applies; needs at least one exact quote
-    status: bench             # leave bench; the merge pass sets the status
+    status: bench             # leave bench for the merge pass
     name: "Test every idea before making it"
     summary: "..."
     points: []
     quotes:
       - text: "<exact words>"
         speaker: The Expert
+        stance: supports      # optional on each rule point or quote; supports | nuances | opposes
         cite: {raw: ..., at: "12:41"}
 findings:                     # optional: research results, one per study
   - text: "..."
@@ -168,6 +169,7 @@ speaker_doubts:
 ```
 
 - Other optional lists (`tropes`, `equipment`, or any list your brain defines) use the same shape as `findings`: `text`, `cite`, and the fields you name below. `merge_topic.py` pools `conflicts`, `examples`, `speaker_doubts`, `findings`, `tropes` and `equipment` into `_*.yaml` files beside the bundles.
+- **Rule stance.** Use `nuances` when the source supports only part of the rule or limits it to a narrower context. Use `opposes` when the source explicitly rejects the rule. `supports` is the default. The merge copies these labels to the bundles.
 - **Be generous.** The merge pass works only from staging plus your pages, so anything you leave out is lost. Aim for every 20 minutes of talk, or every chapter, to feed 6–15 concepts.
 - **Types:** topic = a subject area; principle = a belief or truth the experts teach; method = a step-by-step how-to; framework = a named multi-part model; glossary = a term; **rule** = an imperative the brain should apply when answering or making things (slug starts with `rule-`, needs at least one exact quote by the person who says it); **rubric** = how a source *judges* something, with the criteria as points; **tool** = a platform feature, metric or product as its owner defines it, dated, with `reviewed: <today>` and `recheck_by: <today + 90 days>` (a creator's use of a metric is a `topic`, not a `tool`). Facts that are not guidance for the brain (a game rule, a definition) go in points under a topic or method, not in a `rule` page.
 - **Slugs** are kebab-case and unique wiki-wide. Before inventing one, check `{{brain_name}}/ingest/slugs.txt` (concepts from earlier waves, if it exists) and the seed vocabulary below. Reuse a slug whenever the idea matches, and put sub-parts in points instead of new slugs. If `{{brain_name}}/ingest/slug-map.yaml` exists, never use a slug that appears as a key in it: use its canonical slug. New slugs need a genuinely new idea with three or more points; the merge pass folds thin ones.

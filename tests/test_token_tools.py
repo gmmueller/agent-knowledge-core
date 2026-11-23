@@ -97,6 +97,38 @@ class TokenTools(unittest.TestCase):
         self.assertEqual(data["total_sessions"], 1)
         self.assertEqual(data["totals"]["input_tokens"], 100)
 
+    def test_since_counts_codex_deltas_across_the_cutoff(self):
+        def tokens(date, input_tokens, cached, output, context):
+            total = dict(input_tokens=input_tokens, cached_input_tokens=cached, output_tokens=output)
+            return dict(type="event_msg", timestamp=date + "T00:00:00Z", payload=dict(type="token_count",
+                        info=dict(total_token_usage=total, last_token_usage=dict(input_tokens=context))))
+        meta = dict(type="session_meta", payload=dict(cwd=str(self.workspace), timestamp="2026-11-01T00:00:00Z"))
+        old = tokens("2026-11-02", 2000, 500, 100, 2000)
+        self.jsonl(self.codex / "sessions" / "rollout-active.jsonl", [meta, old,
+                   tokens("2026-11-03", 2100, 550, 110, 100), tokens("2026-11-04", 2400, 700, 140, 300)])
+        self.jsonl(self.codex / "sessions" / "rollout-old.jsonl", [meta, old])
+        data = self.report("--since", "2026-11-03")
+        self.assertEqual(data["total_sessions"], 1)
+        session = data["sessions"][0]
+        self.assertEqual(session["start"], "2026-11-01")
+        self.assertEqual((session["input_tokens"], session["cache_read_tokens"], session["output_tokens"]), (200, 200, 40))
+        self.assertEqual((session["turns"], session["max_context"], session["mean_context"]), (2, 300, 200))
+
+    def test_since_counts_only_claude_assistant_events_in_range(self):
+        slug = re.sub(r"[^a-zA-Z0-9]", "-", str(self.workspace))
+        def assistant(identity, date, tokens):
+            return dict(type="assistant", timestamp=date + "T00:00:00Z",
+                        message=dict(id=identity, usage=dict(input_tokens=tokens, cache_creation_input_tokens=10)))
+        user = dict(type="user", timestamp="2026-11-01T00:00:00Z", message=dict(content="Reminder: example"))
+        self.jsonl(self.claude / "projects" / slug / "thread.jsonl", [user, assistant("old", "2026-11-02", 500),
+                   assistant("old", "2026-11-03", 500), assistant("new", "2026-11-03", 100)])
+        data = self.report("--since", "2026-11-03")
+        self.assertEqual(data["total_sessions"], 1)
+        session = data["sessions"][0]
+        self.assertEqual(session["start"], "2026-11-01")
+        self.assertEqual((session["turns"], session["input_tokens"], session["cache_write_tokens"]), (1, 100, 10))
+        self.assertEqual(session["trigger_equivalent"], dict(user=0, worker=0, scheduled=112.5))
+
     def test_t3_snapshots_and_missing_tables(self):
         path = self.root / "state.sqlite"
         with contextlib.closing(sqlite3.connect(path)) as db, db:

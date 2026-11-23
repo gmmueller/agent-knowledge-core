@@ -6,74 +6,26 @@ Usage:
 
 Reads <brain>/ingest/staging/*.yaml (except examples-*.yaml) and the optional <brain>/ingest/slug-map.yaml
 ({old-slug: canonical-slug}). Every point and quote is tagged with its library item (from the raw file's
-frontmatter) and speaker. Rule status, from the evidence (docs/plans/topic-brains/plan.md section 3):
-  consensus  2+ experts from brain.md `experts:` back it with points or quotes (speakers mapped through
-             the optional `expert_aliases:` {speaker label: expert}, e.g. co-authored papers)
-  active     2+ independent sources: items from 2+ publishers, or 3+ items
-  bench      otherwise
-With `rule_status: voices` in brain.md, `active` instead needs 2+ independent voices: distinct speakers after
-`expert_aliases:` and `voice_aliases:` ({speaker label: voice}, e.g. platform staff -> YouTube), ignoring `hosts:`.
-One person repeating a rule across a book and talks stays `bench`.
-`contested` is never set here: page writers set it when a debate page exists.
+frontmatter) and speaker. Rule status uses the same supporting evidence and brain settings as rule_status.py.
+Listed experts who oppose a rule are flagged for review. Existing locked or contested page statuses are kept.
 Also writes _conflicts.yaml, _examples.yaml, _speaker_doubts.yaml, _findings.yaml, _tropes.yaml and _equipment.yaml pooled from all batches.
 """
 import argparse
 import collections
 import pathlib
-import re
 import sys
 
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
-
-_front_cache: dict[str, dict] = {}
-EXPERT_ALIASES: dict[str, str] = {}
-VOICE_ALIASES: dict[str, str] = {}
-HOSTS: set[str] = set()
-BY_VOICES = False
-
-
-def voices(speakers) -> set[str]:
-    """Independent voices behind a set of speaker labels (rule_status: voices)."""
-    out = set()
-    for s in speakers:
-        if not s or s in HOSTS:
-            continue
-        v = EXPERT_ALIASES.get(s, s)
-        out.add(VOICE_ALIASES.get(v, v))
-    return out
-
-
-def raw_item(workspace: pathlib.Path, raw: str) -> str:
-    """library/<pub>/raw/... -> '<pub>/<source_id>' (falls back to the path)."""
-    rel = re.sub(r"\.md$", "", str(raw)) + ".md"
-    if rel not in _front_cache:
-        p = workspace / rel
-        fm = {}
-        if p.exists():
-            m = re.match(r"^---\n(.*?)\n---\n", p.read_text(encoding="utf-8"), re.S)
-            fm = (yaml.safe_load(m.group(1)) or {}) if m else {}
-        _front_cache[rel] = fm
-    fm = _front_cache[rel]
-    return f"{fm['publisher']}/{fm['source_id']}" if fm.get("publisher") and fm.get("source_id") else rel
+import rule_evidence
 
 
 def load(brain: pathlib.Path):
-    _front_cache.clear()
-    sm = brain / "ingest" / "slug-map.yaml"
-    slug_map = (yaml.safe_load(sm.read_text(encoding="utf-8")) or {}) if sm.exists() else {}
-    bfm = re.match(r"^---\n(.*?)\n---\n", (brain / "brain.md").read_text(encoding="utf-8"), re.S)
-    bfront = (yaml.safe_load(bfm.group(1)) or {}) if bfm else {}
-    experts = set(bfront.get("experts") or [])
-    # expert_aliases maps a speaker label (co-authored papers, joint authors) to the expert it counts as.
-    global EXPERT_ALIASES
-    EXPERT_ALIASES = bfront.get("expert_aliases") or {}
-    global VOICE_ALIASES, HOSTS, BY_VOICES
-    VOICE_ALIASES = bfront.get("voice_aliases") or {}
-    HOSTS = set(bfront.get("hosts") or [])
-    BY_VOICES = bfront.get("rule_status") == "voices"
+    rule_evidence.raw_item.cache_clear()
+    workspace = brainlib.workspace(brain)
+    slug_map = brainlib.load_yaml(brain / "ingest" / "slug-map.yaml") or {}
     concepts: dict[str, dict] = {}
     extras = {"conflicts": [], "examples": [], "speaker_doubts": [], "findings": [], "tropes": [], "equipment": []}
     for f in sorted((brain / "ingest" / "staging").glob("*.yaml")):
@@ -104,25 +56,26 @@ def load(brain: pathlib.Path):
                 for p in c.get(kind) or []:
                     cite = p.get("cite") or {}
                     b[kind].append({"text": p.get("text"), "speaker": p.get("speaker"), "raw": cite.get("raw"),
-                                    "at": str(cite.get("at")), "item": raw_item(brainlib.workspace(brain), cite.get("raw", "")), "batch": batch,
-                                    **{k: p[k] for k in ("variant", "kind") if p.get(k)}})
-    return concepts, extras, experts
+                                    "at": str(cite.get("at")), "item": rule_evidence.raw_item(workspace, cite.get("raw", "")),
+                                    "batch": batch, **{k: p[k] for k in ("variant", "kind", "stance") if p.get(k)}})
+    return concepts, extras
 
 
-def finish(b: dict, experts: set) -> dict:
-    items = sorted({p["item"] for p in b["points"] + b["quotes"]})
-    publishers = {i.split("/", 1)[0] for i in items}
-    backing = sorted({EXPERT_ALIASES.get(p.get("speaker"), p.get("speaker")) for p in b["points"] + b["quotes"]}
-                     & experts)
+def finish(b: dict, brain: pathlib.Path, settings: dict) -> dict:
+    evidence = b["points"] + b["quotes"]
+    items = sorted({p["item"] for p in evidence if p["item"]})
+    speakers = {p["speaker"] for p in evidence if p.get("speaker")}
+    aliases = settings.get("expert_aliases") or {}
+    backing = {aliases.get(s, s) for s in speakers} & set(settings.get("experts") or [])
     ctype = b["types"].most_common(1)[0][0]
     out = {"slug": b["slug"], "type": ctype, "names": b["names"], "aliases": sorted(a for a in b["aliases"] if a),
            "evidence": b["evidence"].most_common(1)[0][0], "freshness": b["freshness"].most_common(1)[0][0],
-           "items": items, "experts": backing,
-           "speakers": sorted({p["speaker"] for p in b["points"] + b["quotes"] if p.get("speaker")})}
+           "items": items, "experts": sorted(backing), "speakers": sorted(speakers)}
     if ctype == "rule":
-        independent = (len(voices(out["speakers"])) >= 2 if BY_VOICES
-                       else len(publishers) >= 2 or len(items) >= 3)
-        out["status"] = "consensus" if len(backing) >= 2 else "active" if independent else "bench"
+        page = brain / "wiki" / "rules" / f"{b['slug']}.md"
+        result = rule_evidence.assess(settings, evidence, brainlib.read_frontmatter(page) if page.is_file() else {})
+        out.update(status=result.status, experts=sorted(result.experts))
+        rule_evidence.report_opposition(b["slug"], result.opposing)
     out.update({"summaries": b["summaries"], "points": b["points"], "quotes": b["quotes"]})
     return out
 
@@ -134,8 +87,9 @@ def main() -> None:
     args = ap.parse_args()
     brain = brainlib.brain_dir(args.brain)
     mode = args.mode
-    concepts, extras, experts = load(brain)
-    bundles = {slug: finish(b, experts) for slug, b in concepts.items() if slug}
+    settings = brainlib.read_frontmatter(brain / "brain.md")
+    concepts, extras = load(brain)
+    bundles = {slug: finish(b, brain, settings) for slug, b in concepts.items() if slug}
     if mode == "survey":
         print(f"{'slug':48} {'type':10} items experts pts qts status")
         for s, b in sorted(bundles.items(), key=lambda kv: (kv[1]["type"], -len(kv[1]["items"]), kv[0])):

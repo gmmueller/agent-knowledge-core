@@ -327,7 +327,7 @@ class TopicCheckers(unittest.TestCase):
         with path.open("w", encoding="utf-8", newline="") as stream:
             writer = csv.writer(stream, delimiter="\t")
             writer.writerow(fields)
-            for row in [("p/a", 3, 3, 3, 0, 0, 0), ("p/fresh", 2, 2, 2, 1, 3, 0),
+            for row in [("p/a", 3, 3, 3, 1, 0, 0), ("p/fresh", 2, 2, 2, 1, 3, 0),
                         ("p/b", 2, 1, 1, 0, 0, 0), ("p/c", 1, 3, 3, 3, 3, 0),
                         ("p/x", 0, 0, 0, 0, 0, 1), ("p/override", 0, 0, 0, 0, 0, 0)]:
                 writer.writerow([*row, "Sample; Host Person", "reason"])
@@ -353,6 +353,29 @@ class TopicCheckers(unittest.TestCase):
         with self.assertRaises(ValueError):
             triage.merge(self.brain)
         self.assertEqual((self.brain / "selection.yaml").read_text(encoding="utf-8"), original)
+
+    def test_triage_keeps_and_sorts_unscored_overrides(self):
+        self.write("topic-fixture/selection.yaml", yaml.safe_dump({"items": [
+            {"item": "acme/z", "override": "A", "why": "Added by hand"},
+            {"item": "acme/a", "override": "A"},
+            {"item": "acme/scored", "tier": "A", "scores": dict.fromkeys(triage.SCORES, 1)},
+            {"item": "acme/example", "override": "X"}]}))
+        with contextlib.redirect_stdout(io.StringIO()):
+            triage.merge(self.brain)
+        items = yaml.safe_load((self.brain / "selection.yaml").read_text(encoding="utf-8"))["items"]
+        self.assertEqual([(i["item"], i["tier"]) for i in items],
+                         [("acme/scored", "A"), ("acme/a", "A"), ("acme/z", "A"), ("acme/example", "X")])
+        self.assertEqual(items[2]["why"], "Added by hand")
+        self.assertNotIn("scores", items[2])
+
+    def test_triage_duplicates_require_an_override_for_tier_a(self):
+        self.write("topic-fixture/ingest/triage/acme.tsv", "\t".join(["item", *triage.SCORES, "example", "speakers", "why"])
+                   + "\nacme/replay\t3\t3\t3\t0\t3\t0\tAda\tRepeat\nacme/clip\t3\t3\t3\t0\t3\t0\tAda\tClip\n")
+        self.write("topic-fixture/selection.yaml", "items: [{item: acme/clip, override: A}]\n")
+        with contextlib.redirect_stdout(io.StringIO()):
+            triage.merge(self.brain)
+        items = yaml.safe_load((self.brain / "selection.yaml").read_text(encoding="utf-8"))["items"]
+        self.assertEqual({i["item"]: i["tier"] for i in items}, {"acme/clip": "A", "acme/replay": "B"})
 
 
 if __name__ == "__main__":
