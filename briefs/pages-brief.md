@@ -88,7 +88,7 @@ Use the canonical concept list in `ingest/page-groups.yaml`; the orchestrator fi
 python -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{brain_path}}" <page paths...>
 ```
 
-Pass paths that resolve from your working directory (or absolute paths). It verifies frontmatter, rule status and quotes, and that every citation resolves and every quote is verbatim at its block. Iterate until it prints `ok: N files`.
+Pass paths that resolve from your working directory (or absolute paths). The checker flags corrupt text, invalid locators and misquotes. Cite paragraphs and bullets in the main claim sections, or mark them as inferences. Iterate until it prints `ok: N files`.
 
 ## Report back (short)
 

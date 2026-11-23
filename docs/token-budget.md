@@ -63,7 +63,7 @@ Once the whole wave has landed, run `wave_report.py` once:
 python -X utf8 -I <framework>/tools/wave_report.py --brain <brain> --batches <brain-relative yaml> [--wave KEY] [--max-lines 25]
 ```
 
-`wave_report.py` checks every batch in one pass: that each staging file exists and parses, that every batch item has a source page, that `check_wiki.py` passes on staging and pages, that no `?` corruption slipped in, and that no protected pages changed during an open agent pass. It prints one line per batch plus a summary, and exits 1 if any batch fails. After it passes, spot-check 2 to 3 pages it names or picks, and rerun only failed batches. It covers ingest waves only; for a merge wave of concept pages, run `check_wiki.py` once over all the assigned pages instead.
+`wave_report.py` checks every batch in one pass: that each staging file exists and parses, that each batch item has a page citing its exact capture path when given (Q&A digests can match by page ID), that `check_wiki.py` passes on staging and pages, and that no protected pages changed during an open agent pass. It prints one line per batch plus a summary, and exits 1 if any batch fails. After it passes, spot-check 2 to 3 pages it names or picks, and rerun only failed batches. It covers ingest waves only; for a merge wave of concept pages, run `check_wiki.py` once over all the assigned pages instead.
 
 ### Fresh sessions for scheduled reminders
 

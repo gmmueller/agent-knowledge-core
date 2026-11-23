@@ -34,7 +34,7 @@ sources ──crawl──▶ raw/ ──ingest──▶ wiki/ ──extract─�
 
 1. **Scope and map.** List every source in `sources.yaml`. For course platforms, map products → modules → lessons → video IDs into `outline.yaml`, crawling through a real Chrome window you log into (the agent never handles passwords).
 2. **Crawl and transcribe.** Prefer the video host's own captions; fall back to local Whisper on your GPU. Lesson page text and attachments (PDFs, images) become text too. `raw/` is immutable: fix problems by re-crawling.
-3. **Ingest in parallel.** Batch workers write one source page per lesson plus staging notes (`briefs/ingest-brief.md`). `check_wiki.py` is the gate: every citation must resolve and every quote must be verbatim at its cited timestamp.
+3. **Ingest in parallel.** Batch workers write one source page per lesson plus staging notes (`briefs/ingest-brief.md`). Run `check_wiki.py` to catch corrupt text, invalid citations, unsupported claims in key sections, and misquotes.
 4. **Merge.** Pool the staging notes per concept (`merge_staging.py`), map duplicate slugs, and have workers write the shared concept pages (`briefs/pages-brief.md`): topics, principles, frameworks, methods, rules and glossary.
 5. **Persona.** Write `brain.md` (scope, voice, worldview, rules with exact quotes, framework map, task loop, boundaries), then generate a thin skill from it (`generate_persona.py`).
 6. **Evaluate.** Run a fixed question set with known answers through a fresh agent that has only the skill (`evals.md`), and grade every answer.
@@ -239,7 +239,7 @@ Then open the brain folder in Obsidian with **Open folder as vault**. Setup hide
 
 - **`wiki/` pages:** edit directly in Obsidian or any editor. Initialize the baseline once with `python -X utf8 -I tools/wiki_edits.py --brain <brain> record --init`. Once you edit a page, `wiki_edits.py` flags it and protects it during agent runs (agents start every pass with `wiki_edits.py begin`, skip protected pages, and save proposed updates in `ingest/proposals/` via `wiki_edits.py propose`). Review changes with `status` / `proposals` and confirm your edits with `accept <page>` or `accept --all`.
 - **`notes/`:** your own folder. Add, edit or delete anything there; notes may link to wiki pages. Agents never touch `notes/`, wiki pages never cite notes as sources, checks ignore them, and `build_wiki_index.py` lists them under **Your notes**.
-- **Never edit `raw/` or `library/`:** captured sources are immutable. Capture tools hash every file they write (`raw/.capture-hashes.json`, `library/<publisher>/.capture-hashes.json`), and `raw_guard.py check` and `lint_wiki.py` warn if any raw file changed after capture. Fix source problems by re-crawling.
+- **Never edit `raw/` or `library/`:** captured sources are immutable. Capture tools hash every file they write (`raw/.capture-hashes.json`, `library/<publisher>/.capture-hashes.json`), and `raw_guard.py check` and `lint_wiki.py` fail when they find a changed or missing capture. Fix source problems by re-crawling.
 
 ## Tools
 
@@ -270,8 +270,8 @@ Then open the brain folder in Obsidian with **Open folder as vault**. Setup hide
 | Tool | Does |
 |---|---|
 | `triage_inputs.py`, `triage_merge.py`, `selection_override.py` | cut catalogues into triage inputs; merge scores into `selection.yaml`; hand overrides |
-| `check_wiki.py` | gate: frontmatter, citations resolve, quotes verbatim at the cited block, speakers match, claims cited (does not enforce minimum quote counts or synthesis depth) |
-| `wave_report.py` | check a finished wave of batches at once (`--batches`, `--wave`): staging files, source pages, `check_wiki.py`, `?` corruption scan and protected pages |
+| `check_wiki.py` | Check `brain.md`, wiki pages and staging for corrupt text, invalid locators, misquotes, speaker attribution and uncited claims in key sections |
+| `wave_report.py` | Check a finished wave (`--batches`, `--wave`). Run `check_wiki.py` on staging and pages, match explicit capture paths, and check protected pages |
 | `requote.py` | re-anchor quotes (timestamps, `¶N` paragraph and `p. N` page locators) after a raw file is re-crawled |
 | `merge_staging.py` (persona), `merge_topic.py` (topic) | pool ingest staging by concept → per-concept bundles |
 | `rule_status.py` | recount topic-brain rule status by independent voice |
@@ -281,12 +281,12 @@ Then open the brain folder in Obsidian with **Open folder as vault**. Setup hide
 
 | Tool | Does |
 |---|---|
-| `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`), human-edit/proposal/raw-change warnings; rebuild `index.md` (lists `notes/` under **Your notes** and records the wiki baseline) |
+| `lint_wiki.py`, `build_wiki_index.py` | broken links, orphans, rule status, slug drift (`--fix-slug-map`), human edit and proposal warnings, errors for changed captures; rebuild `index.md` (lists `notes/` under **Your notes** and records the wiki baseline) |
 | `obsidian_setup.py` | configure a brain folder in place as its own Obsidian vault (`.obsidian/` settings, `notes/`, topic-brain `library` link, `.gitignore`; `--workspace <ws> --all [--gitignore-hub] [--reset]` also writes `.cores-hub/`) |
 | `wiki_edits.py` | detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `propose`, `proposals`, `accept`) so agent passes never overwrite them |
-| `raw_guard.py` | hash captured `raw/` and `library/*/raw/` files (`record --init`, `check`) so post-capture raw edits are caught |
+| `raw_guard.py` | Record capture hashes and fail on edited or missing captures. Workspace checks cover the library and each brain |
 | `content_hashes.py` | shared SHA-256 hash-manifest and file-lock helpers used by `wiki_edits.py` and `raw_guard.py` |
-| `verify_eval_quotes.py`, `rubric_agreement.py` | check quotes in eval answers; compare two graders' rubric scores |
+| `verify_eval_quotes.py`, `rubric_agreement.py` | fail on reported eval quote problems, or compare two graders' rubric scores |
 | `generate_persona.py` | `brain.md` → subject-neutral skill (`SKILL.md` + agent metadata), persona or topic version; reads optional `skill.guidance` and `skill.boundaries` from `brain.md`, prints `consider skill.guidance:` hints when none are set, links `wiki/examples/` when present (`--relative-to <dir>` writes portable relative paths) |
 | `refresh_due.py` | which brains, sources or tool pages are due for a refresh (per-brain on/off switch, per-source cadence) |
 | `token_report.py` | measure token usage and input-equivalent cost across Claude Code transcripts, Codex sessions and optional T3 Code DB (`--workspace`, `--since`, `--ctx-warn`, `--json`) |

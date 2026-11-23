@@ -118,7 +118,7 @@ The canonical concept list is in `{{brain_name}}/ingest/page-groups.yaml` (group
 {{python}} -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{workspace}}/{{brain_name}}" <page paths...>
 ```
 
-Pass paths that resolve from your working directory (or absolute paths). Iterate until it prints `ok: N files`. It verifies frontmatter, rule status, that every citation resolves, that every quote is verbatim at its block and that its speaker matches. It does not enforce minimum quote counts or synthesis depth; check the brief's minimums separately.
+Pass paths that resolve from your working directory (or absolute paths). Iterate until it prints `ok: N files`. The checker flags corrupt text, invalid locators, misquotes and mismatched speakers. Cite paragraphs and bullets in the main claim sections, or mark them as inferences. It does not enforce minimum quote counts or synthesis depth; check the brief's minimums separately.
 
 ## Report back (short)
 

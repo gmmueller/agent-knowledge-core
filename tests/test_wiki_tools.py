@@ -53,6 +53,65 @@ class WikiTools(unittest.TestCase):
         self.assertIn("[[rule-practice]]", index)
         self.assertIn('duration: "1:30"', (self.brain / "wiki/sources/main-m01-l01.md").read_text(encoding="utf-8"))
 
+    def test_corruption_in_pages_and_staging_but_not_urls(self):
+        page = self.brain / "wiki/sources/main-m01-l01.md"
+        valid = page.read_text(encoding="utf-8")
+        self.write("wiki/sources/main-m01-l01.md", valid.replace('" --', '" ?') + "\nhttps://example.com/?n=1?2\n")
+        result = self.run_tool("check_wiki.py", "--brain", self.brain, page)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count("possible corruption"), 1)
+        self.assertIn("quote line needs a separator dash", result.stdout)
+        self.write("ingest/staging/example.yaml", "concepts: []\n# Broken 1?2\n")
+        result = self.run_tool("check_wiki.py", "--brain", self.brain, self.brain / "ingest/staging/example.yaml")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("possible corruption", result.stdout)
+
+    def test_quote_dash_and_speaker_syntax_in_both_brain_kinds(self):
+        page = self.brain / "wiki/rules/rule-practice.md"
+        valid = page.read_text(encoding="utf-8")
+        for kind in ("persona", "topic"):
+            self.write("brain.md", f"---\nkind: {kind}\n---\n")
+            for separator, expected in (("", "needs a separator dash"), ("-- ??", "invalid quote speaker")):
+                with self.subTest(kind=kind, separator=separator):
+                    self.write("wiki/rules/rule-practice.md", valid.replace('" --', f'" {separator}'))
+                    errors = []
+                    check_wiki.check_page(self.brain, page, errors)
+                    self.assertIn(expected, "\n".join(errors))
+
+    def test_brain_card_checks_inline_quotes_and_vault_links(self):
+        brainlib.write_text(self.root / "other-vault/brain.md", "# Other")
+        brainlib.write_text(self.root / "other-vault/wiki/index.md", "# Other index")
+        baseline = (self.brain / "brain.md").read_text(encoding="utf-8")
+        card = baseline + (
+            '\n| [[rule-practice|Practice]] | "Practice every day to build skill." ([[raw/main/m01/l01]] @ 0:00) |\n'
+            '\n> "Keep a record of your progress." -- Ada (Editor) ([[raw/main/m01/l01]] @ 0:30)\n'
+            '\nUse the syntax `([[raw/...]] @ m:ss)`.\n'
+        )
+        self.write("brain.md", card)
+        result = self.run_tool("check_wiki.py", "--brain", self.brain)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.write("brain.md", card.replace("Practice every day", "Practice on weekends") +
+                   "\n[[other-vault/wiki/index]] and [[no-such-page]].\n")
+        result = self.run_tool("check_wiki.py", "--brain", self.brain)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("brain.md:", result.stdout)
+        self.assertIn("quote not at 0:00", result.stdout)
+        self.assertIn("cross-brain wikilink", result.stdout)
+        self.assertIn("unresolved wikilink", result.stdout)
+
+    def test_eval_quote_errors_exit_nonzero(self):
+        answers = self.brain / "answers.md"
+        for text, status, message in (
+            ('"Practice every day to build skill." ([[raw/main/m01/l01]] @ 0:00)', 0, "1 attributed quotes checked"),
+            ('"Never practice until next week." ([[raw/main/m01/l01]] @ 0:00)', 1, "quote not at"),
+            ('"Never practice until next week." [[rule-practice]]', 1, "1 not found verbatim"),
+        ):
+            with self.subTest(text=text):
+                self.write("answers.md", text + "\n")
+                result = self.run_tool("verify_eval_quotes.py", "--brain", self.brain, answers)
+                self.assertEqual(result.returncode, status, result.stdout + result.stderr)
+                self.assertIn(message, result.stdout)
+
     def test_product_names_registry_config_outline_and_legacy_notes(self):
         self.write("sources.yaml", "sources:\n  - {id: first, title: First Course}\n  - {id: second, title: Second Course, url: 'https://example.com/second/'}\n  - {id: legacy, title: Legacy Course, notes: '(product code legacy-code)'}\n")
         self.write("crawl.yaml", "products: [{code: one, source_id: first}]\n")

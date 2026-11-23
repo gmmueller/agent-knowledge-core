@@ -95,7 +95,7 @@ class TopicCheckers(unittest.TestCase):
         self.write(raw + ".md", "---\nspeakers: [Sample Expert]\n---\n**[¶12]** Note: exact web words.\n")
         self.assertEqual(self.errors(self.page(speaker="Sample", quote="Note: exact web words.", at="¶12", raw=raw)), "")
         self.assertIn("no block '¶99'", self.errors(self.page(speaker="Sample", quote="Note: exact web words.", at="¶99", raw=raw)))
-        self.write("topic-fixture/raw/transcript.md", "---\nspeakers: [Sample Expert]\n---\n**[1:02:03]** Sample Expert: Hour words.\n")
+        self.write("topic-fixture/raw/transcript.md", "---\nduration: 1:02:05\nspeakers: [Sample Expert]\n---\n**[1:02:03]** Sample Expert: Hour words.\n")
         self.assertEqual(self.errors(self.page(speaker="Sample", quote="Hour words.", at="1:02:04", raw="raw/transcript")), "")
         self.write("topic-fixture/brain.md", "---\nkind: persona\ndefault_speaker: Custom Name\n---\n")
         self.assertEqual(self.errors(self.page(speaker="", quote="Hour words.", at="1:02:03", raw="raw/transcript", type="topic")), "")
@@ -143,6 +143,85 @@ class TopicCheckers(unittest.TestCase):
         self.assertEqual(self.errors(self.page(speaker="Sample", quote='Say "hello" before (starting).',
                                               raw=raw, at="0:00")), "")
 
+    def test_inline_code_inside_quotes_is_checked_verbatim(self):
+        raw = "library/test/raw/yt/code"
+        self.write(raw + ".md", "---\nspeakers: [Sample Expert]\n---\n"
+                   "**[0:00]** Sample Expert: Run `example` every day.\n")
+        page = self.page(speaker="Sample", quote="Run `example` every day.", raw=raw, at="0:00")
+        self.assertEqual(self.errors(page), "")
+        self.assertIn("quote not", self.errors(self.page(speaker="Sample", quote="Run `invented` every day.",
+                                                          raw=raw, at="0:00")))
+
+    def test_citations_checked_individually_and_evidence_prose_checked(self):
+        page = self.page()
+        text = page.read_text(encoding="utf-8")
+        page.write_text(text + f"\n## Evidence\nAn unsupported paragraph.\n\n"
+                              f"A separate supported paragraph.\n([[{BOOK}]] @ p. 15)\n\n"
+                              f"## Links\n([[{BOOK}]] @ p. 15; [[{BOOK}]] @ p. 15oops)\n",
+                        encoding="utf-8")
+        errors = self.errors(page)
+        self.assertIn("evidence claim without citation: An unsupported paragraph.", errors)
+        self.assertEqual(errors.count("claim without citation"), 1)
+        uncited = [line for line in errors.splitlines() if "claim without citation" in line]
+        self.assertTrue(uncited[0].startswith(check.WARNING), "uncited prose only warns")
+        page.write_text(text + "\n## Key points\n- An unsupported bullet.\n", encoding="utf-8")
+        uncited = [line for line in self.errors(page).splitlines() if "claim without citation" in line]
+        self.assertIn("key points claim without citation", uncited[0])
+        self.assertFalse(uncited[0].startswith(check.WARNING), "uncited bullets in claim sections fail")
+        self.assertIn("raw link without a valid '@ <locator>'", errors)
+        page.write_text(text + "\n## Key points\n\n", encoding="utf-8")
+        self.assertIn("empty 'Key Points' section", self.errors(page))
+        page.write_text(text.replace("## Key claims", "## Key points"), encoding="utf-8")
+        self.assertEqual(self.errors(page), "")
+
+    def test_claim_sections_allow_list_introductions_and_navigation(self):
+        page = self.page(quote="")
+        text = page.read_text(encoding="utf-8")
+        text = text.replace("## Key claims\n", "## Key claims\nThe following is an outline:\n")
+        page.write_text(text + "\nSee [[context]] and [background](https://example.com/).\n\n"
+                              "**Local procedure (Inference):** A possible way to apply it.\n", encoding="utf-8")
+        self.assertEqual(self.errors(page), "")
+
+    def test_timestamp_bounds_with_and_without_duration(self):
+        raw = "library/test/raw/yt/timed"
+        blocks = "**[0:00]** Opening words.\n**[0:30]** Last block.\n"
+        self.write(raw + ".md", f'---\nduration: "0:45"\n---\n{blocks}')
+        self.assertEqual(self.errors(self.page(quote="", at="0:45", raw=raw)), "")
+        self.assertIn("past the end", self.errors(self.page(quote="", at="99:59", raw=raw)))
+        self.write(raw + ".md", blocks)
+        self.assertEqual(self.errors(self.page(quote="", at="0:30", raw=raw)), "")
+        self.assertIn("past the end", self.errors(self.page(quote="", at="0:31", raw=raw)))
+
+    def test_page_text_attribution_requires_the_speakers_words(self):
+        raw = "library/test/raw/yt/turns"
+        self.write(raw + ".md", "---\nspeakers: [Sample Expert, Bea]\n---\n"
+                   "**[0:00]** Sample Expert: The start\n"
+                   "**[0:05]** Sample Expert: of the turn.\n"
+                   "**[0:10]** Bea: Someone else's words.\n"
+                   "**[0:15]** Sample Expert: A later turn.\n")
+        for speaker, quote in (("Sample", "The start of the turn."), ("Bea", "Someone else's words.")):
+            self.assertEqual(self.errors(self.page(speaker=speaker, quote=quote, at="page text", raw=raw)), "")
+        for quote in ("Someone else's words.", "of the turn. A later turn."):
+            self.assertIn("not spoken by", self.errors(self.page(speaker="Sample", quote=quote, at="page text", raw=raw)))
+        mixed = "library/test/raw/yt/mixed"
+        self.write(mixed + ".md", "---\nspeakers: [Sample Expert]\n---\n**[0:00]** Sample Expert: Spoken words.\n\n"
+                   "## Lesson page text\n\nWritten lesson instructions.\n")
+        self.assertEqual(self.errors(self.page(speaker="Sample", quote="Written lesson instructions.",
+                                               at="page text", raw=mixed)), "")
+        self.write("topic-fixture/brain.md", "---\nkind: persona\ndefault_speaker: Sample Expert\n---\n")
+        self.assertIn("not spoken by", self.errors(self.page(type="topic", speaker="", quote="Someone else's words.",
+                                                             at="page text", raw=raw)))
+        self.write(raw + ".md", "---\nspeakers: [Sample Expert]\n---\nText without labelled turns.\n")
+        self.assertEqual(self.errors(self.page(type="topic", speaker="", quote="Text without labelled turns.",
+                                                at="page text", raw=raw)), "")
+
+    def test_people_loaded_once_per_workspace(self):
+        raw = "library/test/raw/yt/interview"
+        with patch.object(check.brainlib, "load_yaml", wraps=check.brainlib.load_yaml) as load:
+            for speaker in ("Sample Expert", "Sample"):
+                self.assertEqual(self.errors(self.page(speaker=speaker, quote="Teach the real words.", at="12:41", raw=raw)), "")
+            load.assert_called_once_with(self.root / "library/people.yaml", {})
+
     def test_custom_evidence_and_additional_staging_citations(self):
         self.assertEqual(self.errors(self.page(evidence="synthesis", freshness="dated")), "")
         self.write("topic-fixture/brain.md", "---\nkind: topic\nevidence_types: [rulebook, expert]\n---\n")
@@ -189,7 +268,7 @@ class TopicCheckers(unittest.TestCase):
     def test_cli_external_brain(self):
         self.page()
         result = subprocess.run([sys.executable, "-X", "utf8", "-I", "-B", str(TOOLS / "check_wiki.py"), "--brain", str(self.brain)], capture_output=True, text=True, encoding="utf-8")
-        self.assertEqual((result.returncode, result.stdout.strip()), (0, "ok: 1 files"), result.stderr)
+        self.assertEqual((result.returncode, result.stdout.strip()), (0, "ok: 2 files"), result.stderr)
 
     def test_lint_library_links(self):
         page = self.page(type="example")
