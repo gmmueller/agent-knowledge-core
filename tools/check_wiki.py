@@ -13,8 +13,8 @@ Library paths resolve from the workspace root; @ ¶N addresses web blocks.
 For `post` / `c:` cites the quote's speaker (or the persona's default_speaker when unnamed) must be the
 author of that post or comment, so a member's words can't pass as the expert's.
 Persona quotes may omit the brain's default_speaker; topic quotes always name a speaker.
-A quote must appear verbatim (whitespace and curly quotes normalised, case-sensitive) in the cited block,
-allowing it to run into the next block or start in the previous one. Exit code 1 if anything fails.
+A quote must appear verbatim (whitespace and curly quotes normalised, case-sensitive) in the cited block.
+Timestamp and PDF citations can include the previous and next blocks. Exit code 1 if anything fails.
 """
 import pathlib
 import datetime as dt
@@ -54,6 +54,8 @@ SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 TYPES = {"source", "topic", "principle", "method", "framework", "rule", "glossary", "example", "rubric", "tool", "debate"}
 STANCES = {"supports", "nuances", "opposes"}
 CLAIM_SECTIONS = {"key claims", "key points", "why", "when it applies"}
+RULE_TABLE_HEADER = re.compile(r"^\|\s*(?:#\s*\|\s*)?Rule\s*\|", re.I)
+TABLE_DIVIDER = re.compile(r"\|(?:\s*:?-+:?\s*\|)+")
 WARNING = "warning: "  # prefix for findings that print but don't fail the check
 
 
@@ -158,14 +160,17 @@ def raw_index(brain: pathlib.Path, rel: str) -> dict | None:
             page_text.append(line)
         elif cur is not None:
             cur[1] += " " + line
-    duration = str(fm.get("duration") or fm.get("duration_s") or "")
+    duration = fm.get("duration")
+    if duration is None or duration == "":
+        duration = fm.get("duration_s")
+    duration = str(duration)
     if TIMESTAMP.fullmatch(duration):
         end = ts_seconds(duration)
     else:
-        end = float(duration) if re.fullmatch(r"\d+(?:\.\d+)?", duration) else 0
+        end = float(duration) if re.fullmatch(r"\d+(?:\.\d+)?", duration) else None
     idx = {"blocks": [(b[0], norm(b[1])) for b in blocks], "block_speakers": [b[2] for b in blocks],
            "speakers": speakers, "page_text": norm(" ".join(page_text)), "all": norm(body),
-           "end": end or max((ts_seconds(b[0]) for b in blocks if TIMESTAMP.fullmatch(b[0])), default=None),
+           "end": end,
            "anchors": thread_anchors(body) if fm.get("method") == "skool-api" else {}}
     _raw_cache[key] = idx
     return idx
@@ -285,14 +290,17 @@ def check_cite(brain, rel, at, quote, where, errors, speaker=None) -> None:
             check_speaker(brain, idx, idx["block_speakers"][i], speaker, where, errors)
         q = norm(quote)
         blocks = idx["blocks"]
-        neighbors = blocks[max(0, i - 1): i + 2]
+        radius = 0 if at.startswith("¶") else 1
+        start, stop = max(0, i - radius), min(len(blocks), i + radius + 1)
+        neighbors = blocks[start:stop]
         if topic(brain) and idx["block_speakers"][i]:
-            neighbors = [blocks[k] for k in range(max(0, i - 1), min(len(blocks), i + 2))
+            neighbors = [blocks[k] for k in range(start, stop)
                          if idx["block_speakers"][k] == idx["block_speakers"][i]]
         window = " ".join(b[1] for b in neighbors)
         if q not in window:
-            elsewhere = q in idx["all"]
-            errors.append(f"{where}: quote not at {at} in {rel}{' (found elsewhere: fix the timestamp)' if elsewhere else ''}: \"{quote[:70]}\"")
+            locator = "paragraph" if at.startswith("¶") else "timestamp"
+            hint = f" (found elsewhere: fix the {locator})" if q in idx["all"] else ""
+            errors.append(f"{where}: quote not at {at} in {rel}{hint}: \"{quote[:70]}\"")
 
 
 @functools.lru_cache(maxsize=None)
@@ -437,8 +445,21 @@ def check_page(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None:
             str(s).replace("\\", "/").lstrip("./").startswith("notes/") for s in fm.get("sources") or []):
         errors.append(f"{where}: wiki pages must not cite human-owned notes as sources")
     n_quotes = 0
+    in_rules = in_rule_table = False
     targets = link_targets(brain) if card else None
     for ln, line in enumerate(body.splitlines(), text.count("\n", 0, offset) + 1):
+        rule_row = False
+        if card:
+            stripped = line.strip()
+            if stripped.startswith(("# ", "## ")):
+                in_rules = stripped.lower() == "## rules"
+            if not in_rules or not stripped.startswith("|"):
+                in_rule_table = False
+            elif not in_rule_table:
+                in_rule_table = bool(RULE_TABLE_HEADER.match(stripped))
+            elif not TABLE_DIVIDER.fullmatch(stripped):
+                rule_row = True
+        quotes_before_line = n_quotes
         # Blank out code spans (citation examples) for link scanning but keep positions, so quotes stay verbatim.
         scan = INLINE_CODE.sub(lambda m: " " * len(m[0]), line)
         location = f"{where}:{ln}"
@@ -464,8 +485,10 @@ def check_page(brain: pathlib.Path, path: pathlib.Path, errors: list) -> None:
                 n_quotes += 1
             check_cite(brain, *cite.groups(), quote.group(1) if quote else None, location, errors, speaker)
             end = cite.end()
-    if not card and fm.get("type") in TYPES:
-        check_claims(body, fm["type"], where, errors)
+        if rule_row and n_quotes == quotes_before_line:
+            errors.append(f"{location}: rule without an exact quote")
+    if card or fm.get("type") in TYPES:
+        check_claims(body, "rule" if card else fm["type"], where, errors)
     if fm.get("type") == "rule" and n_quotes == 0:
         errors.append(f"{where}: rule without an exact quote")
 

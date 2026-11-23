@@ -160,7 +160,7 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 |---|---|
 | `triage_inputs.py`, `triage_merge.py`, `selection_override.py` | Cut catalogues into triage inputs; merge scores into `selection.yaml`; hand overrides |
 | `check_wiki.py` | Check `brain.md`, wiki pages and staging for corrupt text, invalid locators, misquotes, speaker attribution and uncited claims in key sections |
-| `wave_report.py` | Check a finished wave (`--batches`, `--wave`). Run `check_wiki.py` on staging and pages, match explicit capture paths, and check protected pages |
+| `wave_report.py` | Check a finished wave (`--batches`, `--wave`). Match assignments to staging and pages, run `check_wiki.py` on both, and check protected pages |
 | `requote.py` | Re-anchor quotes (timestamps, `¶N` paragraph and `p. N` page locators) after a raw file is re-crawled |
 | `merge_staging.py` (persona), `merge_topic.py` (topic) | Pool ingest staging by concept → per-concept bundles |
 | `rule_status.py` | Recount topic-brain rule status by independent voice |
