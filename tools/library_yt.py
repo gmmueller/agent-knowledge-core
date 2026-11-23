@@ -24,6 +24,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
 import library_raw as lr
+import raw_guard
 from source_helpers import stamp_crawl, stamp_sources
 from yt_to_raw import fetch_captions, json3_lines, upload_date
 
@@ -123,9 +124,10 @@ def catalogue(publisher, config, details):
                             continue
                         cached = lr.pub_dir(publisher) / "media" / "meta" / f"{entry['id']}.json"
                         if cached.exists():
-                            entry = json.loads(cached.read_text(encoding="utf-8"))
+                            entry = json.loads(cached.read_text(encoding="utf-8")) | {
+                                key: value for key, value in entry.items() if value not in (None, "")}
                         rows.append(youtube_row(entry, source["id"], TABS[tab]))
-                    added, updated = lr.merge_catalogue(publisher, rows)
+                    added, updated = lr.merge_catalogue(publisher, rows, preserve_routing=True)
                     counts[tab] = len(rows)
                     candidates.extend((i, row) for i, row in enumerate(rows))
                     messages.append(f"{source['id']} {tab}: {len(rows)} items, {added} added, {updated} updated")
@@ -160,7 +162,7 @@ def catalogue(publisher, config, details):
         except Exception as error:
             failure(messages, row["id"], error)
     if enriched:
-        lr.merge_catalogue(publisher, enriched)
+        lr.merge_catalogue(publisher, enriched, preserve_routing=True)
     stamp_sources(lr.pub_dir(publisher), stamps)
     messages.append(f"Metadata: {attempted} lookups requested; catalogue total: {len(known)}")
     log(publisher, "catalogue", messages)
@@ -229,13 +231,18 @@ def fetch(publisher, config, ids):
             row = rows[item_id]
             stage = lr.staging_path(publisher, item_id, "lines.json")
             raw_dir = lr.pub_dir(publisher) / "raw" / "yt"
-            if stage.exists() or any(raw_dir.glob(f"*-{item_id[3:]}-*.md")):
+            captures = list(raw_dir.glob(f"*-{item_id[3:]}-*.md"))
+            for path in captures:
+                if raw_guard.record_capture(path):
+                    messages.append(f"RECOVER {item_id}: recorded capture hash for {path.name}")
+            if captures or stage.exists():
                 messages.append(f"SKIP {item_id}: output exists")
                 continue
             source = sources[row["source"]]
             data = metadata(publisher, item_id[3:])
             enriched = youtube_row(data, row["source"], row["kind"])
-            lr.merge_catalogue(publisher, [enriched])
+            enriched["url"] = row["url"] or enriched["url"]
+            lr.merge_catalogue(publisher, [enriched], preserve_routing=True)
             row = {k: enriched.get(k) or v for k, v in row.items()}
             cache = lr.pub_dir(publisher) / "media" / "captions"
             row["published"] = row["published"] or upload_date(item_id[3:], cache)
