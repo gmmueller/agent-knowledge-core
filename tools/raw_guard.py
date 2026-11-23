@@ -90,19 +90,6 @@ def cited_raw_dirs(brain):
     return [brainlib.library_dir(brainlib.workspace(brain)) / p / "raw" for p in sorted(publishers)]
 
 
-def declared_raw_dirs(brain):
-    """Find library publishers explicitly referenced in a brain's source list."""
-    path = brain / "sources.yaml"
-    if not path.is_file():
-        return set()
-    publishers = set(re.findall(r"(?<![\w/])(?:\./)?library/([a-zA-Z0-9_-]+)(?=/|[\s'\"\],}]|$)",
-                                path.read_text(encoding="utf-8")))
-    sources = (brainlib.load_yaml(path) or {}).get("sources") or []
-    publishers.update(s["publisher"] for s in sources
-                      if re.fullmatch(r"[a-zA-Z0-9_-]+", str(s.get("publisher") or "")))
-    return {brainlib.library_dir(brainlib.workspace(brain)) / p / "raw" for p in publishers}
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     scope = ap.add_mutually_exclusive_group(required=True)
@@ -129,11 +116,10 @@ def main():
     try:
         expected = set()
         if a.command == "check":
-            if not a.brain:
-                expected.update(p.parent / "raw" for p in library.glob("*/catalogue.tsv"))
+            # Only citations prove captures existed. A catalogue or a declared source alone is
+            # normal before triage and fetch, so it is not evidence of a deleted publisher.
             for brain in brains:
                 expected.update(cited_raw_dirs(brain))
-                expected.update(declared_raw_dirs(brain))
             roots.update(expected)
         for raw in sorted(roots):
             if a.command == "record":
