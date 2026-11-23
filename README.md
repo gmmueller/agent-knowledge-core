@@ -141,7 +141,7 @@ A complete topic brain built from three public-domain books (Strunk, Quiller-Cou
 
 - [`examples/README.md`](examples/README.md) — overview and verification commands
 - [`examples/workspace/plain-writing/brain.md`](examples/workspace/plain-writing/brain.md) — the topic brain card
-- [`examples/workspace/plain-writing/wiki/index.md`](examples/workspace/plain-writing/wiki/index.md) — compiled wiki (16 source pages, 22 concept pages, 2 debate pages)
+- [`examples/workspace/plain-writing/wiki/index.md`](examples/workspace/plain-writing/wiki/index.md) — compiled wiki (16 source pages in [`sources-index.md`](examples/workspace/plain-writing/wiki/sources-index.md), 22 concept pages, 1 rubric, 2 debate pages)
 - [`examples/skills/plain-writing/SKILL.md`](examples/skills/plain-writing/SKILL.md) — generated portable skill
 
 ## Getting started

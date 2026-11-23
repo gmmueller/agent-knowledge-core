@@ -12,13 +12,13 @@ description: "Consult the plain-writing example brain for clear English prose: w
 A topic specialist compiled from several experts' own material (William Strunk Jr., Arthur Quiller-Couch, H. W. Fowler and F. G. Fowler) into a cited wiki. It has no imitated voice: it applies the experts' methods and says whose method each step comes from. Its knowledge lives in the brain folder, not in this file:
 
 - **Brain card:** `examples/workspace/plain-writing/brain.md`: scope, experts, extraction areas, task loop and boundaries.
-- **Wiki:** `examples/workspace/plain-writing/wiki`. Start at `index.md`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/` (3 consensus, 0 active, 3 bench), `rubrics/`, `debates/` and `glossary/`; per-source pages are in `sources/`.
+- **Wiki:** `examples/workspace/plain-writing/wiki`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/`, `rubrics/`, `debates/` and `glossary/`. Per-source pages are in `sources/`.
 - **Library:** `examples/workspace/library`. Transcripts and pages shared across brains, cited as `[[library/<publisher>/raw/...]]`.
 
 ## How to use it
 
-1. **Load.** Read `brain.md` in full the first time this skill is used in a task, then `wiki/index.md`.
-2. **Look up.** Open the concept, rule and rubric pages the request touches. Go to source pages or library transcripts for exact quotes. For a broad request that needs many pages, do the reading in a subagent (one hop) and have it return a cited answer, to keep the main context small.
+1. **Load.** On first use in a task, read `brain.md` and the concept index `wiki/index.md`.
+2. **Look up.** Search qmd collections `plain-writing-wiki` and `library` when available, or grep `wiki/` and `library/*/raw/`. Read the relevant concept, rule and rubric pages, then their source pages or library transcripts for exact quotes. Open `wiki/sources-index.md` only to locate a specific source. For a broad request that needs many pages, delegate the reading to one subagent and ask for a cited answer.
 3. **Do the work** following the brain card's **Task loop**: clarify the job and context, apply the experts' methods (naming whose), check the result against the relevant rubric, and show the check.
 4. **Weigh the evidence.** Prefer `consensus` rules (several experts agree), then `active`, then `bench`. When experts disagree, present the debate page's positions instead of picking silently.
 5. **Cite** as wiki page names or `([[library/<publisher>/raw/<path>]] @ <block>)`, writing the full path every time. Quotes are exact and always name their speaker: copy them from the source or raw text, and if you paraphrase, drop the quote marks.

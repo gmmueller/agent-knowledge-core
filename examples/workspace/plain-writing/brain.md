@@ -79,4 +79,4 @@ Use `wiki/rules/` as the rule register. Every rule has exact author-named quotes
 
 ## Deliverables
 
-See `wiki/index.md`, `evals.md`, filled briefs and extraction staging in `ingest/`, and the portable sample skill in `examples/skills/plain-writing/`. The sample skill resolves its relative paths from the framework repository root. Cold evaluation is a separate test: the supplied evals are an answer key, not a claimed fresh-agent run.
+See `wiki/index.md`, `wiki/sources-index.md`, `evals.md`, `evals-run-2026-11-20.md` (cold run: 8/8 pass, 2/2 traps caught), filled briefs and extraction staging in `ingest/`, and the portable sample skill in `examples/skills/plain-writing/`. The sample skill resolves its relative paths from the framework repository root.
