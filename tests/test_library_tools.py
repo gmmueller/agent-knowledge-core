@@ -410,9 +410,11 @@ class LibraryTools(unittest.TestCase):
         brainlib.write_text(triage / "acme-1.tsv", header + "acme/yt-a\t3\n")
         brainlib.write_text(triage / "acme-u1122.tsv", header + "acme/yt-b\t1\n")
         brainlib.write_text(triage / "acme.tsv", header + "acme/yt-c\t2\n")
-        brainlib.write_text(brain / "selection.yaml", "items:\n- item: acme/yt-d\n  tier: A\n- item: other/yt-e\n")
+        brainlib.write_text(brain / "selection.yaml",
+                            "items:\n  - tier: A\n    item: acme/yt-d\n  - item: 'acme/yt-f'\n"
+                            "  - item: other/yt-e\n")
         self.assertEqual(triage_inputs.already_scored(brain, "acme"),
-                         {"acme/yt-a", "acme/yt-b", "acme/yt-c", "acme/yt-d"})
+                         {"acme/yt-a", "acme/yt-b", "acme/yt-c", "acme/yt-d", "acme/yt-f"})
 
 
 if __name__ == "__main__":

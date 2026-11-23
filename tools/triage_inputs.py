@@ -18,6 +18,8 @@ import os
 import pathlib
 import sys
 
+import yaml
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import brainlib
 import library_raw as lr  # noqa: E402
@@ -41,9 +43,9 @@ def already_scored(brain: pathlib.Path, publisher: str) -> set:
             done |= {ln.split("\t", 1)[0] for ln in scored.read_text(encoding="utf-8").splitlines()[1:]}
     selection = brain / "selection.yaml"
     if selection.exists():
-        prefix = f"- item: {publisher}/"
-        done |= {ln.split(": ", 1)[1].strip() for ln in selection.read_text(encoding="utf-8").splitlines()
-                 if ln.startswith(prefix)}
+        data = yaml.safe_load(selection.read_text(encoding="utf-8")) or {}
+        done |= {str(entry["item"]) for entry in data.get("items") or []
+                 if isinstance(entry, dict) and str(entry.get("item", "")).startswith(f"{publisher}/")}
     return done
 
 
