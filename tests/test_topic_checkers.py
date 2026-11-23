@@ -351,6 +351,36 @@ class TopicCheckers(unittest.TestCase):
             self.assertEqual("catalogue-only: monthly, not crawled yet" in text, bool(flags))
             self.assertEqual("manual-doc: manual, no reminder" in text, bool(flags))
 
+    def test_refresh_respects_per_brain_and_per_source_library_reminders(self):
+        self.write("topic-fixture/brain.md", "---\nkind: topic\nrefresh: {reminders: false}\n---\n")
+        self.write("topic-fixture/selection.yaml", """items:
+- {item: acme/yt-exclusive, tier: A}
+- {item: acme/yt-shared, tier: B}
+""")
+        self.write("active/brain.md", "---\nkind: topic\n---\n")
+        self.write("active/selection.yaml", """items:
+- {item: acme/yt-exclusive, tier: C}
+""")
+        self.write("active/wiki/sources/shared.md", "---\nsources: [library/acme/raw/yt/shared]\n---\n")
+        self.write("library/acme/raw/yt/shared.md", "---\nsource_id: yt-shared\n---\n")
+        self.write("library/acme/catalogue.tsv", "id\turl\tsource\nyt-exclusive\t\texclusive\nyt-shared\t\tshared\n")
+        self.write("library/acme/sources.yaml", yaml.safe_dump({"sources": [
+            {"id": source, "refresh": "daily", "last_crawled": "2020-01-01", **settings}
+            for source, settings in (("exclusive", {}), ("shared", {}), ("unused", {}), ("source-off", {"reminders": False}))
+        ]}))
+        self.write("active/sources.yaml", "sources: [{id: local-off, refresh: daily, last_crawled: 2020-01-01, reminders: false}]\n")
+        output = io.StringIO()
+        with patch.object(sys, "argv", ["refresh_due.py", "--workspace", str(self.root), "--all"]), \
+                contextlib.redirect_stdout(output):
+            refresh.main()
+        text = output.getvalue()
+        for source in ("exclusive", "source-off"):
+            self.assertIn(f"library/acme / {source}: reminders off", text)
+            self.assertNotIn(f"**library/acme / {source}**", text)
+        for source in ("shared", "unused"):
+            self.assertIn(f"**library/acme / {source}**", text)
+        self.assertIn("active / local-off: reminders off", text)
+
     def test_triage_tiers_sort_freshness_and_overrides(self):
         fields = ["item", *triage.SCORES, "example", "speakers", "why"]
         path = self.root / "topic-fixture/ingest/triage/test.tsv"
