@@ -17,3 +17,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m pip install -r requirements-core.txt
       - run: python -m unittest discover -s tests -v
+      - run: |
+          python -X utf8 -I tools/check_wiki.py --brain examples/workspace/plain-writing
+          python -X utf8 -I tools/lint_wiki.py --brain examples/workspace/plain-writing
+          python -X utf8 -I tools/generate_persona.py --brain examples/workspace/plain-writing --out examples/skills --relative-to . --check
