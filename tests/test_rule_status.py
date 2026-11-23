@@ -265,6 +265,13 @@ class RuleStatus(unittest.TestCase):
         self.page("local-publishers", "active", body="".join(bodies))
         report = self.tool("rule_status.py")
         self.assertNotRegex(report, r"local-publishers\s+active -> bench")
+        self.rule("local-publishers", [dict(speaker="Writer", text="Example.", cite=dict(raw=f"raw/{p}", at="1:00"))
+                                       for p in ("acme", "globex")])
+        self.tool("merge_topic.py", "bundles")
+        self.assertEqual({p["item"] for p in self.bundle("local-publishers")["points"]},
+                         {"acme/guide", "globex/guide"})
+        report = self.tool("rule_status.py")
+        self.assertNotRegex(report, r"local-publishers\s+active -> bench")
 
     def test_reference_warns_when_page_still_cites_an_old_edition(self):
         self.settings(evidence_model="reference")

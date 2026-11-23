@@ -24,7 +24,8 @@ import rule_evidence
 from reference_sources import ReferenceSources, enabled as reference_mode
 
 
-def load(brain: pathlib.Path):
+def load(brain: pathlib.Path, local_raw: bool = False):
+    """With local_raw (reference brains), brain-local raw/ cites resolve against the brain."""
     rule_evidence.raw_item.cache_clear()
     workspace = brainlib.workspace(brain)
     slug_map = brainlib.load_yaml(brain / "ingest" / "slug-map.yaml") or {}
@@ -59,7 +60,7 @@ def load(brain: pathlib.Path):
                     cite = p.get("cite") or {}
                     evidence = p.get("evidence") or c.get("evidence")
                     b[kind].append({"text": p.get("text"), "speaker": p.get("speaker"), "raw": cite.get("raw"),
-                                    "at": str(cite.get("at")), "item": rule_evidence.raw_item(workspace, cite.get("raw", "")),
+                                    "at": str(cite.get("at")), "item": rule_evidence.raw_item(workspace, cite.get("raw", ""), brain if local_raw else None),
                                     "batch": batch, **{k: p[k] for k in ("variant", "kind", "stance") if p.get(k)},
                                     **({"evidence": evidence} if evidence else {})})
     return concepts, extras
@@ -94,7 +95,7 @@ def main() -> None:
     mode = args.mode
     settings = brainlib.read_frontmatter(brain / "brain.md")
     references = ReferenceSources(brain, settings) if reference_mode(settings) else None
-    concepts, extras = load(brain)
+    concepts, extras = load(brain, local_raw=references is not None)
     bundles = {slug: finish(b, brain, settings, references) for slug, b in concepts.items() if slug}
     if mode == "survey":
         print(f"{'slug':48} {'type':10} items experts pts qts status")
