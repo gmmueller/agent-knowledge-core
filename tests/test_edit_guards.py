@@ -163,7 +163,7 @@ class EditGuards(unittest.TestCase):
                             if save_during_retry:
                                 self.write("wiki/topics/example.md", owner)
                             busy = PermissionError("sharing violation")
-                            busy.winerror = 32
+                            busy.winerror = 32 if save_during_retry else 5
                             raise busy
                     return original_replace(source, target)
 

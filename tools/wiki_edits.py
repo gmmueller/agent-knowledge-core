@@ -86,7 +86,7 @@ def protected_pages(brain, *, current=None):
 
 
 def register_writes(brain, written, *, require_pass=False):
-    """Register intended content for an open pass without re-reading agent output from disk."""
+    """Register intended content only if the live page still matches it."""
     if not written:
         return
     with hashes.locked(manifest(brain)):
@@ -118,7 +118,8 @@ def retry_sharing_violation(operation):
         try:
             return operation()
         except OSError as exc:
-            if getattr(exc, "winerror", None) != 32 or attempt == 4:
+            # Windows can report a busy replacement target as access denied (5) or sharing violation (32).
+            if getattr(exc, "winerror", None) not in {5, 32} or attempt == 4:
                 raise
             time.sleep(0.05 * (attempt + 1))
 
