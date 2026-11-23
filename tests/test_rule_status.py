@@ -210,10 +210,12 @@ class RuleStatus(unittest.TestCase):
             "host-support": ("bench", [dict(current, speaker="Moderator")]),
             "host-dissent": ("active", [current, dict(dissent, speaker="Moderator")]),
             "locked": ("bench", [current]),
+            "independent": ("active", [other, self.source(None, "second"), self.source(None, "third")]),
+            "debated": ("contested", [current, self.source("Cam", "debate", stance="opposes")]),
         }
         for slug, (_, points) in cases.items():
             self.rule(slug, points)
-            self.page(slug, "contested" if slug == "retired" else "bench",
+            self.page(slug, "contested" if slug in {"retired", "debated"} else "bench",
                       extra="status_locked: true\n" if slug == "locked" else "")
         self.tool("merge_topic.py", "bundles")
         report = self.tool("rule_status.py", "--write")

@@ -39,7 +39,7 @@ def assess(settings, evidence, page, references=None):
     hosts = set(settings.get("hosts") or [])
     backing, voices, items, opposing = set(), set(), set(), set()
     authoritative, contradictions = set(), set()
-    superseded, current = False, False
+    superseded, current, disputed = False, False, False
     for row in evidence:
         speaker = row.get("speaker")
         expert = expert_aliases.get(speaker, speaker)
@@ -58,6 +58,7 @@ def assess(settings, evidence, page, references=None):
                     authoritative.add(identity)
                 elif stance == "opposes":
                     contradictions.add(identity)
+        disputed |= stance == "opposes"
         if stance == "opposes" and expert in experts:
             opposing.add(expert)
         if stance != "supports":
@@ -72,14 +73,16 @@ def assess(settings, evidence, page, references=None):
     independent = (len(voices) >= 2 if settings.get("rule_status") == "voices"
                    else len(publishers) >= 2 or len(items) >= 3)
     old = page.get("status")
-    if page.get("status_locked") is True or (not reference and old == "contested"):
+    # A hand-set contest holds while current evidence still disputes the rule; in reference
+    # brains it lapses once the only dissent is a superseded edition.
+    if page.get("status_locked") is True or (old == "contested" and (not reference or disputed)):
         status = old
     elif reference and authoritative and contradictions and len(authoritative | contradictions) >= 2:
         status = "contested"
     elif len(backing) >= 2 and not opposing and not contradictions:
         status = "consensus"
     elif reference:
-        status = "active" if authoritative else "bench"
+        status = "active" if authoritative or independent else "bench"
     else:
         status = "active" if independent else "bench"
     return Assessment(status, backing, voices, opposing | contradictions, superseded and not current)
