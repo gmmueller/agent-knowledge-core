@@ -96,6 +96,8 @@ python -X utf8 -I <framework>/tools/token_report.py --workspace <path> [--since 
 
 `token_report.py` reads local Claude Code transcripts, Codex sessions and optionally a T3 Code state database. It prints per-session turns, max and mean context, cache reads and writes, output tokens, and an input-equivalent cost (weights: input 1, cache read 0.1, cache write 1.25, output 5). It flags sessions whose context passed `--ctx-warn` (default 200,000) and splits Claude cost by trigger (user, worker notifications, scheduled).
 
+`--since` includes usage events on or after the date, even in sessions that started earlier. It counts Claude assistant events and subtracts earlier Codex cumulative usage. T3 still reports context snapshots by turn date.
+
 Claude Code deletes transcripts after 30 days by default (`cleanupPeriodDays` in `settings.json`). Raise `cleanupPeriodDays` before starting a build you want to measure.
 
 ## What does not change
