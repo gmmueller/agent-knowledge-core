@@ -1,5 +1,7 @@
 """Configuration and workspace-safe paths shared by source adapters."""
+import datetime as dt
 from pathlib import Path
+from urllib.parse import urlsplit
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -37,6 +39,60 @@ def brain_path(brain, value):
     if not path.is_relative_to(brain.resolve()):
         raise ValueError(f"path must stay inside the brain: {value}")
     return path
+
+
+def match_source(sources, url):
+    """Prefer exact URLs and the most specific path, then a matching host."""
+    target = urlsplit(url or "")
+    if not target.netloc:
+        return ""
+    matches = []
+    for source in sources:
+        for key in ("url", "rss"):
+            candidate = urlsplit(source.get(key) or "")
+            if target.netloc != candidate.netloc:
+                continue
+            path = candidate.path.rstrip("/")
+            target_path = target.path.rstrip("/")
+            if target_path == path and target.query == candidate.query:
+                rank = (2, len(path))
+            elif target_path.startswith(path + "/"):
+                rank = (1, len(path))
+            else:
+                rank = (0, 0)
+            matches.append((rank, source["id"]))
+    return max(matches, key=lambda entry: entry[0])[1] if matches else ""
+
+
+def stamp_sources(folder, updates):
+    """Apply updates by source ID without replacing unrelated settings."""
+    path = folder / "sources.yaml"
+    if not updates or not path.exists():
+        return
+
+    def update(data):
+        changed = False
+        for source in data.get("sources") or []:
+            fields = updates.get(source.get("id"), {})
+            for key, value in fields.items():
+                if str(source.get(key)) != str(value):
+                    source[key] = value
+                    changed = True
+        return changed
+
+    brainlib.edit_yaml(path, update)
+
+
+def stamp_crawl(folder, ids):
+    stamp_sources(folder, {sid: {"last_crawled": dt.date.today().isoformat()} for sid in ids if sid})
+
+
+def stamp_skool(brain, url):
+    path = brain / "sources.yaml"
+    sources = (brainlib.load_yaml(path, {}) or {}).get("sources") or []
+    match = next((s["id"] for s in sources if str(s.get("url") or "").rstrip("/") == url), None)
+    if match:
+        stamp_crawl(brain, [match])
 
 
 def map_cache(brain):

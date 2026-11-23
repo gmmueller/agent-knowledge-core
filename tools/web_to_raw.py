@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import email.utils
 import gzip
+import hashlib
 import json
 import os
 import re
@@ -21,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import brainlib
 import library_raw as lr
 import trafilatura
-import yaml
+from source_helpers import match_source, stamp_crawl
 from bs4 import BeautifulSoup
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
@@ -111,12 +112,11 @@ def config(publisher):
     if lr.slugify(publisher) != publisher:
         raise ValueError("publisher must be an ASCII kebab-case slug")
     path = lr.pub_dir(publisher) / "sources.yaml"
-    return yaml.safe_load(path.read_text(encoding="utf-8")) if path.exists() else {"publisher": publisher, "sources": []}
+    return brainlib.load_yaml(path, {"publisher": publisher, "sources": []})
 
 
 def source_id(cfg, url):
-    host = urllib.parse.urlsplit(url).netloc
-    return next((s["id"] for s in cfg.get("sources", []) if urllib.parse.urlsplit(s.get("url", "")).netloc == host), "")
+    return match_source(cfg.get("sources") or [], url)
 
 
 def row(cfg, url, title="", published="", description="", kind="post"):
@@ -276,21 +276,24 @@ def transcript(html):
 
 def appearances(publisher, item_id, speakers, host):
     path = lr.LIBRARY / "people.yaml"
-    # Re-read at the last possible moment: other importers may also add people.
-    people = yaml.safe_load(path.read_text(encoding="utf-8")) or {} if path.exists() else {}
-    for name in speakers:
-        person = people.setdefault(lr.slugify(name), {"name": name, "aliases": [], "appearances": []})
-        entries = person.setdefault("appearances", [])
-        item = f"{publisher}/{item_id}"
-        if not any(x.get("item") == item for x in entries):
-            entries.append({"item": item, "role": "host" if name == host else "guest"})
-    path.write_text(yaml.safe_dump(people, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    def update(people):
+        changed = False
+        for name in speakers:
+            person = people.setdefault(lr.slugify(name), {"name": name, "aliases": [], "appearances": []})
+            entries = person.setdefault("appearances", [])
+            item = f"{publisher}/{item_id}"
+            if not any(x.get("item") == item for x in entries):
+                entries.append({"item": item, "role": "host" if name == host else "guest"})
+                changed = True
+        return changed
+
+    brainlib.edit_yaml(path, update)
 
 
 def listings(args, cfg, client):
     rows, seen = [], set()
-    url = args.sitemap or args.rss or args.index or args.datasette
-    queue = [url]
+    start_url = args.sitemap or args.rss or args.index or args.datasette
+    queue = [start_url]
     while queue:
         url = queue.pop(0)
         if url in seen:
@@ -345,14 +348,39 @@ def listings(args, cfg, client):
                     if target:
                         rows.append(row(cfg, target, value(node, "title"), value(node, "pubDate") or value(node, "published"), value(node, "description") or value(node, "summary"), args.kind))
     rows = list({r["url"]: r for r in rows if not args.match or re.search(args.match, r["url"] + " " + r["title"])}.values())
-    occupied = {r['id']: r['url'] for r in lr.read_catalogue(args.publisher).values()}
-    for r in rows:
-        if r['id'] in occupied and occupied[r['id']] != r['url']:
-            import hashlib
-            r['id'] = r['id'][:55] + '-' + hashlib.sha256(r['url'].encode()).hexdigest()[:8]
-        occupied[r['id']] = r['url']
-    added, updated = lr.merge_catalogue(args.publisher, rows)
+    added, updated = lr.merge_catalogue(args.publisher, rows, match_url=True)
     log(args.publisher, f"list: {len(rows)} items; {added} added, {updated} updated; {len(lr.read_catalogue(args.publisher))} total")
+    stamp_crawl(lr.pub_dir(args.publisher), {source_id(cfg, start_url), *(r["source"] for r in rows)})
+
+
+def latest_captures(directory):
+    by_url = {}
+    superseded = set()
+    for path in directory.glob("*.md"):
+        front = brainlib.read_frontmatter(path)
+        if front.get("url"):
+            by_url.setdefault(front["url"], []).append((path, front))
+            if front.get("supersedes"):
+                superseded.add(front["supersedes"])
+    return {url: max([entry for entry in entries if entry[0].name not in superseded] or entries,
+                     key=lambda entry: (str(entry[1].get("captured") or ""),
+                                        "-recapture-" in entry[0].stem,
+                                        entry[0].name))
+            for url, entries in by_url.items()}
+
+
+def capture_path(base, url, mode):
+    path = base
+    if mode:
+        path = base.with_stem(f"{base.stem}-{mode}-{dt.date.today():%Y%m%d}")
+    if path.exists() and brainlib.read_frontmatter(path).get("url") != url:
+        suffix = hashlib.sha256(url.encode()).hexdigest()[:12]
+        path = path.with_stem(f"{path.stem}-{suffix}")
+    stem, version = path.stem, 2
+    while path.exists():
+        path = path.with_stem(f"{stem}-{version}")
+        version += 1
+    return path
 
 
 def fetch(args, cfg, client):
@@ -367,32 +395,37 @@ def fetch(args, cfg, client):
     else:
         by_url = {r['url']: r for r in catalogue.values()}
         selected = [by_url.get(u, {"url": u}) for u in args.urls]
+    complete = args.limit is None or args.limit >= len(selected)
     if args.limit is not None:
         selected = selected[:args.limit]
-    failures = 0
-    captured = set()
-    for existing in (lr.pub_dir(args.publisher) / 'raw' / ('pod' if args.transcript else 'web')).glob('*.md'):
-        front = yaml.safe_load(existing.read_text(encoding='utf-8').split('---', 2)[1])
-        captured.add(front.get('url'))
+    failures, sources = 0, set()
+    sub = "pod" if args.transcript else "web"
+    publisher = lr.pub_dir(args.publisher)
+    captured = latest_captures(publisher / "raw" / sub)
+    recheck = getattr(args, "recheck", False)
     for old in selected:
         url = old["url"]
         try:
-            if url in captured and not args.recapture:
+            source = old.get("source") or source_id(cfg, url)
+            sources.add(source)
+            previous, previous_front = captured.get(url, (None, {}))
+            if previous and not (args.recapture or recheck):
                 log(args.publisher, f"skip captured URL: {url}")
                 continue
             html, final = client.get(url)
             title, published, description = metadata(html, final)
             r = row(cfg, url, title or old.get("title", ""), published or old.get("published", ""), description,
                     "podcast" if args.transcript else old.get("kind", args.kind))
-            # Keep listed IDs stable when page title metadata is richer than discovery metadata.
-            if old.get("id") and not args.transcript:
+            r["source"] = source or source_id(cfg, final)
+            sources.add(r["source"])
+            # Preserve the ID assigned at discovery, or the ID of an older raw-only capture.
+            if previous_front.get("source_id"):
+                r["id"] = previous_front["source_id"]
+            elif old.get("id") and not args.transcript:
                 r["id"] = old["id"]
-            path = lr.raw_path(args.publisher, "pod" if args.transcript else "web", r["published"], r["title"])
-            if args.recapture:
-                path = path.with_stem(path.stem + '-recapture-' + dt.date.today().strftime('%Y%m%d'))
-            if path.exists():
-                log(args.publisher, f"skip existing: {path.relative_to(lr.ROOT)}")
-                continue
+            headings = {key: getattr(args, key, None) for key in ("from_heading", "to_heading")}
+            if recheck and all(value is None for value in headings.values()):
+                headings = {key: previous_front.get(key) for key in headings}
             speakers = [cfg["default_speaker"]] if cfg.get("default_speaker") else []
             if args.transcript:
                 lines = transcript(html)
@@ -408,23 +441,32 @@ def fetch(args, cfg, client):
                 else:
                     body = "\n\n".join(f"**[{x['stamp'] or '¶' + str(i)}]** {x['speaker']}: {lr.clean_field(x['text'])}" for i, x in enumerate(lines, 1)) + "\n"
             else:
-                body = render_paragraphs(select_sections(paragraphs(html, final),
-                                         getattr(args, "from_heading", None), getattr(args, "to_heading", None)))
+                body = render_paragraphs(select_sections(paragraphs(html, final), **headings))
+            same_day_recapture = previous and f"-recapture-{dt.date.today():%Y%m%d}" in previous.stem
+            if previous and (recheck or (args.recapture and same_day_recapture)):
+                _, previous_body = brainlib.split_frontmatter(previous.read_text(encoding="utf-8"))
+                if body.strip() == previous_body.strip():
+                    log(args.publisher, f"unchanged: {url}")
+                    continue
+            base = lr.raw_path(args.publisher, sub, r["published"], r["title"])
+            mode = "recapture" if args.recapture else "revision" if previous else None
+            lr.merge_catalogue(args.publisher, [r], match_url=True)
             front = dict(source_id=r["id"], publisher=args.publisher, title=r["title"], url=url, kind=r["kind"], published=r["published"],
                          method="transcript-page" if args.transcript else "page-text", speakers=speakers,
                          speaker_method="transcript" if args.transcript else "single")
             if len(r["published"]) in (4, 7):
                 front["publication_precision"] = "year" if len(r["published"]) == 4 else "month"
-            for key in ("from_heading", "to_heading"):
-                if getattr(args, key, None) is not None:
-                    front[key] = getattr(args, key)
+            front.update({key: value for key, value in headings.items() if value is not None})
+            if previous:
+                front["supersedes"] = previous.name
             if final != url:
                 front["fetched_url"] = final
-            lr.write_raw(path, front, body)
-            captured.add(url)
-            lr.merge_catalogue(args.publisher, [r])
             if args.transcript:
                 appearances(args.publisher, r["id"], speakers, args.host or cfg.get("host") or cfg.get("default_speaker"))
+            with brainlib.file_lock(publisher / f".{sub}-capture"):
+                path = capture_path(base, url, mode)
+                lr.write_raw(path, front, body)
+            captured[url] = (path, front)
             log(args.publisher, f"fetched: {path.relative_to(lr.ROOT)}; {len(body.split())} words; speakers={speakers}")
         except NeedsBrowser as e:
             failures += 1
@@ -432,6 +474,8 @@ def fetch(args, cfg, client):
         except (ValueError, OSError, ET.ParseError) as e:
             failures += 1
             log(args.publisher, f"failed: {url}: {e}")
+    if complete and not failures:
+        stamp_crawl(publisher, sources)
     return failures
 
 
@@ -494,7 +538,9 @@ def main():
     fetching.add_argument("--transcript", action="store_true")
     fetching.add_argument("--from-heading", help="capture from this exact heading (inclusive); paragraph captures only")
     fetching.add_argument("--to-heading", help="stop before this exact heading (exclusive); paragraph captures only")
-    fetching.add_argument("--recapture", action="store_true", help="write a dated new capture, preserving existing raw files")
+    revision = fetching.add_mutually_exclusive_group()
+    revision.add_argument("--recapture", action="store_true", help="write a dated new capture, preserving existing raw files")
+    revision.add_argument("--recheck", action="store_true", help="refetch known URLs and write a new revision only when the content changed")
     fetching.add_argument("--host", help="transcript host name (or set host in sources.yaml)")
     fetching.add_argument("--browser", action="store_true", help="render pages in headless Chrome (JS-built or bot-blocked pages)")
     for command in (listing, fetching):

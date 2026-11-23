@@ -4,13 +4,10 @@ import copy
 import io
 import json
 import math
-import os
 import pathlib
 import sys
-import tempfile
 
 import yaml
-from filelock import SoftFileLock
 from ruamel.yaml import YAML
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -84,7 +81,7 @@ def named_lines(data, diar, naming):
 
 def finalize(publisher, item):
     # Shared across publishers; the temporary lock file disappears on normal release.
-    with SoftFileLock(str(lr.LIBRARY / "people.yaml.lock"), timeout=60):
+    with brainlib.file_lock(lr.LIBRARY / "people.yaml"):
         return finalize_locked(publisher, item)
 
 
@@ -108,17 +105,9 @@ def finalize_locked(publisher, item):
     people_yaml.dump(merged, buffer)
     serialized = buffer.getvalue()
     # Prepare the people write before creating immutable raw; a failed merge leaves no raw behind.
-    temporary = None
-    try:
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="\n", dir=lr.LIBRARY,
-                                         prefix="people-", suffix=".tmp", delete=False) as f:
-            temporary = pathlib.Path(f.name)
-            f.write(serialized)
+    with brainlib.staged_text(people_path, serialized) as temporary:
         lr.write_raw(path, front, lr.render_transcript(lr.transcript_blocks(lines)))
-        os.replace(temporary, people_path)
-    finally:
-        if temporary and temporary.exists():
-            temporary.unlink()
+        temporary.replace(people_path)
     print(path.relative_to(lr.ROOT))
     return path
 

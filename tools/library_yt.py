@@ -24,6 +24,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
 import library_raw as lr
+from source_helpers import stamp_sources
 from yt_to_raw import fetch_captions, json3_lines, upload_date
 
 TABS = {"videos": "video", "shorts": "short", "streams": "stream"}
@@ -106,12 +107,14 @@ def podcast_rows(source):
 
 
 def catalogue(publisher, config, details):
-    messages, candidates = [], []
+    messages, candidates, stamps = [], [], {}
     for source in config["sources"]:
         counts = dict(source.get("counts") or {})
         succeeded = False
         if source["type"] == "youtube-channel":
-            for tab in source.get("tabs", ["videos"]):
+            tabs = source.get("tabs", ["videos"])
+            succeeded = bool(tabs)
+            for tab in tabs:
                 try:
                     data = json.loads(ytdlp("--flat-playlist", "-J", source["url"].rstrip("/") + "/" + tab))
                     rows = []
@@ -127,8 +130,8 @@ def catalogue(publisher, config, details):
                     candidates.extend((i, row) for i, row in enumerate(rows))
                     messages.append(f"{source['id']} {tab}: {len(rows)} items, {added} added, {updated} updated")
                     print(messages[-1], flush=True)
-                    succeeded = True
                 except Exception as error:
+                    succeeded = False
                     failure(messages, f"{source['id']} {tab}", error)
         elif source["type"] == "podcast" and source.get("rss"):
             try:
@@ -140,7 +143,7 @@ def catalogue(publisher, config, details):
             except Exception as error:
                 failure(messages, source["id"], error)
         if succeeded:
-            source.update(last_crawled=dt.date.today().isoformat(), counts=counts)
+            stamps[source["id"]] = {"last_crawled": dt.date.today().isoformat(), "counts": counts}
     known = lr.read_catalogue(publisher)
     seen, attempted, enriched = set(), 0, []
     # Flat playlists are newest first within each tab; interleave tabs by rank.
@@ -158,8 +161,7 @@ def catalogue(publisher, config, details):
             failure(messages, row["id"], error)
     if enriched:
         lr.merge_catalogue(publisher, enriched)
-    (lr.pub_dir(publisher) / "sources.yaml").write_text(
-        yaml.safe_dump(config, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    stamp_sources(lr.pub_dir(publisher), stamps)
     messages.append(f"Metadata: {attempted} lookups requested; catalogue total: {len(known)}")
     log(publisher, "catalogue", messages)
     print("\n".join(messages), flush=True)

@@ -293,6 +293,33 @@ class TopicCheckers(unittest.TestCase):
         self.assertIn("library/test / channel", output.getvalue())
         self.assertIn("topic-fixture / wiki/sources/test-page.md", output.getvalue())
 
+    def test_refresh_due_reports_captured_sources_with_no_date(self):
+        self.write("library/acme/sources.yaml", """sources:
+- id: captured-docs
+  refresh: quarterly
+  last_crawled:
+  url: https://example.com/docs/
+- id: catalogue-only
+  refresh: monthly
+  last_crawled:
+  url: https://other.example/
+- id: manual-doc
+  refresh: manual
+  last_crawled:
+""")
+        self.write("library/acme/catalogue.tsv", "id\turl\tsource\nweb-pending\thttps://other.example/pending\tcatalogue-only\n")
+        self.write("library/acme/raw/web/guide.md", "---\nsource_id: web-guide\nurl: https://example.com/docs/guide\n---\nCaptured.\n")
+        for flags in ([], ["--all"]):
+            output = io.StringIO()
+            argv = ["refresh_due.py", "--workspace", str(self.root), *flags]
+            with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
+                refresh.main()
+            text = output.getvalue()
+            self.assertIn("**library/acme / captured-docs**: quarterly, date missing", text)
+            self.assertNotIn("**library/acme / catalogue-only**", text)
+            self.assertEqual("catalogue-only: monthly, not crawled yet" in text, bool(flags))
+            self.assertEqual("manual-doc: manual, no reminder" in text, bool(flags))
+
     def test_triage_tiers_sort_freshness_and_overrides(self):
         fields = ["item", *triage.SCORES, "example", "speakers", "why"]
         path = self.root / "topic-fixture/ingest/triage/test.tsv"
