@@ -19,7 +19,7 @@ Paths are relative to `{{brain_path}}` unless they start with `tools/` (relative
 - `wiki/sources/<lesson-id>.md`: the source pages. Open them when a bundle point is unclear.
 - `raw/...`: the transcripts. Open them to confirm a quote's context, speaker or meaning.
 
-## What you write (and nothing else)
+## What you write
 
 One page per slug in your group, at `wiki/<dir>/<slug>.md`, where `<dir>` comes from the bundle `type`: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, glossary → `glossary`. Edit only your assigned pages. The orchestrator owns both indexes, `hot.md`, `log.md` and `brain.md`. No git, no installs.
 
@@ -27,7 +27,7 @@ One page per slug in your group, at `wiki/<dir>/<slug>.md`, where `<dir>` comes 
 
 Never edit any page on that list, and never create, edit or delete anything in `notes/`. If a slug in your group is protected, write the proposed full page to a temporary file and file it with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 
-Save each intended wiki page in a separate draft and check `wiki_edits.py status` before writing the live page. Register each completed write with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" mark-written <page> --from <draft>`.
+Save each full wiki page, including proposals, in your assigned draft folder `{{draft_folder}}` outside `wiki/`. Publish with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" write "<page>" --from "{{draft_folder}}/<draft>.md"`. If the write is refused, file the draft with `propose`.
 
 ## Page format
 

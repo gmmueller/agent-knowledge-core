@@ -31,7 +31,7 @@ Core rules (self-contained): use primary sources only, cite every claim or mark 
 - `{{brain_name}}/ingest/item-pages.tsv`: two-column TSV (`item<TAB>page`) mapping each library item (`<publisher>/<source_id>`) to its source or example page slug(s); multi-chapter items repeat `item` across rows.
 - `{{brain_name}}/ingest/page-groups.yaml`: defines `groups: [{name, slugs}]` (your assigned concept slugs) and `debates: [{slug, title, concepts}]` (for debate links).
 
-## What you write (and nothing else)
+## What you write
 
 One page per slug in your group (`{{brain_name}}/ingest/page-groups.yaml` → `groups`) at `{{brain_name}}/wiki/<dir>/<slug>.md`, where the type maps to a folder: topic → `topics`, principle → `principles`, method → `methods`, framework → `frameworks`, rule → `rules`, rubric → `rubrics`, tool → `tools`, glossary → `glossary`. Edit only your assigned pages. The orchestrator owns both indexes, `hot.md`, `log.md` and `brain.md`. No git, no installs. Other writers work on their assigned groups at the same time.
 
@@ -39,7 +39,7 @@ One page per slug in your group (`{{brain_name}}/ingest/page-groups.yaml` → `g
 
 Never edit any page on that list, and never create, edit or delete anything in `{{brain_name}}/notes/`. If a slug in your group is protected, write the proposed full page to a temporary file and file it with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 
-Save each intended wiki page in a separate draft and check `wiki_edits.py status` before writing the live page. Register each completed write with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" mark-written <page> --from <draft>`.
+Save each full wiki page, including proposals, in your assigned draft folder `{{draft_folder}}` outside `wiki/`. Publish with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" write "<page>" --from "{{draft_folder}}/<draft>.md"`. If the write is refused, file the draft with `propose`.
 
 ## Page format
 

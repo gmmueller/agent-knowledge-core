@@ -173,6 +173,10 @@ def main() -> None:
         for key in ("brain_md", "wiki", "raw", "tools", "library"):
             values[key] = pathlib.Path(os.path.relpath(values[key], root)).as_posix()
     values["tools_folder"] = f"- **Tools:** `{values['tools']}` holds brain-specific tools.\n" if (brain / "tools").is_dir() else ""
+    wiki_tools = sorted(p.name for p in brainlib.iter_files(brain / "wiki" / "tools") if p.suffix == ".md")
+    if wiki_tools:
+        names = ", ".join(f"`{name}`" for name in wiki_tools)
+        values["tools_folder"] += f"- **Tool pages:** Find {names} in `{values['wiki']}/tools/`.\n"
     name = str(fm["name"])
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
         ap.error("brain.md name must be a kebab-case slug")

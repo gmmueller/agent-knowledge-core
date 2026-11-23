@@ -4,6 +4,8 @@ Two kinds of brain, two pipelines. A **persona brain** (a course or community) c
 
 Run Python tools with `python -X utf8 -I <framework>/tools/<tool>.py …` (with the venv active). Tools that work on one brain take `--brain <brain-folder>`. Tools that only touch the library take `--workspace <workspace>`. `--help` on any tool lists its options.
 
+Assign each worker a draft folder and publish wiki pages with [`wiki_edits.py write`](agent-reference.md#registering-wiki-writes). The index rebuild closes the pass after checking its content pages.
+
 ## Persona brain pipeline
 
 | # | Step | Output | Who |
@@ -134,7 +136,7 @@ Topic brains count supporting points and quotes. On a rule's evidence, `stance` 
 
 By default, `active` needs supporting items from at least two publishers or at least three distinct supporting items. With `rule_status: voices` in `brain.md`, `active` instead needs at least two distinct supporting speakers after `expert_aliases` (a duo can count once) and `voice_aliases` (platform staff can count as the platform). The fallback status is `bench`. For a page without a bundle, the audit treats its attributed quotes as support.
 
-`merge_topic.py` and `rule_status.py` preserve existing `contested` and `status_locked: true` page statuses. Names alone cannot establish independence. Note known borrowing or citation chains in prose and lock the status with a `status_note` when the voices are dependent. Run the audit without `--write` to preview changes. With `--write`, the audit uses the open pass's protected-page list.
+`merge_topic.py` and `rule_status.py` preserve existing `contested` and `status_locked: true` page statuses. Names alone cannot establish independence. Note known borrowing or citation chains in prose and lock the status with a `status_note` when the voices are dependent. Run the audit without `--write` to preview changes and spot explicit status mismatches or dissent that challenges a computed consensus. With `--write`, each update uses the wiki write guard.
 
 ## Lessons learned
 

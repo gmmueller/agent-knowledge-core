@@ -55,9 +55,11 @@ def load(brain: pathlib.Path):
             for kind in ("points", "quotes"):
                 for p in c.get(kind) or []:
                     cite = p.get("cite") or {}
+                    evidence = p.get("evidence") or c.get("evidence")
                     b[kind].append({"text": p.get("text"), "speaker": p.get("speaker"), "raw": cite.get("raw"),
                                     "at": str(cite.get("at")), "item": rule_evidence.raw_item(workspace, cite.get("raw", "")),
-                                    "batch": batch, **{k: p[k] for k in ("variant", "kind", "stance") if p.get(k)}})
+                                    "batch": batch, **{k: p[k] for k in ("variant", "kind", "stance") if p.get(k)},
+                                    **({"evidence": evidence} if evidence else {})})
     return concepts, extras
 
 
