@@ -195,18 +195,29 @@ class EditGuards(unittest.TestCase):
         self.assertEqual(self.run_tool("wiki_edits.py", "accept", "--all").returncode, 0)
         self.assertEqual(wiki_edits.status(self.brain), {})
 
-    def test_index_protects_human_index_and_duration(self):
-        self.write("wiki/index.md", "# Index\n")
+    def test_index_protects_both_human_indexes_and_duration(self):
         self.write("wiki/sources/lesson.md", "---\ntype: source\nduration: 90\n---\n# Lesson\n")
         self.init_wiki()
+        result = self.run_tool("build_wiki_index.py")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(wiki_edits.status(self.brain), {})
+        baseline = wiki_edits.manifest(self.brain).read_bytes()
         self.write("wiki/index.md", "# My index\n")
+        self.write("wiki/sources-index.md", "# My sources index\n")
         self.write("wiki/sources/lesson.md", "---\ntype: source\nduration: 120\n---\n# My lesson\n")
+        self.assertEqual(self.run_tool("wiki_edits.py", "begin").returncode, 0)
         result = self.run_tool("build_wiki_index.py")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual((self.brain / "wiki/index.md").read_text(encoding="utf-8"), "# My index\n")
+        self.assertEqual((self.brain / "wiki/sources-index.md").read_text(encoding="utf-8"), "# My sources index\n")
         self.assertIn("duration: 120", (self.brain / "wiki/sources/lesson.md").read_text(encoding="utf-8"))
-        self.assertEqual(len(wiki_edits.status(self.brain)), 2)
-        self.assertEqual(len(wiki_edits.proposals(self.brain)), 1)
+        self.assertEqual(wiki_edits.manifest(self.brain).read_bytes(), baseline)
+        self.assertEqual(wiki_edits.status(self.brain), {"index.md": "changed", "sources-index.md": "changed",
+                                                       "sources/lesson.md": "changed"})
+        proposals = {p.name: p.read_text(encoding="utf-8") for p in wiki_edits.proposals(self.brain)}
+        self.assertEqual(set(proposals), {"index.md", "sources-index.md"})
+        self.assertIn("[[sources-index]]", proposals["index.md"])
+        self.assertIn("- [[lesson|My lesson]]", proposals["sources-index.md"])
 
     def test_notes_are_ignored_and_index_lists_them_without_writing(self):
         self.write("notes/unstructured.md", "No frontmatter [[missing]]\n")

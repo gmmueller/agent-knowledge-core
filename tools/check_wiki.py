@@ -521,7 +521,7 @@ def main() -> None:
     if not files:
         files = [brain / "brain.md", *sorted(brainlib.wiki_pages(brain)),
                  *sorted((brain / "ingest" / "staging").glob("*.yaml"))]
-        files = [f for f in files if f.name not in ("index.md", "hot.md", "log.md")]
+        files = [f for f in files if f.name not in ("index.md", "sources-index.md", "hot.md", "log.md")]
     errors: list[str] = []
     for f in files:
         if f.is_relative_to(brain / "notes") or f.is_relative_to(brain / "wiki" / "notes"):

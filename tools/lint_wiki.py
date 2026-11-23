@@ -20,7 +20,7 @@ import raw_guard
 from check_wiki import TYPES, frontmatter
 
 LINK = re.compile(r"\[\[([^\]|#]+?)(?:\|[^\]]*)?\]\]")
-SPECIAL = {"index", "hot", "log"}
+SPECIAL = {"index", "sources-index", "hot", "log"}
 
 
 def pages(wiki: pathlib.Path) -> dict[str, pathlib.Path]:

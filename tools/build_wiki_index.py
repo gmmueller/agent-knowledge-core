@@ -1,9 +1,9 @@
-"""Rebuild a brain's wiki/index.md from the pages on disk, and normalise source-page durations.
+"""Rebuild a brain's concept and source indexes and normalise source-page durations.
 
 Usage: python -I tools/build_wiki_index.py --brain <brain-folder>
 
-index.md lists every page by type: [[link]], a one-line summary (first sentence of the page's opening paragraph
-or **Summary.**), and the number of raw sources it draws on. Source pages are grouped by product and module.
+wiki/index.md lists concept pages by type with a [[link]], one-line summary and source count.
+wiki/sources-index.md lists source pages by product and module or by publisher and year.
 Durations given in seconds in source-page frontmatter are rewritten as m:ss / h:mm:ss.
 """
 import argparse
@@ -93,7 +93,7 @@ def main() -> None:
     by_type = collections.defaultdict(list)
     sources = collections.defaultdict(lambda: collections.defaultdict(list))
     for p in sorted(brainlib.wiki_pages(brain)):
-        if p.stem in ("index", "hot", "log"):
+        if p.stem in ("index", "sources-index", "hot", "log"):
             continue
         fm, body = split(p.read_text(encoding="utf-8"))
         n = len(fm.get("sources") or [])
@@ -115,40 +115,42 @@ def main() -> None:
                 extra += f" _{fm['freshness']}_"
             by_type[fm.get("type")].append(f"- [[{p.stem}]]{extra}: {one_line(body)} ({n} sources)")
     out = ["# Index", "",
-           "Catalog of every wiki page: link, one-line summary, source count. Read this first on every query. "
+           "Catalog of wiki concepts with links, one-line summaries and source counts. "
            "Rebuilt by `tools/build_wiki_index.py` after every ingest.", ""]
     for t, heading in TYPES:
         if by_type.get(t) or t in ("topic", "principle", "framework", "method", "rule", "glossary"):
             out += [f"## {heading}", ""] + sorted(by_type.get(t, []), key=str.lower) + [""]
-    out += ["## Sources", ""]
+    out += ["To find a specific source page, see [[sources-index]].", ""]
+    source_out = ["# Sources index", "", "Rebuilt by `tools/build_wiki_index.py` after every ingest.", "", "## Sources", ""]
     for product in dict.fromkeys([*products, "attachments", "other", *sorted(sources)]):
         if product not in sources:
             continue
-        out += [f"### {products.get(product, product.replace('-', ' ').title())}", ""]
+        source_out += [f"### {products.get(product, product.replace('-', ' ').title())}", ""]
         mods = sources[product].items()
         for module, items in (mods if product in products or product in ("attachments", "other") else sorted(mods, reverse=True)):
-            out.append(f"- **{module}**: " + " · ".join(f"[[{s}|{t}]]" for s, t in sorted(items)))
-        out.append("")
+            source_out += [f"#### {module}", ""] + [f"- [[{s}|{t}]]" for s, t in sorted(items)] + [""]
     notes = [p for p in brainlib.iter_files(brain / "notes") if p.suffix == ".md"]
     if notes:
         out += ["## Your notes", ""]
         out += [f"- [[{p.relative_to(brain).with_suffix('').as_posix()}]]" for p in notes]
         out.append("")
-    if "index.md" in protected:
-        proposal = brain / "ingest" / "proposals" / "index.md"
-        if not proposal.exists():
-            brainlib.write_text(proposal, f"# Proposed index rebuild\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/index.md\nWhy: index has human edits; review before replacing.\n\n---\n\n" + "\n".join(out))
-        print("index.md has human edits; proposal: ingest/proposals/index.md")
-    else:
-        (wiki / "index.md").write_text("\n".join(out), encoding="utf-8", newline="\n")
-        written["index.md"] = wiki_edits.hashes.digest(wiki / "index.md")
+    for name, lines in (("index.md", out), ("sources-index.md", source_out)):
+        content = "\n".join(lines)
+        if name in protected:
+            proposal = brain / "ingest" / "proposals" / name
+            if not proposal.exists():
+                brainlib.write_text(proposal, f"# Proposed index rebuild\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: index has human edits; review before replacing.\n\n---\n\n" + content)
+            print(f"{name} has human edits; proposal: ingest/proposals/{name}")
+        else:
+            (wiki / name).write_text(content, encoding="utf-8", newline="\n")
+            written[name] = wiki_edits.hashes.digest(wiki / name)
     try:
         wiki_edits.record(brain, written=written)
     except ValueError as exc:
         ap.exit(2, f"Could not record the wiki baseline. {exc}\n")
     total = sum(len(v) for v in by_type.values())
-    print(f"index.md: {total} concept pages, {sum(len(i) for m in sources.values() for i in m.values())} source pages; "
-          f"normalised {fixed} durations")
+    source_total = sum(len(items) for modules in sources.values() for items in modules.values())
+    print(f"index.md: {total} concept pages; sources-index.md: {source_total} source pages; normalised {fixed} durations")
 
 
 if __name__ == "__main__":

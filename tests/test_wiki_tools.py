@@ -44,14 +44,21 @@ class WikiTools(unittest.TestCase):
                 self.assertEqual(self.run_tool(name + ".py").returncode, 2)
 
     def test_check_lint_and_duration_index(self):
+        result = self.run_tool("build_wiki_index.py", "--brain", self.brain)
+        self.assertEqual(result.returncode, 0, result.stderr)
         for tool in ("check_wiki.py", "lint_wiki.py"):
             result = self.run_tool(tool, "--brain", self.brain)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        result = self.run_tool("build_wiki_index.py", "--brain", self.brain)
-        self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertNotIn("unknown page type", result.stdout)
         index = (self.brain / "wiki/index.md").read_text(encoding="utf-8")
-        self.assertIn("### My Course", index)
+        sources = (self.brain / "wiki/sources-index.md").read_text(encoding="utf-8")
         self.assertIn("[[rule-practice]]", index)
+        self.assertIn("[[sources-index]]", index)
+        self.assertNotIn("## Sources", index)
+        self.assertNotIn("main-m01-l01", index)
+        self.assertIn("### My Course\n\n#### Getting Started", sources)
+        self.assertIn("- [[main-m01-l01|Practice]]", sources)
+        self.assertNotIn("[[rule-practice]]", sources)
         self.assertIn('duration: "1:30"', (self.brain / "wiki/sources/main-m01-l01.md").read_text(encoding="utf-8"))
 
     def test_corruption_in_pages_and_staging_but_not_urls(self):
@@ -125,7 +132,7 @@ class WikiTools(unittest.TestCase):
         path.write_text(path.read_text(encoding="utf-8").replace("product: main", "product: unregistered"), encoding="utf-8")
         result = self.run_tool("build_wiki_index.py", "--brain", self.brain)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("### Unregistered", (self.brain / "wiki/index.md").read_text(encoding="utf-8"))
+        self.assertIn("### Unregistered", (self.brain / "wiki/sources-index.md").read_text(encoding="utf-8"))
 
     def test_requote_preview_then_apply(self):
         path = self.brain / "wiki/sources/main-m01-l01.md"
@@ -231,24 +238,35 @@ class WikiTools(unittest.TestCase):
                          {"lesson": "update-lesson", "batch": "update", "date": "2026-01-02",
                           "freshness": "tool-version", "speaker": "The Expert"})
 
-    def test_topic_index_grouping_and_skill_counts(self):
+    def test_topic_index_grouping_and_skill_lookup(self):
         path = self.brain / "brain.md"
         path.write_text(path.read_text(encoding="utf-8").replace("kind: course", "kind: topic\nexperts: [The Expert, Other Expert]"), encoding="utf-8")
         self.write("wiki/sources/article-old.md", "---\ntype: source\npublisher: example-publisher\npublished: 2024-01-01\n---\n# Older Article\n")
         self.write("wiki/sources/article-new.md", "---\ntype: source\npublisher: example-publisher\npublished: 2026-01-01\n---\n# Newer Article\n")
+        self.write("wiki/sources/article-newer.md", "---\ntype: source\npublisher: example-publisher\npublished: 2026-02-01\n---\n# Another Article\n")
         self.write("wiki/rules/shared-rule.md", "---\ntype: rule\nstatus: consensus\n---\n# Shared Rule\n")
         self.write("wiki/tools/platform-fact.md", "---\ntype: tool\nfreshness: platform\n---\n# Platform Fact\n")
+        self.write("wiki/examples/example.md", "---\ntype: example\n---\n# Worked Example\n")
         result = self.run_tool("build_wiki_index.py", "--brain", self.brain)
         self.assertEqual(result.returncode, 0, result.stderr)
         index = (self.brain / "wiki/index.md").read_text(encoding="utf-8")
+        sources = (self.brain / "wiki/sources-index.md").read_text(encoding="utf-8")
         self.assertIn("## Tools and platform facts", index)
         self.assertIn("[[platform-fact]] _platform_", index)
-        self.assertLess(index.index("**2026**"), index.index("**2024**"))
+        self.assertIn("## Examples", index)
+        self.assertLess(sources.index("#### 2026"), sources.index("#### 2024"))
+        self.assertIn("- [[article-new|Newer Article]]\n- [[article-newer|Another Article]]\n", sources)
         result = self.run_tool("generate_persona.py", "--brain", self.brain, "--out", self.root / "skills")
         self.assertEqual(result.returncode, 0, result.stderr)
         skill = (self.root / "skills/my-course/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("The Expert, Other Expert", skill)
-        self.assertIn("1 consensus, 0 active, 1 bench", skill)
+        self.assertNotRegex(skill, r"\d+ (consensus|active|bench|contested)")
+        self.assertIn("read `brain.md` and the concept index `wiki/index.md`", skill)
+        self.assertIn("qmd collections `my-course-wiki` and `library`", skill)
+        self.assertIn("grep `wiki/` and `library/*/raw/`", skill)
+        self.assertIn("Open `wiki/sources-index.md` only to locate a specific source", skill)
+        self.assertIn("Worked examples are in `examples/`", skill)
+        self.assertNotIn("**Tools:**", skill)  # wiki/tools/ is distinct from brain-level tools/
         self.assertIn(str(self.root / "library"), skill)
         self.assertIn("if you paraphrase, drop the quote marks", skill)
 
@@ -259,11 +277,11 @@ class WikiTools(unittest.TestCase):
             self.write(f"wiki/sources/{slug}.md", f"---\ntype: source\nmodule: {module}\npublished: {published}\n---\n# {slug}\n")
         result = self.run_tool("build_wiki_index.py", "--brain", self.brain)
         self.assertEqual(result.returncode, 0, result.stderr)
-        index = (self.brain / "wiki/index.md").read_text(encoding="utf-8")
-        self.assertIn("### Classroom", index)
-        self.assertIn("### Community", index)
-        self.assertIn("**Example Course**", index)
-        self.assertLess(index.index("**2026-01**"), index.index("**2024-01**"))
+        sources = (self.brain / "wiki/sources-index.md").read_text(encoding="utf-8")
+        self.assertIn("### Classroom", sources)
+        self.assertIn("### Community", sources)
+        self.assertIn("#### Example Course", sources)
+        self.assertLess(sources.index("#### 2026-01"), sources.index("#### 2024-01"))
 
     def test_persona_explicit_or_environment_output(self):
         env = os.environ.copy()
@@ -271,14 +289,46 @@ class WikiTools(unittest.TestCase):
         self.assertEqual(self.run_tool("generate_persona.py", "--brain", self.brain, env=env).returncode, 2)
         out = self.root / "skills"
         env["AGENT_KNOWLEDGE_CORE_SKILLS_DIR"] = str(out)
+        (self.brain / "tools").mkdir()
+        (self.brain / "wiki/examples").mkdir()
         result = self.run_tool("generate_persona.py", "--brain", self.brain, env=env)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn(str(self.brain / "brain.md"), (out / "my-course/SKILL.md").read_text(encoding="utf-8"))
+        skill = (out / "my-course/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn(str(self.brain / "brain.md"), skill)
+        self.assertIn(str(self.brain / "tools"), skill)
+        self.assertNotIn("`examples/`", skill)
+        self.assertNotRegex(skill, r"\d+ (active|bench)")
+        self.assertIn("read `brain.md` and the concept index `wiki/index.md`", skill)
+        self.assertIn("qmd collections `my-course-wiki` and `my-course-raw`", skill)
+        self.assertIn("grep `wiki/` and `raw/`", skill)
+        self.assertIn("Open `wiki/sources-index.md` only to locate a specific source", skill)
         self.assertEqual(brainlib.load_yaml(out / "my-course/agents/openai.yaml")["interface"]["display_name"], "My Course (The Expert)")
         path = self.brain / "brain.md"
         path.write_text(path.read_text(encoding="utf-8").replace("name: my-course", "name: ../outside"), encoding="utf-8")
         self.assertEqual(self.run_tool("generate_persona.py", "--brain", self.brain, "--out", out).returncode, 2)
         self.assertFalse((self.root / "outside").exists())
+
+    def test_persona_check_reports_drift_without_writing(self):
+        out = self.root / "skills"
+        args = ("--brain", self.brain, "--out", out, "--relative-to", self.root)
+        result = self.run_tool("generate_persona.py", *args, "--check")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("SKILL.md (missing)", result.stdout)
+        self.assertFalse(out.exists())
+        result = self.run_tool("generate_persona.py", *args)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.run_tool("generate_persona.py", *args, "--check").returncode, 0)
+
+        skill = out / "my-course/SKILL.md"
+        skill.write_text("Old skill\n", encoding="utf-8", newline="\n")
+        metadata = out / "my-course/agents/openai.yaml"
+        metadata.write_text("Old metadata\n", encoding="utf-8", newline="\n")
+        result = self.run_tool("generate_persona.py", *args, "--check")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(len(result.stdout.splitlines()), 1)
+        self.assertIn("SKILL.md (changed), agents/openai.yaml (changed)", result.stdout)
+        self.assertEqual(skill.read_text(encoding="utf-8"), "Old skill\n")
+        self.assertEqual(metadata.read_text(encoding="utf-8"), "Old metadata\n")
 
     def test_refresh_brain_library_tool_and_reminders_off(self):
         self.write("sources.yaml", "sources: [{id: main, title: My Course, refresh: yearly, last_crawled: 2000-01-01}]\n")

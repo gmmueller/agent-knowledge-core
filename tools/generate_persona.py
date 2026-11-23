@@ -8,7 +8,7 @@ The core wording is subject-neutral. Optional brain.md `skill.guidance: [...]` a
 section and `skill.boundaries: [...]` adds boundary bullets, for anything specific to the brain's subject.
 When a brain has no guidance yet, the tool prints content-based suggestions ("consider skill.guidance: ...").
 Writes <out>/<name>/SKILL.md and <out>/<name>/agents/openai.yaml.
-Re-run after brain.md changes; never hand-edit generated files.
+Use --check to report drift or missing files without writing. Regenerate to update the skill.
 """
 import argparse
 import json
@@ -34,14 +34,14 @@ description: {description}
 
 A persona compiled from primary sources into a cited wiki. Its knowledge lives in the brain folder, not in this file:
 
-- **Persona card:** `{brain_md}`: scope, voice, worldview, rules ({n_active} active, {n_bench} bench), framework map, task loop and boundaries.
-- **Wiki:** `{wiki}`. Start at `index.md`; concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/` and `glossary/`, and per-lesson pages are in `sources/`.
+- **Persona card:** `{brain_md}`. Scope, voice, worldview, rules, framework map, task loop and boundaries.
+- **Wiki:** `{wiki}`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/` and `glossary/`, and per-lesson pages are in `sources/`.{examples_folder}
 - **Transcripts:** `{raw}`. Use them for exact wording and surrounding context.
-
+{tools_folder}
 ## How to use it
 
-1. **Load.** Read `brain.md` in full the first time this skill is used in a task, then `wiki/index.md`.
-2. **Look up.** Open the concept pages the question touches, then their source pages or raw transcripts for exact quotes. For a broad question that needs many pages, do the reading in a subagent (one hop) and have it return a cited answer, which keeps the main context small.
+1. **Load.** On first use in a task, read `brain.md` and the concept index `wiki/index.md`.
+2. **Look up.** Search qmd collections `{name}-wiki` and `{name}-raw` when available, or grep `wiki/` and `raw/`. Read the relevant concept pages{examples_lookup}, then their source pages or raw transcripts for exact quotes. Open `wiki/sources-index.md` only to locate a specific source. For a broad question that needs many pages, delegate the reading to one subagent and ask for a cited answer.
 3. **Answer** by following the persona card's **Task loop**: clarify the goal and situation, find the matching framework, answer in the persona's structure and voice, check the advice against its rules, and flag limits.
 4. **Cite** claims and quotes as wiki page names or `([[raw/<path>]] @ m:ss)` (or the other citation forms the persona card lists), writing the full path every time (no "same lesson" shorthand), so citations can be checked. Quotes must be exact. A quote with no speaker name is {persona}'s; anyone else's is labelled on the quote line, so keep the label.
 5. **Stay inside the material.** Anything the wiki doesn't support is **Inference:**. Say "the material doesn't cover this" rather than inventing an answer. Numbers and details are as recorded in the material, so note when they may be out of date.
@@ -66,13 +66,13 @@ description: {description}
 A topic specialist compiled from several experts' own material ({experts}) into a cited wiki. It has no imitated voice: it applies the experts' methods and says whose method each step comes from. Its knowledge lives in the brain folder, not in this file:
 
 - **Brain card:** `{brain_md}`: scope, experts, extraction areas, task loop and boundaries.
-- **Wiki:** `{wiki}`. Start at `index.md`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/` ({n_consensus} consensus, {n_active} active, {n_bench} bench), `rubrics/`, `debates/` and `glossary/`;{examples_folder} per-source pages are in `sources/`.
+- **Wiki:** `{wiki}`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/`, `rubrics/`, `debates/` and `glossary/`. Per-source pages are in `sources/`.{examples_folder}
 - **Library:** `{library}`. Transcripts and pages shared across brains, cited as `[[library/<publisher>/raw/...]]`.
-
+{tools_folder}
 ## How to use it
 
-1. **Load.** Read `brain.md` in full the first time this skill is used in a task, then `wiki/index.md`.
-2. **Look up.** Open the concept, rule and rubric pages the request touches{examples_lookup}. Go to source pages or library transcripts for exact quotes. For a broad request that needs many pages, do the reading in a subagent (one hop) and have it return a cited answer, to keep the main context small.
+1. **Load.** On first use in a task, read `brain.md` and the concept index `wiki/index.md`.
+2. **Look up.** Search qmd collections `{name}-wiki` and `library` when available, or grep `wiki/` and `library/*/raw/`. Read the relevant concept, rule and rubric pages{examples_lookup}, then their source pages or library transcripts for exact quotes. Open `wiki/sources-index.md` only to locate a specific source. For a broad request that needs many pages, delegate the reading to one subagent and ask for a cited answer.
 3. **Do the work** following the brain card's **Task loop**: clarify the job and context, apply the experts' methods (naming whose), check the result against the relevant rubric, and show the check.
 4. **Weigh the evidence.** Prefer `consensus` rules (several experts agree), then `active`, then `bench`. When experts disagree, present the debate page's positions instead of picking silently.
 5. **Cite** as wiki page names or `([[library/<publisher>/raw/<path>]] @ <block>)`, writing the full path every time. Quotes are exact and always name their speaker: copy them from the source or raw text, and if you paraphrase, drop the quote marks.
@@ -109,7 +109,7 @@ def customization(brain, fm):
     boundaries = _lines(skill.get("boundaries"), "boundaries")
     examples = any((brain / "wiki" / "examples").glob("*.md"))
     return {
-        "examples_folder": " worked examples are in `examples/`;" if examples else "",
+        "examples_folder": " Worked examples are in `examples/`." if examples else "",
         "examples_lookup": ", plus examples when a demonstration helps" if examples else "",
         "guidance": ("\n## This brain's guidance\n\n" + "".join(f"- {g}\n" for g in guidance)) if guidance else "",
         "boundaries": "".join(f"- {b}\n" for b in boundaries),
@@ -143,6 +143,7 @@ def main() -> None:
     brainlib.add_brain_arg(ap)
     ap.add_argument("--out", default=os.environ.get("AGENT_KNOWLEDGE_CORE_SKILLS_DIR"), help="root directory for generated skills")
     ap.add_argument("--relative-to", type=pathlib.Path, metavar="DIR", help="write portable paths relative to DIR; default: absolute paths")
+    ap.add_argument("--check", action="store_true", help="exit 1 if generated files are missing or differ; write nothing")
     a = ap.parse_args()
     if not a.out:
         ap.error("--out or AGENT_KNOWLEDGE_CORE_SKILLS_DIR is required")
@@ -150,8 +151,6 @@ def main() -> None:
     text = (brain / "brain.md").read_text(encoding="utf-8")
     fm = yaml.safe_load(re.match(r"^---\n(.*?)\n---\n", text, re.S).group(1))
     skill = fm["skill"]
-    rules = list((brain / "wiki" / "rules").glob("*.md"))
-    status = [re.search(r"^status:\s*(\w+)", p.read_text(encoding="utf-8"), re.M) for p in rules]
     values = {
         "name": fm["name"],
         "description": json.dumps(skill["description"], ensure_ascii=False),
@@ -160,10 +159,8 @@ def main() -> None:
         "brain_md": str(brain / "brain.md"),
         "wiki": str(brain / "wiki"),
         "raw": str(brain / "raw"),
+        "tools": str(brain / "tools"),
         "updated": fm.get("updated"),
-        "n_active": sum(1 for m in status if m and m.group(1) == "active"),
-        "n_bench": sum(1 for m in status if m and m.group(1) == "bench"),
-        "n_consensus": sum(1 for m in status if m and m.group(1) == "consensus"),
         "experts": ", ".join(fm.get("experts") or []),
         "library": str(brainlib.library_dir(brainlib.workspace(brain))),
         "own_skills": "",
@@ -173,13 +170,13 @@ def main() -> None:
         values["own_skills"] = f" (e.g. {', '.join(own)})"
     if a.relative_to is not None:
         root = a.relative_to.expanduser().resolve()
-        for key in ("brain_md", "wiki", "raw", "library"):
+        for key in ("brain_md", "wiki", "raw", "tools", "library"):
             values[key] = pathlib.Path(os.path.relpath(values[key], root)).as_posix()
+    values["tools_folder"] = f"- **Tools:** `{values['tools']}` holds brain-specific tools.\n" if (brain / "tools").is_dir() else ""
     name = str(fm["name"])
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
         ap.error("brain.md name must be a kebab-case slug")
     out = pathlib.Path(a.out).expanduser().resolve() / name
-    (out / "agents").mkdir(parents=True, exist_ok=True)
     try:
         values.update(customization(brain, fm))
     except ValueError as error:
@@ -189,11 +186,27 @@ def main() -> None:
     if a.relative_to is not None:
         comment = "<!-- Portable example: normal generate_persona.py use writes absolute paths for your own machine. Paths here are relative to the --relative-to root; regenerate without that flag for installation elsewhere. -->\n\n"
         rendered = rendered.replace("<!-- Generated by", comment + "<!-- Generated by", 1)
-    (out / "SKILL.md").write_text(rendered, encoding="utf-8", newline="\n")
     openai = {"interface": {"display_name": fm["display_name"], "short_description": skill["short_description"],
                             "default_prompt": skill["default_prompt"]}}
-    (out / "agents" / "openai.yaml").write_text(yaml.safe_dump(openai, sort_keys=False, allow_unicode=True, width=200),
-                                                encoding="utf-8", newline="\n")
+    files = {"SKILL.md": rendered, "agents/openai.yaml": yaml.safe_dump(openai, sort_keys=False, allow_unicode=True, width=200)}
+    if a.check:
+        changes = []
+        for name, content in files.items():
+            try:
+                installed = (out / name).read_bytes()
+            except FileNotFoundError:
+                changes.append(f"{name} (missing)")
+                continue
+            if installed.replace(b"\r\n", b"\n") != content.encode("utf-8"):
+                changes.append(f"{name} (changed)")
+        if changes:
+            print(f"Skill drift in {out} ({', '.join(changes)}). Regenerate without --check.")
+            sys.exit(1)
+        print(f"Skill is current in {out}")
+        return
+    (out / "agents").mkdir(parents=True, exist_ok=True)
+    for name, content in files.items():
+        (out / name).write_text(content, encoding="utf-8", newline="\n")
     print(f"wrote {out / 'SKILL.md'} and agents/openai.yaml ({len(skill['description'])}-char description)")
     for hint in suggestions(brain, fm):
         print(f"consider skill.guidance: {hint}")
