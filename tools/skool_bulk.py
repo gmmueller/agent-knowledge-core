@@ -5,6 +5,7 @@ Usage: python -I tools/skool_bulk.py --phases lessons,attachments,recache,expert
 
 Each phase is one of the incremental crawlers; re-running a finished phase is cheap (it skips what's in state).
 - A phase that stops on RateLimited (Skool's WAF) is re-run after --cooldown seconds, up to 8 times.
+- BudgetExhausted or an incomplete feed scan stops the run with status INCOMPLETE (exit 3).
 - NotLoggedIn (or any crash) stops the whole run with status NEEDS_USER / FAILED.
 - `lessons` adds --whisper with `--whisper on`, never with `off`, and by default (`auto`) only when the GPU looks idle
   (Loom videos stay `needs_whisper` otherwise). Desktop apps can keep `auto` from firing on an idle card, so pass `on`
@@ -15,7 +16,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
-from skool_session import configure, scratch_dir
+from skool_session import INCOMPLETE_EXIT_CODE, configure, scratch_dir
 
 import argparse
 import datetime as dt
@@ -86,8 +87,9 @@ def main():
         if phase == "recache" and not args.recache_until:
             sys.exit("recache needs --recache-until")
     save()
+    max_attempts = 9
     for phase in args.phases.split(","):
-        for attempt in range(1, 10):
+        for attempt in range(1, max_attempts + 1):
             cmd = cmds[phase]()
             started = dt.datetime.now().isoformat(timespec="seconds")
             status["phases"][phase] = {"attempt": attempt, "started": started, "state": "running", "cmd": " ".join(cmd[2:])}
@@ -113,11 +115,24 @@ def main():
                 print("NEEDS_USER: Skool login needed", flush=True)
                 return 2
             if "RateLimited" in out:
+                if attempt == max_attempts:
+                    status["phases"][phase]["state"] = "failed"
+                    save(state="FAILED", note=f"{phase} still rate-limited after {attempt} attempts")
+                    return 1
                 status["phases"][phase]["state"] = "cooldown"
                 save(note=f"{phase} rate-limited; cooling down {args.cooldown}s")
                 print(f"{phase}: rate-limited, cooling down {args.cooldown}s", flush=True)
                 time.sleep(args.cooldown)
                 continue
+            stop_message = next((line.strip() for line in chunks if line.startswith(
+                ("incomplete:", "BudgetExhausted:", "stopped: BudgetExhausted:"))), None)
+            if stop_message or proc.returncode == INCOMPLETE_EXIT_CODE:
+                status["phases"][phase]["state"] = "incomplete"
+                reason = stop_message or f"exit {proc.returncode}"
+                note = f"{phase}: {reason}"
+                save(state="INCOMPLETE", note=note)
+                print(f"INCOMPLETE: {note}", flush=True)
+                return INCOMPLETE_EXIT_CODE
             if proc.returncode != 0:
                 status["phases"][phase]["state"] = "failed"
                 save(state="FAILED", note=f"{phase} exited {proc.returncode}; see bulk-{phase}.log")
@@ -127,9 +142,6 @@ def main():
             save()
             print(f"{phase}: done ({tail[-1] if tail else ''})", flush=True)
             break
-        else:
-            save(state="FAILED", note=f"{phase} still rate-limited after 9 attempts")
-            return 1
     save(state="DONE", current=None, finished=dt.datetime.now().isoformat(timespec="seconds"))
     print("all phases done", flush=True)
     return 0

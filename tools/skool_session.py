@@ -88,6 +88,9 @@ class NotLoggedIn(RuntimeError):
     pass
 
 
+INCOMPLETE_EXIT_CODE = 3
+
+
 class RateLimited(RuntimeError):
     """CloudFront/WAF block (403/429). Stop the run; wait >= 15 min before one probe request."""
 

@@ -114,8 +114,11 @@ def write_catalogue_locked(path, rows):
     brainlib.atomic_write(path, "\n".join(out) + "\n")
 
 
-def merge_catalogue(publisher: str, new_rows: list[dict], *, match_url=False) -> tuple[int, int]:
-    """Merge metadata and return (added, updated). With match_url, fill in each row's stable ID."""
+def merge_catalogue(publisher: str, new_rows: list[dict], *, match_url=False, preserve_routing=False) -> tuple[int, int]:
+    """Merge rows and return (added, updated). With match_url, fill in each row's stable ID.
+
+    Preserve routing during discovery by keeping any existing source, kind and URL.
+    """
     path = pub_dir(publisher) / "catalogue.tsv"
     with brainlib.file_lock(path):
         rows = read_catalogue(publisher)
@@ -143,6 +146,8 @@ def merge_catalogue(publisher: str, new_rows: list[dict], *, match_url=False) ->
                 rows[item] = row
             else:
                 merged = {c: (row[c] or old.get(c, "")) for c in CATALOGUE_COLUMNS}
+                if preserve_routing:
+                    merged.update({c: old[c] for c in ("source", "kind", "url") if old.get(c)})
                 if merged != old:
                     updated += 1
                 rows[item] = merged

@@ -32,7 +32,7 @@ import time
 
 from playwright.sync_api import sync_playwright
 
-from skool_session import BudgetExhausted, RateLimited, next_data
+from skool_session import BudgetExhausted, INCOMPLETE_EXIT_CODE, RateLimited, next_data
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -253,16 +253,17 @@ def main():
                 page_no += 1
         except (RateLimited, BudgetExhausted) as e:
             stop_reason = f"{type(e).__name__}: {e}"
-            print(stop_reason, flush=True)
         finally:
             save()
-    if args.mode != "recache" and stop_reason in {"end", "reached-cursor"}:
+    complete = recache["complete"] if args.mode == "recache" else cur["scan_complete"]
+    if args.mode != "recache" and complete:
         threads = brain / "state" / "threads_crawled.json"
         tracked = json.loads(threads.read_text(encoding="utf-8")) if threads.exists() else {}
         if not pending.keys() & tracked.keys():
             stamp_skool(brain, site)
-    print("done", cur["last_run"] | {"total_indexed": len(idx)})
+    print("done" if complete else f"incomplete: {stop_reason}", cur["last_run"] | {"total_indexed": len(idx)})
+    return 0 if complete else INCOMPLETE_EXIT_CODE
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
