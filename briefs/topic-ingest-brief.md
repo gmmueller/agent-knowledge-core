@@ -37,6 +37,8 @@ Never edit any page on that list, and never create, edit or delete anything in `
 
 Write nothing else. Never edit `library/` (raw is immutable) or `{{brain_name}}/notes/`. Don't run git. Don't install anything. Other workers are writing other batches at the same time.
 
+Save each intended wiki page in a separate draft and check `wiki_edits.py status` before writing the live page. Register each completed write with `{{python}} -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{workspace}}/{{brain_name}}" mark-written <page> --from <draft>`.
+
 ## Hard rules for this brain: fill in per brain
 
 {{hard_rules}}

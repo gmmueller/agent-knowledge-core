@@ -14,6 +14,18 @@ When setting up a new private workspace:
 - Keep `raw/` and `library/<publisher>/raw/` immutable. Fix capture issues by re-crawling.
 - Initialize edit protection once per brain (`wiki_edits.py --brain <brain> record --init`), start every agent pass with `wiki_edits.py --brain <brain> begin`, and end it with `build_wiki_index.py`.
 
+### Registering wiki writes
+
+Save each intended page in a separate draft outside `wiki/`, then check the `protected:` lines from `wiki_edits.py status` before changing the live page. After writing it, run:
+
+```sh
+python -X utf8 -I tools/wiki_edits.py --brain <brain> mark-written <page> --from <draft>
+```
+
+Use the draft you prepared for the write. For an intentional deletion, use `mark-written <page> --deleted` after removing the page. Register manual agent changes as you make them, including `wiki/hot.md` and `wiki/log.md`. The index builder and wiki maintenance tools track their own output during the pass.
+
+When the pass closes, the tool lists undeclared changes and changes that no longer match registered output as `left unrecorded`. They remain protected. Review them with the owner, who can acknowledge the intended changes with `wiki_edits.py --brain <brain> accept <page>`.
+
 ---
 
 ## Persona brain workflow
@@ -46,13 +58,18 @@ python -X utf8 -I tools/build_raw.py --brain ../my-brains/my-course --verify
 # 3. Initialize edit protection once, then begin each ingest or merge pass before dispatching workers (briefs/)
 python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-course record --init
 python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-course begin
+# Write and register the source pages.
 python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-course
-# Update wiki/hot.md and wiki/log.md before closing the ingest pass.
+# Update and register wiki/hot.md and wiki/log.md before closing the ingest pass.
 python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-course
 python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-course begin
 python -X utf8 -I tools/merge_staging.py --brain ../my-brains/my-course survey
+# Resolve duplicate slugs in ingest/slug-map.yaml.
+python -X utf8 -I tools/merge_staging.py --brain ../my-brains/my-course bundles
+# Write and register the concept and rule pages (briefs/pages-brief.md).
+python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-course
 python -X utf8 -I tools/lint_wiki.py --brain ../my-brains/my-course
-# Update wiki/hot.md and wiki/log.md before closing the merge pass.
+# Update and register wiki/hot.md and wiki/log.md before closing the merge pass.
 python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-course
 
 # 4. Generate a draft skill, run evals with a fresh agent, fix gaps, then regenerate if brain.md changed
@@ -96,8 +113,9 @@ python -X utf8 -I tools/finalize_raw.py --workspace ../my-brains example-publish
 # 3. Initialize edit protection once, then begin the ingest pass before dispatching batches (briefs/topic-ingest-brief.md)
 python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-topic record --init
 python -X utf8 -I tools/wiki_edits.py --brain ../my-brains/my-topic begin
+# Write and register the source pages.
 python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-topic
-# Update wiki/hot.md and wiki/log.md before closing the ingest pass.
+# Update and register wiki/hot.md and wiki/log.md before closing the ingest pass.
 python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-topic
 
 # 4. Merge: survey, resolve duplicate slugs in ingest/slug-map.yaml, bundle, then write pages and debates
@@ -106,10 +124,11 @@ python -X utf8 -I tools/merge_topic.py --brain ../my-brains/my-topic survey
 python -X utf8 -I tools/merge_topic.py --brain ../my-brains/my-topic bundles
 #    fill in briefs/topic-pages-brief.md and briefs/debates-brief.md; dispatch writers by page group
 
-# 5. Audit rules, lint and index
+# 5. Audit rules, check citations, lint and index
 python -X utf8 -I tools/rule_status.py --brain ../my-brains/my-topic --write
+python -X utf8 -I tools/check_wiki.py --brain ../my-brains/my-topic
 python -X utf8 -I tools/lint_wiki.py --brain ../my-brains/my-topic --fix-slug-map
-# Update wiki/hot.md and wiki/log.md before closing the merge pass.
+# Update and register wiki/hot.md and wiki/log.md before closing the merge pass.
 python -X utf8 -I tools/build_wiki_index.py --brain ../my-brains/my-topic
 
 # 6. Generate a draft skill, run cold evals with a fresh agent, check quotes, fix gaps, then regenerate
@@ -172,7 +191,7 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 |---|---|
 | `lint_wiki.py`, `build_wiki_index.py` | Broken links, orphans, rule status, slug drift (`--fix-slug-map`), human edit and proposal warnings, errors for changed captures; rebuild `wiki/index.md` (concepts, plus `notes/` under **Your notes**) and `wiki/sources-index.md` (sources), and record the wiki baseline |
 | `obsidian_setup.py` | Configure a brain folder in place as its own Obsidian vault (`.obsidian/` settings, `notes/`, topic-brain `library` link, `.gitignore`; `--workspace <ws> --all [--gitignore-hub] [--reset]` also writes `.cores-hub/`) |
-| `wiki_edits.py` | Detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `propose`, `proposals`, `accept`) so agent passes never overwrite them |
+| `wiki_edits.py` | Detect and protect human edits in `wiki/` (`record --init`, `begin`, `status`, `mark-written`, `record`, `propose`, `proposals`, `accept`) |
 | `raw_guard.py` | Record capture hashes and fail on edited or missing captures. Workspace checks cover the library and each brain |
 | `content_hashes.py` | Shared SHA-256 hash-manifest and file-lock helpers used by `wiki_edits.py` and `raw_guard.py` |
 | `verify_eval_quotes.py`, `rubric_agreement.py` | Fail on reported eval quote problems, or compare two graders' rubric scores |

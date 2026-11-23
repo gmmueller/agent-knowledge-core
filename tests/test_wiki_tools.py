@@ -167,6 +167,8 @@ class WikiTools(unittest.TestCase):
             path.write_text(bad, encoding="utf-8")
             if path == protected:
                 wiki_edits.begin(self.brain)
+            else:
+                wiki_edits.register_writes(self.brain, {"rules/rule-practice.md": wiki_edits.hashes.digest(path)})
         owner_copy = protected.read_bytes()
         result = self.run_tool("requote.py", "--brain", self.brain, "raw/main/m01/l01", protected,
                                editable, unchanged, "--min", "0.7", "--apply")
@@ -203,11 +205,13 @@ class WikiTools(unittest.TestCase):
         self.write("wiki/sources/main-m01-l01.md", original)
         wiki_edits.begin(self.brain)
         self.write("wiki/topics/agent.md", "---\ntype: topic\n---\n# New page\n\n[[old-practice]]\n")
+        wiki_edits.register_writes(self.brain, {"topics/agent.md": wiki_edits.hashes.digest(self.brain / "wiki/topics/agent.md")})
         result = self.run_tool("lint_wiki.py", "--brain", self.brain, "--fix-slug-map")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("slug map applied to 1 pages", result.stdout)
         self.assertEqual(protected.read_text(encoding="utf-8"), original)
         self.assertIn("[[rule-practice]]", (self.brain / "wiki/topics/agent.md").read_text(encoding="utf-8"))
+        self.assertEqual(wiki_edits.protected_pages(self.brain), {"sources/main-m01-l01.md"})
 
     def test_link_examples_skips_protected_and_unchanged_pages(self):
         self.write("wiki/topics/owner.md", "# Owner\n")

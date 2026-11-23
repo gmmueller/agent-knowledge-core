@@ -48,7 +48,7 @@ def main() -> None:
                     by_concept.setdefault(t, [])
                     if page not in [p for p, _ in by_concept[t]]:
                         by_concept[t].append((page, label))
-    changed = 0
+    written = {}
     protected = wiki_edits.protected_pages(brain)
     for slug, path in pages.items():
         name = path.relative_to(wiki).as_posix()
@@ -67,9 +67,10 @@ def main() -> None:
                 text = text + block
         if text != original:
             path.write_text(text, encoding="utf-8", newline="\n")
-            changed += 1
+            written[name] = wiki_edits.hashes.digest_bytes(text.encode("utf-8"))
+    wiki_edits.register_writes(brain, written)
     linked = {p for v in by_concept.values() for p, _ in v[: a.max]}
-    print(f"updated Examples lists on {changed} concept pages; {len(linked)}/{len(example_pages)} example pages matched")
+    print(f"updated Examples lists on {len(written)} concept pages; {len(linked)}/{len(example_pages)} example pages matched")
 
 
 if __name__ == "__main__":

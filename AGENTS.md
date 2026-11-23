@@ -14,7 +14,7 @@ This is Agent Knowledge Core, a public framework for "brains": cited LLM wikis c
 ## Core rules
 
 1. **`raw/` is immutable**, in brains and in `library/<publisher>/raw/` alike. Write to it only while crawling. Never edit or "clean up" a raw file afterwards. Capture tools hash every raw file. `raw_guard.py check` and `lint_wiki.py` fail if they find a changed or missing capture. Fix problems by re-crawling.
-2. **`wiki/` is LLM-maintained, with human edits protected.** Edit wiki pages by hand only between agent passes. `wiki_edits.py status` shows whether a pass is open. Start every agent pass (ingest, merge, page writing, refresh) with `python -X utf8 -I <framework>/tools/wiki_edits.py --brain <brain> begin`. Never write any page it lists as protected: write the proposed version to a file and run `wiki_edits.py --brain <brain> propose <page> --from <file> --why "..."`, then ask the user. End the pass with `build_wiki_index.py` (which calls `wiki_edits.py record`).
+2. **`wiki/` is LLM-maintained, with human edits protected.** Edit wiki pages by hand only between agent passes. `wiki_edits.py status` shows whether a pass is open. Start every agent pass (ingest, merge, page writing, refresh) with `python -X utf8 -I <framework>/tools/wiki_edits.py --brain <brain> begin`. Never write any page it lists as protected: write the proposed version to a file and run `wiki_edits.py --brain <brain> propose <page> --from <file> --why "..."`, then ask the user. [Register each agent-written page](docs/agent-reference.md#registering-wiki-writes) and end the pass with `build_wiki_index.py`.
 3. **`notes/` is human-owned.** Never create, edit or delete anything in `<brain>/notes/`. Notes may link to wiki pages; wiki pages never cite `notes/` as sources.
 4. **Every claim traces to a source.** Wiki pages cite raw files as `[[raw/<path>]]` with a timestamp or page where one exists, e.g. `(raw/m03-l02.md @ 12:41)`; topic brains cite `[[library/<publisher>/raw/<path>]]` and name the speaker on every quote. Anything not directly supported is marked **Inference:**.
 5. **Rules need quotes.** Each rule in `brain.md` or `wiki/rules/` carries at least one exact quote and its source. Run `check_wiki.py` on both. Keep wikilinks inside the vault. Persona rules become `active` at two independent sources. For topic rule statuses, stance and independence, follow [Rule status and independence](docs/build-pipeline.md#rule-status-and-independence).
@@ -24,7 +24,7 @@ This is Agent Knowledge Core, a public framework for "brains": cited LLM wikis c
 
 ## Wiki operations (per brain)
 
-- **Ingest / merge / refresh pass**: start with `wiki_edits.py --brain <brain> begin` and pass its protected list to workers. Read the source → write `wiki/sources/<slug>.md` (summary, key claims with timestamps, quotes, links to concepts) → update every untouched topic, principle, method, framework and rule page it touches → update `hot.md` (last ~20 changes) and `log.md` → run `build_wiki_index.py` to rebuild both indexes, record the baseline and close the pass. File proposals for protected pages and review open proposals with the user before reporting done. Mention contradictions with existing pages. Never write in `notes/`.
+- **Ingest / merge / refresh pass**: start with `wiki_edits.py --brain <brain> begin` and pass its protected list to workers. Read the source → write `wiki/sources/<slug>.md` (summary, key claims with timestamps, quotes, links to concepts) → update every untouched topic, principle, method, framework and rule page it touches → run `check_wiki.py` → update `hot.md` (last ~20 changes) and `log.md` → run `build_wiki_index.py` to rebuild both indexes and close the pass. File proposals for protected pages. Review open proposals and unrecorded changes with the user before reporting done. Mention contradictions with existing pages. Never write in `notes/`.
 - **Query**: read `brain.md` and the concept index `wiki/index.md`. Use qmd (persona brains: `<brain>-wiki` and `<brain>-raw`; topic brains: the wiki and the `library` collection) or grep to find relevant pages, and open `wiki/sources-index.md` only to locate a specific source. Answer with citations. File valuable answers back as pages.
 - **Lint**: look for broken links, orphan pages, duplicate concepts, stale or contradicted claims, rules missing quotes, bench rules that now have a second source, human-edited pages, open proposals, and raw files changed after capture.
 
@@ -57,7 +57,7 @@ library → catalogue → triage → fetch → speaker pass → ingest waves →
 | Ingest waves | `check_wiki.py` as the gate | `briefs/topic-ingest-brief.md` |
 | Merge | `merge_topic.py survey` then `bundles`, `lint_wiki.py --fix-slug-map` | `briefs/topic-pages-brief.md` |
 | Debates | `check_wiki.py` | `briefs/debates-brief.md` |
-| Rule audit | `rule_status.py --write`, `lint_wiki.py`, `build_wiki_index.py` | |
+| Rule audit | `rule_status.py --write`, `check_wiki.py`, `lint_wiki.py`, `build_wiki_index.py` | |
 | Rubrics | `rubric_agreement.py` | |
 | Evals | `verify_eval_quotes.py` | `template-topic/evals.md` |
 | Skill | `generate_persona.py` (`--relative-to` for portable samples), qmd (`install_qmd.ps1` on Windows; `npm install -g @tobilu/qmd` on macOS/Linux) | |

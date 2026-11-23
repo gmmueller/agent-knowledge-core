@@ -44,6 +44,7 @@ def main() -> None:
     brain = brainlib.brain_dir(args.brain)
     settings = brainlib.read_frontmatter(brain / "brain.md")
     counts = {}
+    written = {}
     protected = wiki_edits.protected_pages(brain) if args.write else set()
     for page in sorted((brain / "wiki" / "rules").glob("*.md")):
         text = page.read_text(encoding="utf-8")
@@ -55,11 +56,14 @@ def main() -> None:
         counts[new] = counts.get(new, 0) + 1
         if new != old:
             print(f"{page.stem:60} {old} -> {new}  ({', '.join(sorted(result.voices))})")
-            if args.write and page.relative_to(brain / "wiki").as_posix() not in protected:
+            name = page.relative_to(brain / "wiki").as_posix()
+            if args.write and name not in protected:
                 header = text[:len(text) - len(body)]
                 updated = STATUS_LINE.sub(lambda match: match[1] + new, header, count=1) + body
                 if updated != text:
                     page.write_text(updated, encoding="utf-8", newline="\n")
+                    written[name] = wiki_edits.hashes.digest_bytes(updated.encode("utf-8"))
+    wiki_edits.register_writes(brain, written)
     print(counts)
 
 

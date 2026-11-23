@@ -27,6 +27,8 @@ One page per slug in your group, at `wiki/<dir>/<slug>.md`, where `<dir>` comes 
 
 Never edit any page on that list, and never create, edit or delete anything in `notes/`. If a slug in your group is protected, write the proposed full page to a temporary file and file it with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" propose <page> --from <file> --why "<reason>"` (saves under `ingest/proposals/`), then list it in your report.
 
+Save each intended wiki page in a separate draft and check `wiki_edits.py status` before writing the live page. Register each completed write with `python -X utf8 -I "{{framework_path}}/tools/wiki_edits.py" --brain "{{brain_path}}" mark-written <page> --from <draft>`.
+
 ## Page format
 
 ```markdown
@@ -83,6 +85,8 @@ Rule pages also have these sections, before `## In {{expert_name}}'s words`:
 Use the canonical concept list in `ingest/page-groups.yaml`; the orchestrator fills vocabulary and groups before dispatching.
 
 ## Acceptance check
+
+Run this after writing all assigned concept and rule pages. The orchestrator checks the finished merge before rebuilding the indexes.
 
 ```sh
 python -X utf8 -I "{{framework_path}}/tools/check_wiki.py" --brain "{{brain_path}}" <page paths...>

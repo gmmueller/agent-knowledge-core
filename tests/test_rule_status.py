@@ -128,11 +128,13 @@ class RuleStatus(unittest.TestCase):
             human = self.page("rule-human", body=body + "Human edit.\n")
             self.assertEqual(wiki_edits.begin(self.brain), ["rules/rule-human.md"])
         agent = self.page("rule-agent", "'bench' # keep comment", body=body)
+        wiki_edits.register_writes(self.brain, {"rules/rule-agent.md": wiki_edits.hashes.digest(agent)})
         self.assertEqual(self.tool("rule_status.py").count("bench -> consensus"), 2)
         self.assertIn("status: 'bench' # keep comment", agent.read_text(encoding="utf-8"))
         self.tool("rule_status.py", "--write")
         self.assertIn("status: consensus # keep comment", agent.read_text(encoding="utf-8"))
         self.assertEqual(brainlib.read_frontmatter(human)["status"], "bench")
+        self.assertEqual(wiki_edits.protected_pages(self.brain), {"rules/rule-human.md"})
 
 
 if __name__ == "__main__":

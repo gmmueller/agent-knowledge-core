@@ -2,6 +2,7 @@
 import contextlib
 from concurrent.futures import ThreadPoolExecutor
 import io
+from hashlib import sha256
 from pathlib import Path
 import subprocess
 import sys
@@ -41,6 +42,13 @@ class EditGuards(unittest.TestCase):
         result = self.run_tool("wiki_edits.py", "record", "--init")
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def write_agent(self, page, text):
+        draft = self.root / "draft.md"
+        brainlib.write_text(draft, text)
+        self.write(f"wiki/{page}", text)
+        result = self.run_tool("wiki_edits.py", "mark-written", page, "--from", draft)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_status_record_never_absorbs_changed_added_or_deleted(self):
         self.write("wiki/topics/deleted.md", PAGE)
         self.init_wiki()
@@ -67,8 +75,8 @@ class EditGuards(unittest.TestCase):
         self.assertIn("protected: wiki/topics/example.md", result.stdout)
         self.assertEqual(wiki_edits.protected_pages(self.brain), {"topics/example.md"})
         # The agents write other pages during the pass.
-        self.write("wiki/topics/agent.md", PAGE + "Agent addition\n")
-        self.write("wiki/topics/new-agent-page.md", PAGE)
+        self.write_agent("topics/agent.md", PAGE + "Agent addition\n")
+        self.write_agent("topics/new-agent-page.md", PAGE)
         status = self.run_tool("wiki_edits.py", "status")
         self.assertIn("agent pass: open (1 protected pages)", status.stdout)
         self.assertIn("3 pages differ from the baseline", status.stdout)
@@ -84,6 +92,79 @@ class EditGuards(unittest.TestCase):
     def test_begin_requires_baseline(self):
         with self.assertRaises(ValueError):
             wiki_edits.begin(self.brain)
+
+    def test_index_leaves_mid_pass_human_edits_unrecorded(self):
+        self.write("wiki/index.md", "# Original index\n")
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        self.write("wiki/topics/example.md", PAGE + "Owner addition\n")
+        self.write("wiki/index.md", "# Owner's index\n")
+        result = self.run_tool("build_wiki_index.py")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for name in ("wiki/topics/example.md", "wiki/index.md"):
+            self.assertIn(f"left unrecorded: {name}", result.stdout)
+        self.assertEqual((self.brain / "wiki/index.md").read_text(encoding="utf-8"), "# Owner's index\n")
+        self.assertFalse(wiki_edits.pass_file(self.brain).exists())
+        self.assertEqual(wiki_edits.status(self.brain), {"index.md": "changed", "topics/example.md": "changed"})
+
+    def test_pass_keeps_later_changes_to_declared_agent_output_protected(self):
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        page = "topics/example.md"
+        self.write_agent(page, PAGE + "Agent addition\n")
+        self.assertEqual(wiki_edits.protected_pages(self.brain), set())
+        self.write(f"wiki/{page}", PAGE + "Agent addition\nOwner addition\n")
+        self.assertEqual(wiki_edits.protected_pages(self.brain), {page})
+        result = self.run_tool("wiki_edits.py", "record")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f"left unrecorded: wiki/{page}", result.stdout)
+        self.assertEqual(wiki_edits.status(self.brain), {page: "changed"})
+
+    def test_record_accepts_declared_deletion_and_reports_undeclared_addition(self):
+        self.init_wiki()
+        wiki_edits.begin(self.brain)
+        (self.brain / "wiki/topics/example.md").unlink()
+        result = self.run_tool("wiki_edits.py", "mark-written", "topics/example.md", "--deleted")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.write("wiki/topics/new.md", PAGE)
+        result = self.run_tool("wiki_edits.py", "record")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("left unrecorded: wiki/topics/new.md", result.stdout)
+        self.assertEqual(wiki_edits.status(self.brain), {"topics/new.md": "added"})
+
+    def test_line_ending_only_changes_are_ignored_by_both_guards(self):
+        raw = self.brain / "raw"
+        raw_guard.record(raw, init=True)
+        self.init_wiki()
+        for path in (raw / "source.md", self.brain / "wiki/topics/example.md"):
+            path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
+        self.assertEqual(wiki_edits.status(self.brain), {})
+        self.assertEqual(wiki_edits.begin(self.brain), [])
+        self.assertEqual(raw_guard.check(raw), {})
+
+    def test_legacy_crlf_manifests_survive_lf_checkout(self):
+        raw = self.brain / "raw"
+        for manifest, name, path in (
+            (wiki_edits.manifest(self.brain), "topics/example.md", self.brain / "wiki/topics/example.md"),
+            (raw_guard.manifest(raw), "source.md", raw / "source.md"),
+        ):
+            legacy_digest = sha256(path.read_bytes().replace(b"\n", b"\r\n")).hexdigest()
+            wiki_edits.hashes.save(manifest, {name: legacy_digest})
+        self.assertEqual(wiki_edits.status(self.brain), {})
+        self.assertEqual(raw_guard.check(raw), {})
+        raw_guard.record(raw)
+        self.write("raw/source.md", "Changed words\n")
+        self.assertEqual(raw_guard.check(raw), {"source.md": "changed"})
+
+    def test_reference_merge_recipes_check_citations_before_closing(self):
+        reference = (TOOLS.parent / "docs/agent-reference.md").read_text(encoding="utf-8")
+        for brain, writer in (("my-course", "merge_staging.py"), ("my-topic", "rule_status.py")):
+            with self.subTest(brain=brain):
+                recipe = [line for line in reference.splitlines() if f"--brain ../my-brains/{brain}" in line]
+                after_writing = next(i for i, line in enumerate(recipe) if f"tools/{writer}" in line)
+                closing = next(i for i in range(after_writing + 1, len(recipe))
+                               if "tools/build_wiki_index.py" in recipe[i])
+                self.assertTrue(any("tools/check_wiki.py" in line for line in recipe[after_writing + 1:closing]))
 
     def test_pass_stays_open_until_protected_page_is_restored(self):
         self.init_wiki()
@@ -122,7 +203,7 @@ class EditGuards(unittest.TestCase):
         wiki_edits.begin(self.brain)
         self.write("wiki/topics/example.md", PAGE + "Owner correction\n")
         (self.brain / "wiki/topics/other.md").unlink()
-        self.write("wiki/topics/agent.md", PAGE)
+        self.write_agent("topics/agent.md", PAGE)
         self.assertEqual(self.run_tool("wiki_edits.py", "accept", "--all").returncode, 2)
         result = self.run_tool("wiki_edits.py", "accept", "topics/example.md")
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -343,7 +424,7 @@ class EditGuards(unittest.TestCase):
         self.init_wiki()
         self.write("wiki/topics/example.md", PAGE + "Human addition\n")
         self.assertEqual(self.run_tool("wiki_edits.py", "begin").returncode, 0)
-        self.write("wiki/topics/agent.md", PAGE + "Agent addition\n")
+        self.write_agent("topics/agent.md", PAGE + "Agent addition\n")
         result = self.run_tool("lint_wiki.py")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("warning: 1 protected human-edited pages; 0 open proposals", result.stdout)
