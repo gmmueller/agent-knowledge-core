@@ -53,7 +53,7 @@ sources:
 
 ## `catalogue.tsv`
 
-UTF-8, tab-separated, header row, no tabs or newlines inside fields. Rewritten on each catalogue run, so new items append and existing rows update metadata. Fields are whitespace-cleaned, so read and write with plain tab splitting, not a CSV library: its quote escaping multiplies backslashes on every rewrite.
+UTF-8, tab-separated, header row, no tabs or newlines inside fields. Writers lock the catalogue during a merge and publish the result atomically. New items are added and existing rows update metadata. Fields are whitespace-cleaned, so read and write with plain tab splitting, not a CSV library: its quote escaping multiplies backslashes on every rewrite.
 
 | Column | Meaning |
 |---|---|
@@ -97,6 +97,7 @@ Body blocks, one per line, each starting with its **locator**:
 
 - Transcript blocks start a new block at every **speaker change**, otherwise roughly every 30 s at a sentence end (forced at 45 s), as in `tools/wistia_to_raw.py`.
 - **Dates:** `published` accepts `YYYY`, `YYYY-MM` or `YYYY-MM-DD`. Partial dates record `publication_precision: year` or `month` in frontmatter, and filenames pad missing parts with zeros (`YYYY0000`, `YYYYMM00`, or `00000000` when unknown). If a web page lacks machine-readable date metadata (`published: ""` and `00000000` filename) for a work whose edition year is known, keep raw untouched and record the verified edition year plus `publication_precision: year` on the wiki source page.
+- **Web revisions:** Pages with the same title and date get distinct filenames when their URLs differ. `web_to_raw.py fetch --recheck` fetches known URLs again and records changed text in a new raw file with `supersedes` pointing to the previous capture. Existing filenames stay valid for citations.
 - **Pre-capture selection vs immutable raw:** selecting a subset **before** capture is supported and recorded in raw frontmatter (`book_to_raw.py --pages 1-12,40-55` keeps original PDF `p. N` locators; `web_to_raw.py fetch --from-heading "Start" --to-heading "End"` is start-inclusive, end-exclusive, requires exact unique headings, renumbers selected paragraphs from `¶1`, and cannot combine with `--transcript`). Editing a raw file **after** capture is never allowed; tools refuse to overwrite an existing file. Fix a bad file by re-capturing (for web pages, `--recapture` writes a dated capture) and re-anchoring wiki quotes with `tools/requote.py` (which handles timestamps, `¶N` paragraph and `p. N` page locators).
 
 ## Citations from a brain wiki
@@ -149,7 +150,7 @@ Items from a source with `format` other than `solo` (or `tab_format: {shorts: so
 1. The fetcher writes `library/<publisher>/staging/<item-id>.lines.json`: `{"item": id, "front": {raw frontmatter without speakers}, "lines": [{"start": s, "end": s, "text": "..."}]}`.
 2. `tools/diarize.py` adds `"speaker": "SPEAKER_0"` per line and writes `<item-id>.diar.json`, including per-speaker talk time and sample lines.
 3. A naming step writes `<item-id>.names.yaml` (`SPEAKER_0: The Expert`, plus `roles: {The Expert: host}`), from the title, description and introductions. Give the naming agent `tools/speaker_naming.md` as its brief.
-4. `tools/finalize_raw.py` writes the raw file (`speaker_method: diarized`) and adds the appearances to `people.yaml`.
+4. `tools/finalize_raw.py` writes the raw file (`speaker_method: diarized`) and adds the appearances to `people.yaml`. Transcript imports share the same lock and update the YAML atomically, preserving comments and quotes.
 
 Sources whose publisher already prints a speaker-labelled transcript (for example a podcast's episode pages) skip diarization: `speaker_method: transcript`.
 

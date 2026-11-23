@@ -6,6 +6,7 @@ Import from other tools (run them with -I, so add the tools dir to sys.path firs
     lr.init(workspace)  # explicit private workspace; never the framework checkout
 """
 import datetime as dt
+import hashlib
 import json
 import pathlib
 import re
@@ -100,32 +101,52 @@ def read_catalogue(publisher: str) -> dict[str, dict]:
 def write_catalogue(publisher: str, rows: dict[str, dict]) -> pathlib.Path:
     """Write all rows, newest first (unknown dates last)."""
     path = pub_dir(publisher) / "catalogue.tsv"
-    path.parent.mkdir(parents=True, exist_ok=True)
+    with brainlib.file_lock(path):
+        write_catalogue_locked(path, rows)
+    return path
+
+
+def write_catalogue_locked(path, rows):
     ordered = sorted(rows.values(), key=lambda r: (r.get("published") or "0000-00-00", r["id"]), reverse=True)
     # plain TSV: clean_field already removed tabs and newlines, so no quoting or escaping is needed
     out = ["\t".join(CATALOGUE_COLUMNS)]
     out += ["\t".join(clean_field(r.get(c, "")) for c in CATALOGUE_COLUMNS) for r in ordered]
-    path.write_text("\n".join(out) + "\n", encoding="utf-8", newline="\n")
-    return path
+    brainlib.atomic_write(path, "\n".join(out) + "\n")
 
 
-def merge_catalogue(publisher: str, new_rows: list[dict]) -> tuple[int, int]:
-    """Add new items and refresh metadata of known ones. Returns (added, updated)."""
-    rows = read_catalogue(publisher)
-    added = updated = 0
-    for r in new_rows:
-        r = {c: clean_field(r.get(c, "")) for c in CATALOGUE_COLUMNS}
-        r["description"] = r["description"][:500]
-        old = rows.get(r["id"])
-        if old is None:
-            added += 1
-            rows[r["id"]] = r
-        else:
-            merged = {c: (r[c] or old.get(c, "")) for c in CATALOGUE_COLUMNS}
-            if merged != old:
-                updated += 1
-            rows[r["id"]] = merged
-    write_catalogue(publisher, rows)
+def merge_catalogue(publisher: str, new_rows: list[dict], *, match_url=False) -> tuple[int, int]:
+    """Merge metadata and return (added, updated). With match_url, fill in each row's stable ID."""
+    path = pub_dir(publisher) / "catalogue.tsv"
+    with brainlib.file_lock(path):
+        rows = read_catalogue(publisher)
+        ids = {(item.split("-", 1)[0], row.get("url")): item for item, row in rows.items()} if match_url else {}
+        added = updated = 0
+        for incoming in new_rows:
+            row = {c: clean_field(incoming.get(c, "")) for c in CATALOGUE_COLUMNS}
+            row["description"] = row["description"][:500]
+            item = row["id"]
+            if match_url:
+                url = row["url"]
+                key = (item.split("-", 1)[0], url)
+                if key in ids:
+                    item = ids[key]
+                elif item in rows and rows[item].get("url") != url:
+                    base = item[:55] + "-" + hashlib.sha256(url.encode()).hexdigest()[:12]
+                    item, suffix = base, 2
+                    while item in rows:
+                        item = f"{base}-{suffix}"
+                        suffix += 1
+                ids[key] = row["id"] = incoming["id"] = item
+            old = rows.get(item)
+            if old is None:
+                added += 1
+                rows[item] = row
+            else:
+                merged = {c: (row[c] or old.get(c, "")) for c in CATALOGUE_COLUMNS}
+                if merged != old:
+                    updated += 1
+                rows[item] = merged
+        write_catalogue_locked(path, rows)
     return added, updated
 
 
@@ -199,13 +220,13 @@ def render_pages(pages: list[str]) -> str:
 
 def write_raw(path: pathlib.Path, front: dict, body: str) -> pathlib.Path:
     """Write a raw file once. Raw is immutable: refuses to overwrite."""
-    if path.exists():
-        raise FileExistsError(f"refusing to overwrite raw file: {path.relative_to(ROOT) if ROOT is not None and path.is_relative_to(ROOT) else path}")
-    front = {**front}
-    front.setdefault("captured", dt.date.today().isoformat())
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(render_front(front) + body, encoding="utf-8", newline="\n")
-    raw_guard.record_capture(path)
+    with brainlib.file_lock(path):
+        if path.exists():
+            raise FileExistsError(f"refusing to overwrite raw file: {path.relative_to(ROOT) if ROOT is not None and path.is_relative_to(ROOT) else path}")
+        front = {**front}
+        front.setdefault("captured", dt.date.today().isoformat())
+        brainlib.atomic_write(path, render_front(front) + body)
+        raw_guard.record_capture(path)
     return path
 
 if __name__ == "__main__":

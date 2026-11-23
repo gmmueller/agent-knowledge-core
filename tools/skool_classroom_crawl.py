@@ -22,6 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
 import raw_guard
+from source_helpers import stamp_skool
 from skool_session import configure, scratch_dir
 
 import argparse
@@ -116,7 +117,7 @@ def main():
     state = json.loads(state_p.read_text(encoding="utf-8")) if state_p.exists() else {}
     today = dt.date.today().isoformat()
 
-    todo = []
+    todo, has_files = [], False
     for c in outline["courses"]:
         if not c.get("access"):
             continue
@@ -124,6 +125,7 @@ def main():
             for les in sec.get("lessons") or []:
                 if les.get("duplicate_of") or les.get("module_access") is False:
                     continue
+                has_files |= any(not r.get("url") for r in les.get("resources") or [])
                 if args.only and les["source_id"] not in args.only:
                     continue
                 prev = state.get(les["source_id"])
@@ -135,124 +137,133 @@ def main():
     print(f"{len(todo)} lessons to crawl", flush=True)
     if args.dry_run:
         for c, sec, les in todo:
-            try:
-                print(les["source_id"], les.get("video"), les["title"])
-            except (RateLimited, BudgetExhausted, NotLoggedIn):
-                raise
-            except Exception as e:  # one bad item must not stop a long unattended run; it is retried next run
-                errors += 1
-                print(f"{les['source_id']}: ERROR {type(e).__name__}: {str(e)[:300]}", flush=True)
+            print(les["source_id"], les.get("video"), les["title"])
         return
 
     def save_state():
-        state_p.parent.mkdir(parents=True, exist_ok=True)
-        state_p.write_text(json.dumps(state, indent=1, ensure_ascii=False), encoding="utf-8")
+        brainlib.atomic_write(state_p, json.dumps(state, indent=1, ensure_ascii=False))
 
     done = errors = 0
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(f"http://127.0.0.1:{args.port}")
         try:
             for c, sec, les in todo:
-                sid = les["source_id"]
-                video = les.get("video") or ""
-                module, vinfo = module_meta(browser, group, c["code"], les, cache_dir, brain=brain, need_video=video.startswith("skool:"))
-                meta = module["metadata"]
-                chash = lesson_hash(meta)  # outline hashes can be null (--tree-only); this one is from the full module
-                prev = state.get(sid, {})
-                if prev.get("raw_path") and prev.get("content_hash") == chash:
-                    print(f"{sid}: unchanged (lesson touched, content same)", flush=True)
-                    continue
-                skool_created = (module.get("createdAt") or "")[:10]
-                published = skool_created  # best guess at when the content was made; YouTube upload date wins
-                paras, method, caption_kind, duration = [], "page-text", None, les.get("duration_s") or 0
-                if video.startswith("youtube:"):
-                    cap, caption_kind = fetch_captions(video.split(":", 1)[1], media)
-                    published = upload_date(video.split(":", 1)[1], media) or published
-                    if cap:
-                        paras, method, caption_kind = paragraphs(json3_lines(cap)), "captions", f"youtube-{caption_kind}"
-                    else:
-                        method = "needs_whisper"
-                elif video.startswith("skool:") and vinfo:
-                    cues = mux_captions.lines(vinfo, brain / "media" / "mux")
-                    duration = float(vinfo.get("duration") or 0) / 1000 or duration
-                    if cues:
-                        paras, method, caption_kind = paragraphs(cues), "captions", "mux-auto"
-                    else:
-                        method = "needs_whisper"
-                elif video.startswith("loom:"):
-                    method = "needs_whisper"
-                elif video:
-                    method = "needs_whisper"
-                if method == "needs_whisper" and args.whisper and video.startswith("loom:"):
-                    loom_id = video.split(":", 1)[1]
-                    segs = whisper_lines.lines(loom_id, f"https://www.loom.com/share/{loom_id}", brain / "media" / "loom", (config.get("whisper") or {}).get("prompt", ""),
-                                                       (config.get("whisper") or {}).get("model", "large-v3-turbo"))
-                    if segs:
-                        paras, method = paragraphs(segs), "whisper"
-                        duration = duration or segs[-1]["end"]
-                    else:  # transcribed, but no speech (short silent clips): keep the page text
-                        method, caption_kind = "page-text", "whisper-no-speech"
-                if method == "needs_whisper":
-                    state[sid] = {"content_hash": chash, "method": method, "video": video, "checked": today}
-                    print(f"{sid}: needs whisper ({video})", flush=True)
-                    continue
-
-                course_dir = brain / "raw" / "classroom" / f"{c['code']}-{slug(c['title'], 40)}"
-                n = sid.rsplit("-", 1)[1]
-                out = course_dir / f"{n}-{slug(les['title'])}.md"
-                supersedes = None
-                if out.exists() or prev.get("raw_path"):
-                    supersedes = prev.get("raw_path") or str(out.relative_to(ROOT)).replace("\\", "/")
-                    out = course_dir / f"{n}-{slug(les['title'])}.{today}.md"
-                    if out.exists():
-                        print(f"{sid}: {out.name} already exists today, skipping", flush=True)
+                try:
+                    sid = les["source_id"]
+                    video = les.get("video") or ""
+                    module, vinfo = module_meta(browser, group, c["code"], les, cache_dir, brain=brain, need_video=video.startswith("skool:"))
+                    meta = module["metadata"]
+                    chash = lesson_hash(meta)  # outline hashes can be null (--tree-only); this one is from the full module
+                    prev = state.get(sid, {})
+                    if prev.get("raw_path") and prev.get("content_hash") == chash and prev.get("method") != "needs_whisper":
+                        print(f"{sid}: unchanged (lesson touched, content same)", flush=True)
                         continue
-                module_title = c["title"] + (f" / {sec['title']}" if sec.get("title") else "")
-                front = [
-                    "---",
-                    f"source_id: {sid}",
-                    f"title: {yaml_str(les['title'])}",
-                    f"module: {yaml_str(module_title)}",
-                    f"url: {les['url']}",
-                    f"video: {video or 'none'}",
-                    f"duration: {ts(duration) if video else '0:00'}",
-                    f"published: {published or 'unknown'}",
-                    f"skool_created: {skool_created or 'unknown'}",
-                    f"captured: {today}",
-                    f"method: {method}",
-                ]
-                if caption_kind:
-                    front.append(f"captions: {caption_kind}")
-                front += [f"lesson_updated: {les.get('updated')}", f"content_hash: {chash}"]
-                if supersedes:
-                    front.append(f"supersedes: {supersedes}")
-                front += ["---", ""]
-                body = []
-                if paras:
-                    body += ["## Transcript", ""] + [f"**[{ts(t)}]** {text}\n" for t, text in paras]
-                text = desc_to_markdown(meta.get("desc"))
-                text = re.sub(r"^(#{1,5}) ", r"#\1 ", text, flags=re.M)  # nest lesson headings under ours
-                if text:
-                    body += ["## Lesson page text", "", text, ""]
-                res = resources_md(les)
-                if res:
-                    body += ["## Attached files", "", res, ""]
-                out.parent.mkdir(parents=True, exist_ok=True)
-                out.write_text("\n".join(front) + "\n".join(body).rstrip() + "\n", encoding="utf-8", newline="\n")
-                raw_guard.record_capture(out)
-                rel = str(out.relative_to(ROOT)).replace("\\", "/")
-                state[sid] = {"content_hash": chash, "raw_path": rel, "method": method, "captured": today}
-                done += 1
-                words = sum(len(t.split()) for _, t in paras)
-                print(f"{sid}: wrote {rel} ({method}, {words} transcript words, {len(text)} text chars)", flush=True)
-                if done % 10 == 0:
-                    save_state()
+                    skool_created = (module.get("createdAt") or "")[:10]
+                    published = skool_created  # best guess at when the content was made; YouTube upload date wins
+                    paras, method, caption_kind, duration = [], "page-text", None, les.get("duration_s") or 0
+                    if video.startswith("youtube:"):
+                        cap, caption_kind = fetch_captions(video.split(":", 1)[1], media)
+                        published = upload_date(video.split(":", 1)[1], media) or published
+                        if cap:
+                            paras, method, caption_kind = paragraphs(json3_lines(cap)), "captions", f"youtube-{caption_kind}"
+                        else:
+                            method = "needs_whisper"
+                    elif video.startswith("skool:") and vinfo:
+                        cues = mux_captions.lines(vinfo, brain / "media" / "mux")
+                        duration = float(vinfo.get("duration") or 0) / 1000 or duration
+                        if cues:
+                            paras, method, caption_kind = paragraphs(cues), "captions", "mux-auto"
+                        else:
+                            method = "needs_whisper"
+                    elif video.startswith("loom:"):
+                        method = "needs_whisper"
+                    elif video:
+                        method = "needs_whisper"
+                    if method == "needs_whisper" and args.whisper and video.startswith("loom:"):
+                        loom_id = video.split(":", 1)[1]
+                        segs = whisper_lines.lines(loom_id, f"https://www.loom.com/share/{loom_id}", brain / "media" / "loom", (config.get("whisper") or {}).get("prompt", ""),
+                                                           (config.get("whisper") or {}).get("model", "large-v3-turbo"))
+                        if segs:
+                            paras, method = paragraphs(segs), "whisper"
+                            duration = duration or segs[-1]["end"]
+                        else:  # transcribed, but no speech (short silent clips): keep the page text
+                            method, caption_kind = "page-text", "whisper-no-speech"
+                    if method == "needs_whisper":
+                        state[sid] = {**prev, "content_hash": chash, "method": method, "video": video, "checked": today}
+                        print(f"{sid}: needs whisper ({video})", flush=True)
+                        continue
+
+                    course_dir = brain / "raw" / "classroom" / f"{c['code']}-{slug(c['title'], 40)}"
+                    n = sid.rsplit("-", 1)[1]
+                    out = course_dir / f"{n}-{slug(les['title'])}.md"
+                    supersedes = prev.get("raw_path")
+                    module_title = c["title"] + (f" / {sec['title']}" if sec.get("title") else "")
+                    front = [
+                        "---",
+                        f"source_id: {sid}",
+                        f"title: {yaml_str(les['title'])}",
+                        f"module: {yaml_str(module_title)}",
+                        f"url: {les['url']}",
+                        f"video: {video or 'none'}",
+                        f"duration: {ts(duration) if video else '0:00'}",
+                        f"published: {published or 'unknown'}",
+                        f"skool_created: {skool_created or 'unknown'}",
+                        f"captured: {today}",
+                        f"method: {method}",
+                    ]
+                    if caption_kind:
+                        front.append(f"captions: {caption_kind}")
+                    front += [f"lesson_updated: {les.get('updated')}", f"content_hash: {chash}"]
+                    body = []
+                    if paras:
+                        body += ["## Transcript", ""] + [f"**[{ts(t)}]** {text}\n" for t, text in paras]
+                    text = desc_to_markdown(meta.get("desc"))
+                    text = re.sub(r"^(#{1,5}) ", r"#\1 ", text, flags=re.M)  # nest lesson headings under ours
+                    if text:
+                        body += ["## Lesson page text", "", text, ""]
+                    res = resources_md(les)
+                    if res:
+                        body += ["## Attached files", "", res, ""]
+                    text_body = "\n".join(body).rstrip() + "\n"
+                    raw = "\n".join([*front, "---", ""]) + text_body
+                    if not supersedes and out.exists() and out.read_text(encoding="utf-8") != raw:
+                        supersedes = out.relative_to(ROOT).as_posix()
+                    if supersedes:
+                        raw = "\n".join([*front, f"supersedes: {supersedes}", "---", ""]) + text_body
+                        base = out.with_stem(f"{out.stem}.{today}")
+                        out, revision = base, 2
+                        while out.exists() and out.read_text(encoding="utf-8") != raw:
+                            out = base.with_stem(f"{base.stem}-{revision}")
+                            revision += 1
+                    if not out.exists():
+                        brainlib.atomic_write(out, raw)
+                    raw_guard.record_capture(out)
+                    rel = str(out.relative_to(ROOT)).replace("\\", "/")
+                    state[sid] = {"content_hash": chash, "raw_path": rel, "method": method, "captured": today}
+                    done += 1
+                    words = sum(len(t.split()) for _, t in paras)
+                    print(f"{sid}: wrote {rel} ({method}, {words} transcript words, {len(text)} text chars)", flush=True)
+                    if done % 10 == 0:
+                        save_state()
+                except (RateLimited, BudgetExhausted, NotLoggedIn):
+                    raise
+                except Exception as e:
+                    errors += 1
+                    print(f"{les.get('source_id')}: ERROR {type(e).__name__}: {str(e)[:300]}", flush=True)
         except (RateLimited, BudgetExhausted) as e:
+            errors += 1
             print(f"stopped: {type(e).__name__}: {e}", flush=True)
         finally:
             save_state()
+    if not errors and not (args.only or args.limit) and not any(
+            state.get(les["source_id"], {}).get("method") == "needs_whisper" for _, _, les in todo):
+        if has_files:  # the source is complete only once its attachments are; skool_attachments.py stamps it
+            print("classroom date waits for skool_attachments.py (lessons have downloadable files)", flush=True)
+        else:
+            stamp_skool(brain, config["site"] + "/classroom")
     print(f"done: {done} written, {errors} errors", flush=True)
+    return bool(errors)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

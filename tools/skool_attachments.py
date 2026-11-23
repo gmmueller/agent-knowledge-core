@@ -19,6 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script directory
 import brainlib
 import raw_guard
+from source_helpers import stamp_skool
 from skool_session import configure, scratch_dir
 
 import argparse
@@ -137,13 +138,21 @@ def main():
     state = json.loads(state_p.read_text(encoding="utf-8")) if state_p.exists() else {}
     today = dt.date.today().isoformat()
 
-    todo, seen, missing = [], set(state), 0
+    seen = {fid for fid, capture in state.items() if capture.get("extracted") != "failed"}
+    todo, missing, errors = [], 0, 0
+    classroom_complete = True
     for c in outline["courses"]:
         if not c.get("access"):
             continue
         for sec in c.get("sections") or []:
             for les in sec.get("lessons") or []:
-                if les.get("duplicate_of") or not any(not r.get("url") for r in les.get("resources") or []):
+                if les.get("duplicate_of") or les.get("module_access") is False:
+                    continue
+                lesson_capture = crawled.get(les["source_id"], {})
+                classroom_complete &= (bool(lesson_capture.get("raw_path"))
+                                       and lesson_capture.get("method") != "needs_whisper"
+                                       and (not les.get("content_hash") or lesson_capture.get("content_hash") == les["content_hash"]))
+                if not any(not r.get("url") for r in les.get("resources") or []):
                     continue
                 if args.only and les["source_id"] not in args.only:
                     continue
@@ -151,79 +160,88 @@ def main():
                 if not cp.exists():
                     missing += 1
                     continue
-                res = json.loads(json.loads(cp.read_text(encoding="utf-8"))["module"]["metadata"].get("resources") or "[]")
-                for r in res:
-                    fid = r.get("file_id")
-                    if fid and fid not in seen:
-                        seen.add(fid)
-                        todo.append((c, les, r))
+                try:
+                    resources = json.loads(json.loads(cp.read_text(encoding="utf-8"))["module"]["metadata"].get("resources") or "[]")
+                    for resource in resources:
+                        fid = resource.get("file_id")
+                        if fid and fid not in seen:
+                            seen.add(fid)
+                            todo.append((c, les, resource))
+                except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+                    errors += 1
+                    print(f"{les['source_id']}: ERROR reading attachment metadata: {e}", flush=True)
     if args.limit:
         todo = todo[: args.limit]
     print(f"{len(todo)} files to fetch ({missing} lessons with files lack a module cache: crawl them first)", flush=True)
     if args.dry_run:
         for c, les, r in todo:
-            try:
-                print(les["source_id"], r["file_id"][:8], r.get("file_name"))
-            except (RateLimited, BudgetExhausted, NotLoggedIn):
-                raise
-            except Exception as e:  # one bad item must not stop a long unattended run; it is retried next run
-                errors += 1
-                print(f"{r['file_id']}: ERROR {type(e).__name__}: {str(e)[:300]}", flush=True)
+            print(les["source_id"], r["file_id"][:8], r.get("file_name"))
         return
 
     def save_state():
-        state_p.write_text(json.dumps(state, indent=1, ensure_ascii=False), encoding="utf-8")
+        brainlib.atomic_write(state_p, json.dumps(state, indent=1, ensure_ascii=False))
 
-    done = errors = 0
+    done = 0
+    errors += missing
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(f"http://127.0.0.1:{args.port}")
         try:
             for c, les, r in todo:
-                fid, fname = r["file_id"], r.get("file_name") or r["file_id"]
-                d = api_get(browser, f"https://api2.skool.com/files/{fid}/download-url?expire=600", method="POST", raw=True, brain=brain).strip()
-                if d.startswith("{"):
-                    j = json.loads(d)
-                    d = j.get("url") or j.get("download_url") or j.get("signed_url") or ""
-                url = d.strip('"')
-                if not url.startswith("https://"):
-                    raise RuntimeError(f"no URL in download-url response: {str(d)[:200]}")
-                with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=120) as resp:
-                    data = resp.read()
-                fdir = brain / "media" / "attachments" / fid
-                fdir.mkdir(parents=True, exist_ok=True)
-                safe = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", fname).strip(" .") or fid
-                (fdir / safe).write_bytes(data)
                 try:
+                    fid, fname = r["file_id"], r.get("file_name") or r["file_id"]
+                    d = api_get(browser, f"https://api2.skool.com/files/{fid}/download-url?expire=600", method="POST", raw=True, brain=brain).strip()
+                    if d.startswith("{"):
+                        j = json.loads(d)
+                        d = j.get("url") or j.get("download_url") or j.get("signed_url") or ""
+                    url = d.strip('"')
+                    if not url.startswith("https://"):
+                        raise RuntimeError(f"no URL in download-url response: {str(d)[:200]}")
+                    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=120) as resp:
+                        data = resp.read()
+                    fdir = brain / "media" / "attachments" / fid
+                    fdir.mkdir(parents=True, exist_ok=True)
+                    safe = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", fname).strip(" .") or fid
+                    (fdir / safe).write_bytes(data)
                     body, kind = text_of(fname, data)
-                except Exception as e:  # corrupt or unusual file: keep the download, note the failure
-                    body, kind = f"(text extraction failed: {type(e).__name__}: {e})", "failed"
-                sid = les["source_id"]
-                n = sid.rsplit("-", 1)[1]
-                out = brain / "raw" / "classroom" / f"{c['code']}-{slug(c['title'], 40)}" / "files" / f"{n}-{slug(fname)}.md"
-                if out.exists():
-                    out = out.with_name(out.stem + f"-{fid[:8]}.md")
-                sha1 = hashlib.sha1(data).hexdigest()
-                front = ["---", f"source_id: {sid}-f-{fid[:8]}", f"title: {yaml_str(r.get('title') or fname)}",
-                         f"lesson: {crawled.get(sid, {}).get('raw_path') or sid}", f"file_name: {yaml_str(fname)}",
-                         f"file_id: {fid}", f"content_type: {r.get('file_content_type') or 'unknown'}",
-                         f"bytes: {len(data)}", f"sha1: {sha1}", f"captured: {today}", "method: skool-file",
-                         f"extracted: {kind}", "---", ""]
-                out.parent.mkdir(parents=True, exist_ok=True)
-                out.write_text("\n".join(front) + (body.rstrip() or "(no text: binary file)") + "\n", encoding="utf-8", newline="\n")
-                raw_guard.record_capture(out)
-                rel = str(out.relative_to(ROOT)).replace("\\", "/")
-                state[fid] = {"raw_path": rel, "file": fname, "lesson": sid, "bytes": len(data), "sha1": sha1,
-                              "extracted": kind, "captured": today}
-                done += 1
-                print(f"{sid}: {fname} ({len(data):,} bytes, {kind}) -> {rel}", flush=True)
-                if done % 10 == 0:
-                    save_state()
+                    sid = les["source_id"]
+                    n = sid.rsplit("-", 1)[1]
+                    out = brain / "raw" / "classroom" / f"{c['code']}-{slug(c['title'], 40)}" / "files" / f"{n}-{slug(fname)}.md"
+                    sha1 = hashlib.sha1(data).hexdigest()
+                    front = ["---", f"source_id: {sid}-f-{fid[:8]}", f"title: {yaml_str(r.get('title') or fname)}",
+                             f"lesson: {crawled.get(sid, {}).get('raw_path') or sid}", f"file_name: {yaml_str(fname)}",
+                             f"file_id: {fid}", f"content_type: {r.get('file_content_type') or 'unknown'}",
+                             f"bytes: {len(data)}", f"sha1: {sha1}", f"captured: {today}", "method: skool-file",
+                             f"extracted: {kind}", "---", ""]
+                    raw = "\n".join(front) + (body.rstrip() or "(no text: binary file)") + "\n"
+                    base, revision = out.with_stem(f"{out.stem}-{fid[:8]}"), 1
+                    while out.exists() and out.read_text(encoding="utf-8") != raw:
+                        out = base if revision == 1 else base.with_stem(f"{base.stem}-{revision}")
+                        revision += 1
+                    if not out.exists():
+                        brainlib.atomic_write(out, raw)
+                    raw_guard.record_capture(out)
+                    rel = str(out.relative_to(ROOT)).replace("\\", "/")
+                    state[fid] = {"raw_path": rel, "file": fname, "lesson": sid, "bytes": len(data), "sha1": sha1,
+                                  "extracted": kind, "captured": today}
+                    done += 1
+                    print(f"{sid}: {fname} ({len(data):,} bytes, {kind}) -> {rel}", flush=True)
+                    if done % 10 == 0:
+                        save_state()
+                except (RateLimited, BudgetExhausted, NotLoggedIn):
+                    raise
+                except Exception as e:
+                    errors += 1
+                    print(f"{r.get('file_id')}: ERROR {type(e).__name__}: {str(e)[:300]}", flush=True)
         except (RateLimited, BudgetExhausted) as e:
+            errors += 1
             print(f"stopped: {type(e).__name__}: {e}", flush=True)
         finally:
             save_state()
+    if classroom_complete and not errors and not (args.only or args.limit):
+        stamp_skool(brain, config["site"] + "/classroom")
     print(f"done: {done} written, {errors} errors", flush=True)
+    return bool(errors)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

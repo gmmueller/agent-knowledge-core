@@ -7,19 +7,20 @@ Usage: python -I tools/refresh_due.py --root <workspace> [--all]
 Configuration (docs/updates.md):
   brain.md frontmatter   refresh: { reminders: true | false }      # false = never remind for this brain (default true)
   sources.yaml (each)    refresh: daily | weekly | monthly | quarterly | yearly | manual | never
-                         last_crawled: <date or datetime>          # null = not crawled yet (reported, not "due")
-A source is due when reminders are on, its cadence is a period, and last_crawled + period <= today.
+                         last_crawled: <date or datetime>          # null with existing captures = due ("date missing")
+A periodic source is due when its date is missing despite a capture or last_crawled + period <= today.
 """
 import argparse
+import csv
 import datetime as dt
 import pathlib
-import re
 import sys
 
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I drops the script dir
 import brainlib
+from source_helpers import match_source
 
 PERIODS = {"daily": 1, "weekly": 7, "monthly": 30, "quarterly": 91, "yearly": 365}
 
@@ -35,6 +36,30 @@ def as_date(v) -> dt.date | None:
     if isinstance(v, dt.date):
         return v
     return dt.date.fromisoformat(str(v)[:10])
+
+
+def captured_sources(folder, sources, needed):
+    captured = {source["id"] for source in sources
+                if source.get("id") in needed and source.get("status") in {"crawled", "captured", "ingested"}}
+    if needed <= captured:
+        return captured
+    catalogue = folder / "catalogue.tsv"
+    by_item, by_url = {}, {}
+    if catalogue.exists():
+        with catalogue.open(encoding="utf-8") as stream:
+            for row in csv.DictReader(stream, delimiter="\t", quoting=csv.QUOTE_NONE):
+                if row.get("source"):
+                    by_item[row["id"]] = by_url[row["url"]] = row["source"]
+    for path in (folder / "raw").rglob("*.md"):
+        front = frontmatter(path)
+        item, url = front.get("source_id"), front.get("url")
+        source = (front.get("source") or by_item.get(item) or by_url.get(url)
+                  or (item if item in needed else match_source(sources, url)))
+        if source in needed:
+            captured.add(source)
+            if needed <= captured:
+                break
+    return captured
 
 
 def main() -> None:
@@ -65,17 +90,23 @@ def main() -> None:
                     due_lines.append(f"- **{name} / {page.relative_to(brain).as_posix()}**: tool recheck overdue since {recheck}")
         src_file = brain / "sources.yaml"
         sources = (yaml.safe_load(src_file.read_text(encoding="utf-8")) or {}).get("sources") or [] if src_file.exists() else []
+        missing = {s.get("id") for s in sources
+                   if str(s.get("refresh") or "").lower() in PERIODS and as_date(s.get("last_crawled")) is None}
+        captured = captured_sources(brain, sources, missing)
         for s in sources:
             cadence = str(s.get("refresh") or "manual").lower()
             last = as_date(s.get("last_crawled"))
             label = f"{name} / {s.get('title') or s.get('id')}"
+            login = " (needs the logged-in browser)" if str(s.get("access", "")).startswith("login") else ""
             if cadence not in PERIODS:
                 other_lines.append(f"- {label}: {cadence}, no reminder")
             elif last is None:
-                other_lines.append(f"- {label}: {cadence}, not crawled yet (status: {s.get('status', '?')})")
+                if s.get("id") in captured:
+                    due_lines.append(f"- **{label}**: {cadence}, date missing{login}")
+                else:
+                    other_lines.append(f"- {label}: {cadence}, not crawled yet (status: {s.get('status', '?')})")
             else:
                 next_due = last + dt.timedelta(days=PERIODS[cadence])
-                login = " (needs the logged-in browser)" if str(s.get("access", "")).startswith("login") else ""
                 if next_due <= today:
                     due_lines.append(f"- **{label}**: {cadence}, last crawled {last}, due since {next_due}{login}")
                 else:

@@ -11,11 +11,14 @@ Import from a tool with:
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
+import io
 import os
 import pathlib
 import re
 import shutil
 import stat
+import tempfile
 
 import yaml
 
@@ -92,6 +95,53 @@ def write_text(path: pathlib.Path, text: str) -> None:
     """UTF-8, LF line endings, parent folders created."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def file_lock(path: pathlib.Path):
+    """Serialize read-modify-write operations on a shared file.
+
+    An OS lock (not a marker file), so a crawler killed mid-write can't leave the file locked for later runs.
+    """
+    from filelock import FileLock
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return FileLock(str(path) + ".lock", timeout=60)
+
+
+@contextmanager
+def staged_text(path: pathlib.Path, text: str):
+    """Prepare a sibling file for atomic publication, then clean up on failure."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="\n", dir=path.parent,
+                                         prefix=f".{path.name}.", suffix=".tmp", delete=False) as stream:
+            temporary = pathlib.Path(stream.name)
+            stream.write(text)
+        yield temporary
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def atomic_write(path: pathlib.Path, text: str) -> None:
+    with staged_text(path, text) as temporary:
+        temporary.replace(path)
+
+
+def edit_yaml(path: pathlib.Path, edit) -> None:
+    """Update YAML with its existing comments, ordering and quotes."""
+    from ruamel.yaml import YAML
+
+    with file_lock(path):
+        parser = YAML()
+        parser.preserve_quotes = True
+        data = parser.load(path.read_text(encoding="utf-8")) if path.exists() else None
+        data = {} if data is None else data
+        if edit(data):
+            buffer = io.StringIO()
+            parser.dump(data, buffer)
+            atomic_write(path, buffer.getvalue())
 
 
 def executable(name: str) -> str:

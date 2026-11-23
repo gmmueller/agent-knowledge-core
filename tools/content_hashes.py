@@ -2,7 +2,7 @@
 import hashlib
 import json
 
-from filelock import SoftFileLock
+from filelock import FileLock
 
 
 def digest(path):
@@ -29,7 +29,7 @@ def save(path, files):
 def locked(path):
     """Serialize capture workers so recording one file cannot erase another worker's hash."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    return SoftFileLock(str(path) + ".lock", timeout=10)
+    return FileLock(str(path) + ".lock", timeout=10)  # OS lock: released if the process dies
 
 
 def differences(before, after):
