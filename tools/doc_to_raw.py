@@ -7,7 +7,7 @@ import io
 import json
 import pathlib
 import re
-import shutil
+from shutil import which
 import subprocess
 import sys
 
@@ -33,7 +33,7 @@ def dependency(package):
 
 def pdf_blocks(src, content):
     reader = dependency("pypdf").PdfReader(io.BytesIO(content))
-    tesseract = shutil.which("tesseract")
+    tesseract = which("tesseract")
     renderer = None
     used_ocr = False
     blocks = []
@@ -161,7 +161,7 @@ def capture(publisher, src, *, config=None, slug=None, published=None):
     identity = f"doc-{slug}" if slug else f"doc-{lr.slugify(src.stem)}-{suffix[1:]}-{source_hash[:12]}"
     capture_key = f"{identity}-{source_hash[:12]}" if slug else identity
     parser_key = json.dumps(config) if config is not None else f"local:{FORMATS[suffix]}"
-    if config is None and suffix == ".pdf" and shutil.which("tesseract"):
+    if config is None and suffix == ".pdf" and which("tesseract"):
         parser_key += "+tesseract"
     parser_hash = hashlib.sha256(parser_key.encode("utf-8")).hexdigest()[:12]
     raw = lr.pub_dir(publisher) / "raw"

@@ -62,7 +62,7 @@ class DocumentCapture(unittest.TestCase):
             pdf.new_page().insert_text((72, 72), "Confirm the setting.")
             pdf.new_page()
             pdf.save(src)
-        with patch.object(docs.shutil, "which", return_value=None), patch.object(docs.sys, "stderr") as stderr:
+        with patch.object(docs, "which", return_value=None), patch.object(docs.sys, "stderr") as stderr:
             path, rel = self.capture(src, [("p. 1", "Confirm the setting."), ("p. 2", None)])
         self.assertIn("no extractable text", "".join(call.args[0] for call in stderr.write.call_args_list))
         self.assertEqual(len(pypdf.PdfReader(src).pages), 2)
@@ -79,7 +79,7 @@ class DocumentCapture(unittest.TestCase):
             pdf.new_page().insert_text((72, 72), "Use the text layer.")
             pdf.new_page()
             pdf.save(src)
-        with patch.object(docs.shutil, "which", return_value="tesseract"), \
+        with patch.object(docs, "which", return_value="tesseract"), \
                 patch.object(docs.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, b"Scanned page.")) as ocr:
             path, _ = self.capture(src, [("p. 1", "Use the text layer."), ("p. 2", "Scanned page.")])
         ocr.assert_called_once()
