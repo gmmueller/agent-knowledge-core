@@ -24,7 +24,7 @@ class DocumentCapture(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
-        self.root = pathlib.Path(folder.name)
+        self.root = pathlib.Path(folder.name).resolve()
         self.brain = self.root / "reference"
         brainlib.write_text(self.brain / "brain.md", "---\nkind: topic\nevidence_model: reference\n---\n")
         lr.init(self.root)
