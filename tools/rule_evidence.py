@@ -43,6 +43,8 @@ def assess(settings, evidence, page, references=None):
     for row in evidence:
         speaker = row.get("speaker")
         expert = expert_aliases.get(speaker, speaker)
+        if speaker in hosts or expert in hosts:
+            continue
         stance = row.get("stance", "supports")
         if reference:
             source = references.evidence(row) if references is not None else row
@@ -56,8 +58,6 @@ def assess(settings, evidence, page, references=None):
                     authoritative.add(identity)
                 elif stance == "opposes":
                     contradictions.add(identity)
-        if speaker in hosts or expert in hosts:
-            continue
         if stance == "opposes" and expert in experts:
             opposing.add(expert)
         if stance != "supports":

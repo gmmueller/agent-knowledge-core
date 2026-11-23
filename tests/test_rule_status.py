@@ -191,7 +191,7 @@ class RuleStatus(unittest.TestCase):
         self.assertTrue(wiki_edits.pass_file(self.brain).exists())
 
     def test_reference_rules_use_current_authorities_in_merge_and_audit(self):
-        self.settings(evidence_model="reference")
+        self.settings(evidence_model="reference", hosts=["Moderator"])
         brainlib.write_text(self.root / "library" / "acme" / "sources.yaml", yaml.safe_dump({"sources": [
             {"id": "old", "authority": "official", "version": "1", "published": "2025-03-01"},
             {"id": "current", "authority": "official", "version": "2", "supersedes": "old"},
@@ -207,6 +207,8 @@ class RuleStatus(unittest.TestCase):
             "conflict": ("contested", [current, dissent]),
             "secondary": ("bench", [other]),
             "outdated-dissent": ("active", [current, dict(old, stance="opposes")]),
+            "host-support": ("bench", [dict(current, speaker="Moderator")]),
+            "host-dissent": ("active", [current, dict(dissent, speaker="Moderator")]),
             "locked": ("bench", [current]),
         }
         for slug, (_, points) in cases.items():
