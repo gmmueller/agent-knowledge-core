@@ -254,6 +254,26 @@ sources:
         self.assertEqual(str(sources[0]["last_crawled"]), dt.date.today().isoformat())
         self.assertIsNone(sources[1]["last_crawled"])
 
+    def test_backfill_checkpoint_waits_for_the_index_write(self):
+        feed = skool_feed_index
+        cursor_path = "state/feed_cursor.json"
+        self.write(cursor_path, json.dumps({"backfill": {"complete": False, "next_page": 11}}))
+        self.write("state/posts.jsonl", "")
+
+        def next_page(browser, group, params, **kwargs):
+            pid = f"post-{params['p']}"
+            return {"pageProps": {"postTrees": [{"post": {"id": pid, "name": pid, "groupId": "fixture-group",
+                                                          "createdAt": "2026-01-01T00:00:00Z",
+                                                          "metadata": {"title": pid, "content": "x", "comments": 0}}}]}}
+
+        with patch.object(feed, "next_data", side_effect=next_page),                 patch.object(feed, "write_index", side_effect=OSError("interrupted index write")):
+            with self.assertRaises(OSError):
+                self.run_crawler(feed, "--mode", "backfill", "--max-pages", "5")
+        self.assertEqual(self.load(cursor_path)["backfill"]["next_page"], 11)
+        with patch.object(feed, "next_data", side_effect=next_page):
+            self.run_crawler(feed, "--mode", "backfill", "--max-pages", "5")
+        self.assertEqual(self.load(cursor_path)["backfill"]["next_page"], 14)
+
     def outline(self, with_files=False):
         lessons = [dict(id=f"lesson-{i}", source_id=f"acme-00{i}", title=f"Lesson {i}", url=f"{self.site}/classroom/{i}",
                         resources=[{"file_name": "sample.txt"}] if with_files else []) for i in (1, 2)]

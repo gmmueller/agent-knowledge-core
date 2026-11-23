@@ -146,11 +146,12 @@ def main():
     cursor_path = Path(cursor_path)
     cur = json.loads(cursor_path.read_text(encoding="utf-8")) if cursor_path.exists() else {}
     since_ns = int(cur.get("activity_ns") or 0)
-    backfill = cur.get("backfill") or {"complete": False, "next_page": 1}
+    # Work on copies: `cur` keeps the last committed checkpoints until the index is written.
+    backfill = dict(cur.get("backfill") or {"complete": False, "next_page": 1})
     if args.mode == "refresh" and not backfill["complete"]:
         sys.exit("backfill not complete; run --mode backfill first")
     page_no = max(1, backfill["next_page"] - 2) if args.mode == "backfill" and not backfill["complete"] else 1
-    recache = cur.get("recache") or {}
+    recache = dict(cur.get("recache") or {})
     if args.mode == "recache":
         if not args.until:
             sys.exit("--mode recache needs --until YYYY-MM-DD")
