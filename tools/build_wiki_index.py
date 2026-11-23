@@ -19,6 +19,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I dr
 import brainlib
 import wiki_edits
 
+AUTO_PROPOSAL = "# Proposed index rebuild"  # header marking a proposal this tool wrote and may refresh
 TYPES = [("topic", "Topics"), ("principle", "Principles"), ("framework", "Frameworks"), ("method", "Methods"),
          ("rule", "Rules"), ("rubric", "Rubrics"), ("debate", "Debates"), ("tool", "Tools and platform facts"),
          ("glossary", "Glossary"), ("example", "Examples")]
@@ -138,7 +139,12 @@ def main() -> None:
         content = "\n".join(lines)
         if name in protected:
             proposal = brain / "ingest" / "proposals" / "wiki" / name
-            brainlib.write_text(proposal, f"# Proposed index rebuild\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: index has human edits; review before replacing.\n\n---\n\n" + content)
+            if proposal.exists() and not proposal.read_text(encoding="utf-8").startswith(AUTO_PROPOSAL):
+                # A proposal filed with `wiki_edits.py propose` is awaiting review: never overwrite it.
+                print(f"{name} has human edits and an open proposal (ingest/proposals/wiki/{name}); "
+                      "rebuild not written. Resolve that proposal, then rebuild.")
+                continue
+            brainlib.write_text(proposal, f"{AUTO_PROPOSAL}\n\nDate: {dt.date.today().isoformat()}\nPage: wiki/{name}\nWhy: index has human edits; review before replacing.\n\n---\n\n" + content)
             print(f"{name} has human edits; proposal: ingest/proposals/wiki/{name}")
         else:
             (wiki / name).write_text(content, encoding="utf-8", newline="\n")

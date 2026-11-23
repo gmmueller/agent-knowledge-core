@@ -223,6 +223,17 @@ class EditGuards(unittest.TestCase):
         self.assertEqual(self.run_tool("build_wiki_index.py").returncode, 0)
         refreshed = (self.brain / "ingest/proposals/wiki/index.md").read_text(encoding="utf-8")
         self.assertIn("[[added]]", refreshed)
+        # A proposal filed with wiki_edits propose is never overwritten by a rebuild.
+        (self.brain / "ingest/proposals/wiki/index.md").unlink()  # the auto proposal was reviewed and dropped
+        mine = self.brain / "agent-index.md"
+        mine.write_text("# Agent's index proposal\n", encoding="utf-8")
+        self.assertEqual(self.run_tool("wiki_edits.py", "propose", "index.md", "--from", str(mine)).returncode, 0)
+        filed = (self.brain / "ingest/proposals/wiki/index.md").read_text(encoding="utf-8")
+        self.assertIn("# Agent's index proposal", filed)
+        result = self.run_tool("build_wiki_index.py")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("open proposal", result.stdout)
+        self.assertEqual((self.brain / "ingest/proposals/wiki/index.md").read_text(encoding="utf-8"), filed)
 
     def test_notes_are_ignored_and_index_lists_them_without_writing(self):
         self.write("notes/unstructured.md", "No frontmatter [[missing]]\n")
