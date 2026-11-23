@@ -88,7 +88,10 @@ def publication_date(value: str) -> str:
 # --- catalogue.tsv ---------------------------------------------------------------------------------
 
 def read_catalogue(publisher: str) -> dict[str, dict]:
-    path = pub_dir(publisher) / "catalogue.tsv"
+    return read_catalogue_file(pub_dir(publisher) / "catalogue.tsv")
+
+
+def read_catalogue_file(path: pathlib.Path) -> dict[str, dict]:
     if not path.exists():
         return {}
     lines = path.read_text(encoding="utf-8").splitlines()
@@ -96,6 +99,18 @@ def read_catalogue(publisher: str) -> dict[str, dict]:
         return {}
     header = lines[0].split("\t")
     return {r["id"]: r for r in (dict(zip(header, ln.split("\t"))) for ln in lines[1:] if ln.strip())}
+
+
+def catalogue_id_for_raw(path, rows):
+    if not path.is_file():
+        return None
+    metadata = brainlib.read_frontmatter(path)
+    item = metadata.get("source_id")
+    if item in rows:
+        return item
+    url = metadata.get("url")
+    matches = [key for key, row in rows.items() if url and row.get("url") == url]
+    return matches[0] if len(matches) == 1 else None
 
 
 def write_catalogue(publisher: str, rows: dict[str, dict]) -> pathlib.Path:

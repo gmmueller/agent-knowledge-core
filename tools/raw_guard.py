@@ -1,6 +1,7 @@
 """Hash captured raw text: --brain <brain> | --workspace <workspace> record [--init] | check."""
 import argparse
 import pathlib
+import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -72,9 +73,15 @@ def record_capture(path):
     return True
 
 
+def require_recorded_capture(path, raw):
+    """A retry may reuse a captured file only if its hash was recorded at capture time."""
+    name = path.relative_to(raw).as_posix()
+    if name not in (hashes.load(manifest(raw)) or {}):
+        raise ValueError(f"capture has no recorded hash: {path.name}. Move it out of raw/ and re-crawl.")
+
+
 def cited_raw_dirs(brain):
     """Only publishers named by this brain's citations/frontmatter/selection, not every publisher."""
-    import re
     publishers = set()
     paths = [brain / "brain.md", brain / "selection.yaml", *brainlib.wiki_pages(brain)]
     for path in paths:
@@ -94,22 +101,34 @@ def main():
     rec.add_argument("--init", action="store_true")
     a = ap.parse_args()
     if a.brain:
-        roots = [brainlib.brain_dir(a.brain) / "raw"]
+        brain = brainlib.brain_dir(a.brain)
+        brains = [brain]
+        roots = {brain / "raw"}
     else:
         workspace = brainlib.workspace_dir(a.workspace)
         library = brainlib.library_dir(workspace)
+        brains = [p.parent for p in workspace.glob("*/brain.md")]
         roots = {p for p in library.glob("*/raw") if p.is_dir()}
         if a.command == "check":
             roots.update(p.parent / "raw" for p in library.glob("*/.capture-hashes.json"))
-            roots.update(p.parent / "raw" for p in workspace.glob("*/brain.md"))
-        roots = sorted(roots)
-    count = missing = 0
+            roots.update(brain / "raw" for brain in brains)
+    count = missing = missing_publishers = 0
     try:
-        for raw in roots:
+        expected = set()
+        if a.command == "check":
+            # Only citations prove captures existed. A catalogue or a declared source alone is
+            # normal before triage and fetch, so it is not evidence of a deleted publisher.
+            for brain in brains:
+                expected.update(cited_raw_dirs(brain))
+            roots.update(expected)
+        for raw in sorted(roots):
             if a.command == "record":
                 record(raw, init=a.init)
                 print(f"recorded: {raw}")
             else:
+                if raw in expected and not raw.is_dir() and not has_manifest(raw):
+                    print(f"missing publisher raw folder and capture manifest: {raw.parent}")
+                    missing_publishers += 1
                 for name, kind in check(raw).items():
                     print(f"{kind}: {raw / name}")
                     count += 1
@@ -120,7 +139,7 @@ def main():
         print(f"{count} raw files changed after capture")
         if missing:
             print(f"{missing} raw files have no capture hash yet (run record, or record --init once when adopting)")
-    return int(bool(count or missing))
+    return int(bool(count or missing or missing_publishers))
 
 
 if __name__ == "__main__":

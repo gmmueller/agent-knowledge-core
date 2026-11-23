@@ -406,6 +406,20 @@ class EditGuards(unittest.TestCase):
             self.assertIn(f"deleted: {missing}", result.stdout)
         self.assertIn("2 raw files changed after capture", result.stdout)
 
+    def test_raw_guard_flags_only_cited_publishers_without_raw_or_manifest(self):
+        deleted = "publisher-with-deleted-folder"
+        self.write("wiki/topics/cited.md", f"Claim ([[library/{deleted}/raw/web/page.md]]).\n")
+        self.write("sources.yaml", "sources: [{publisher: declared-not-fetched}]\n")
+        catalogue_only = self.root / "library/catalogue-only/catalogue.tsv"
+        brainlib.write_text(catalogue_only, "id\turl\tsource\nweb-one\t\tdocs\n")
+        for result in (self.run_tool("raw_guard.py", "check", scope="workspace"),
+                       self.run_tool("raw_guard.py", "check")):
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("missing publisher raw folder and capture manifest", result.stdout)
+            self.assertIn(deleted, result.stdout)
+            self.assertNotIn("declared-not-fetched", result.stdout)
+            self.assertNotIn(str(catalogue_only.parent), result.stdout)
+
     def test_lint_fails_for_changed_captures_and_warns_for_edits_and_proposals(self):
         self.init_wiki()
         raw_guard.record(self.brain / "raw", init=True)

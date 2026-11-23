@@ -254,6 +254,44 @@ class TokenTools(unittest.TestCase):
         self.assertTrue(wave_report.same(n("./library/demo/raw/one.md"), n("raw\\one")))
         self.assertFalse(wave_report.same(n("library/a/raw/one.md"), n("library/b/raw/one.md")))
 
+    def test_wave_matches_topic_staging_by_raw_path_or_catalogue_id(self):
+        brain = self.brain_fixture()
+        raw = "library/pub-a/raw/web/chapter.md"
+        self.write(brain / "brain.md", "---\nkind: topic\n---\n")
+        self.write(self.workspace / raw, "---\nsource_id: web-one\n---\nDemo source\n")
+        self.write(self.workspace / "library/pub-a/catalogue.tsv", "id\turl\tsource\nweb-one\t\tdocs\n")
+        self.write(brain / "wiki/sources/one.md", f"""---
+type: source
+sources: [{raw}]
+updated: 2026-01-01
+publisher: pub-a
+item: pub-a/web-one
+url: https://example.org
+---
+# One
+
+## Key claims
+- **Inference:** Demo.
+""")
+        item = "item: pub-a/web-one"
+        capture = f"raw: {raw}"
+        for assignment, staged, details, code, message in (
+            (capture, item, ", page: one, speakers: {Host: author}", 0, "a: ok"),
+            (item, capture, ", page: one, speakers: {Host: author}", 0, "a: ok"),
+            (capture, "item: pub-b/web-one", ", page: one, speakers: {Host: author}", 1, "staging missing"),
+            (capture, capture, "", 1, "needs 'page' and 'speakers'"),
+        ):
+            with self.subTest(assignment=assignment, staged=staged, details=details):
+                self.write(brain / "batches.yaml", f"a:\n  items: [{{{assignment}}}]\n")
+                self.write(brain / "ingest/staging/a.yaml", f"items: [{{{staged}{details}}}]\nconcepts: []\n")
+                result, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
+                self.assertEqual(result, code, out + err)
+                self.assertIn(message, out)
+        self.write(brain / "ingest/staging/a.yaml", f"items: [{{{capture}, page: one, speakers: {{Host: author}}}}]\n")
+        result, out, err = self.run_tool("wave_report.py", "--brain", brain, "--batches", "batches.yaml")
+        self.assertEqual(result, 1, out + err)
+        self.assertIn("requires a 'concepts' list", out)
+
     def test_explicit_capture_required_even_if_item_and_id_match(self):
         brain = self.brain_fixture()
         page = brain / "wiki/sources/one.md"

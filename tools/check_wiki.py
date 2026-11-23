@@ -23,6 +23,7 @@ import functools
 import itertools
 import re
 import sys
+from urllib.parse import unquote
 
 import yaml
 
@@ -35,7 +36,10 @@ CITE = re.compile(r"\[\[((?:raw/|library/)[^\[\]|#]+?)(?:\|[^\]]*)?\]\]\s*@\s*"
                   r"(?![\w:]|\.\d)")
 RAW_LINK = re.compile(r"\[\[(?:raw/|library/)")
 WIKI_LINK = re.compile(r"\[\[([^\[\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
-MARKDOWN_LINK = re.compile(r"\[[^\[\]\n]+\]\([^)\n]+\)")
+MARKDOWN_LINK = re.compile(
+    r"""\[[^\[\]\n]+\]\(\s*(?:<([^>\n]*)>|((?:\\[()]|\([^()\n]*\)|[^\s()])+))"""
+    r"""\s*(?:(?:"[^"\n]*"|'[^'\n]*')\s*)?\)"""
+)
 INLINE_CODE = re.compile(r"`[^`\n]+`")
 URL = re.compile(r"https?://\S+")
 CORRUPTION = re.compile(r"[A-Za-z]\?(?:s|t|re|ve|ll|m|d)\b|\d\?\d|\w \? \w|[\"”\]] \? [\(\[\w]")
@@ -359,6 +363,24 @@ def check_links(brain, page, line, where, errors, targets):
             local = relative.relative_to(brain).as_posix() if relative else target.removeprefix(brain.name + "/")
             if local not in targets:
                 errors.append(f"{where}: unresolved wikilink: [[{target}]]")
+    for link in MARKDOWN_LINK.finditer(line):
+        destination = link.group(1) if link.group(1) is not None else link.group(2)
+        if destination.startswith("//") or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]+:", destination):
+            continue
+        target = unquote(re.split(r"[#?]", destination, maxsplit=1)[0])
+        target = re.sub(r"\\([()])", r"\1", target).replace("\\", "/")
+        if not target:
+            continue
+        try:
+            resolved = (page.parent / target).resolve()
+        except (OSError, RuntimeError, ValueError):
+            errors.append(f"{where}: invalid Markdown link path: {destination}")
+            continue
+        if not resolved.is_relative_to(brain):
+            if resolved.exists():
+                errors.append(f"{WARNING}{where}: Markdown link leaves the brain folder: {destination}")
+            else:
+                errors.append(f"{where}: unresolved Markdown link outside the brain folder: {destination}")
 
 
 def check_claims(body, page_type, where, errors):

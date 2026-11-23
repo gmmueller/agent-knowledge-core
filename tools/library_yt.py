@@ -79,6 +79,11 @@ def youtube_row(data, source, kind):
             "source": source, "description": data.get("description", "")}
 
 
+def rounded_views(count):
+    """Flat YouTube listings can return abbreviated counts with at most three significant digits."""
+    return isinstance(count, int) and count >= 1000 and count % (10 ** (len(str(count)) - 3)) == 0
+
+
 def duration_seconds(value):
     parts = value.strip().split(":")
     if not all(p.isdigit() for p in parts) or len(parts) > 3:
@@ -115,18 +120,29 @@ def catalogue(publisher, config, details):
         if source["type"] == "youtube-channel":
             tabs = source.get("tabs", ["videos"])
             succeeded = bool(tabs)
+            known_kinds = {row.get("kind") for row in lr.read_catalogue(publisher).values()
+                           if row.get("source") == source["id"]}
             for tab in tabs:
                 try:
                     data = json.loads(ytdlp("--flat-playlist", "-J", source["url"].rstrip("/") + "/" + tab))
+                    known = lr.read_catalogue(publisher)
                     rows = []
                     for entry in data.get("entries", []):
-                        if not entry.get("id"):
+                        if not entry or not entry.get("id"):
                             continue
+                        previous = known.get(f"yt-{entry['id']}", {}).get("views", "")
+                        views = entry.get("view_count")
                         cached = lr.pub_dir(publisher) / "media" / "meta" / f"{entry['id']}.json"
                         if cached.exists():
                             entry = json.loads(cached.read_text(encoding="utf-8")) | {
                                 key: value for key, value in entry.items() if value not in (None, "")}
+                        if previous.isdecimal() and (views in (None, "") or
+                                (rounded_views(views) and not rounded_views(int(previous)))):
+                            # An abbreviated listing can't replace a known precise count.
+                            entry["view_count"] = previous
                         rows.append(youtube_row(entry, source["id"], TABS[tab]))
+                    if not rows and (TABS[tab] in known_kinds or counts.get(tab)):
+                        raise ValueError("empty playlist for a previously populated tab")
                     added, updated = lr.merge_catalogue(publisher, rows, preserve_routing=True)
                     counts[tab] = len(rows)
                     candidates.extend((i, row) for i, row in enumerate(rows))
@@ -135,6 +151,9 @@ def catalogue(publisher, config, details):
                 except Exception as error:
                     succeeded = False
                     failure(messages, f"{source['id']} {tab}", error)
+            if succeeded and known_kinds and not any(counts[tab] for tab in tabs):
+                succeeded = False
+                failure(messages, source["id"], "empty scan for a channel with catalogue rows")
         elif source["type"] == "podcast" and source.get("rss"):
             try:
                 rows = podcast_rows(source)
@@ -233,8 +252,7 @@ def fetch(publisher, config, ids):
             raw_dir = lr.pub_dir(publisher) / "raw" / "yt"
             captures = list(raw_dir.glob(f"*-{item_id[3:]}-*.md"))
             for path in captures:
-                if raw_guard.record_capture(path):
-                    messages.append(f"RECOVER {item_id}: recorded capture hash for {path.name}")
+                raw_guard.require_recorded_capture(path, raw_dir.parent)
             if captures or stage.exists():
                 messages.append(f"SKIP {item_id}: output exists")
                 continue
@@ -332,7 +350,8 @@ def main():
             parser.error("--details must be non-negative")
         failed = catalogue(args.publisher, config, args.details)
     elif args.command == "add":
-        if args.source not in {s["id"] for s in config["sources"]}:
+        source = next((s for s in config["sources"] if s["id"] == args.source), None)
+        if source is None:
             parser.error(f"unknown source {args.source}")
         rows, messages = [], []
         for v in args.videos:
@@ -349,7 +368,7 @@ def main():
         messages.insert(0, f"add {args.source}: {added} added, {updated} updated")
         log(args.publisher, "add", messages)
         failed = len(rows) < len(args.videos)
-        if not failed and rows:
+        if not failed and rows and source["type"] == "youtube-selected":
             stamp_crawl(lr.pub_dir(args.publisher), [args.source])
     else:
         ids = args.items

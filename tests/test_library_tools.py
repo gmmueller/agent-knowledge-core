@@ -82,6 +82,45 @@ class LibraryTools(unittest.TestCase):
         self.assertEqual(str(brainlib.load_yaml(path)["sources"][0]["last_crawled"]), dt.date.today().isoformat())
         self.assertEqual(lr.read_catalogue("acme")["yt-abcdefghijk"]["source"], "acme-source")
 
+    def test_youtube_add_keeps_channel_date_on_cache_hit(self):
+        path = self.source_file("youtube-channel")
+        cache = lr.pub_dir("acme") / "media/meta/abcdefghijk.json"
+        brainlib.write_text(cache, json.dumps({"id": "abcdefghijk", "title": "Cached video"}))
+        with patch.object(yt, "ytdlp") as ytdlp, \
+                patch.object(sys, "argv", ["library_yt.py", "--workspace", str(self.root), "add", "acme",
+                                           "--source", "acme-source", "abcdefghijk"]), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(SystemExit) as exited:
+                yt.main()
+        self.assertEqual(exited.exception.code, 0)
+        ytdlp.assert_not_called()
+        self.assertIsNone(brainlib.load_yaml(path)["sources"][0]["last_crawled"])
+        self.assertIn("yt-abcdefghijk", lr.read_catalogue("acme"))
+
+    def test_youtube_empty_scan_leaves_populated_channel_due(self):
+        path = self.source_file("youtube-channel", "  tabs: [videos, shorts]\n")
+        lr.merge_catalogue("acme", [{"id": "yt-abcdefghijk", "source": "acme-source", "kind": "video"}])
+        output = io.StringIO()
+        with patch.object(yt, "ytdlp", return_value='{"entries":[null]}'), contextlib.redirect_stdout(output):
+            self.assertTrue(yt.catalogue("acme", web.config("acme"), 0))
+        self.assertIn("empty playlist", output.getvalue())
+        self.assertIsNone(brainlib.load_yaml(path)["sources"][0]["last_crawled"])
+        self.assertIn("yt-abcdefghijk", lr.read_catalogue("acme"))
+
+    def test_youtube_flat_scan_preserves_precise_views_until_precise_update(self):
+        path = self.source_file("youtube-channel", "  cursor: null\n  tabs: [videos, shorts]\n")
+        item = "yt-abcdefghijk"
+        lr.merge_catalogue("acme", [yt.youtube_row({"id": "abcdefghijk", "view_count": 32769},
+                                                    "acme-source", "video")])
+        for views, expected, updates in ((37000, "32769", 0), (37012, "37012", 1)):
+            video = json.dumps({"entries": [{"id": "abcdefghijk", "view_count": views}]})
+            output = io.StringIO()
+            with patch.object(yt, "ytdlp", side_effect=[video, '{"entries":[]}']), contextlib.redirect_stdout(output):
+                self.assertFalse(yt.catalogue("acme", web.config("acme"), 0))
+            self.assertEqual(lr.read_catalogue("acme")[item]["views"], expected)
+            self.assertIn(f"acme-source videos: 1 items, 0 added, {updates} updated", output.getvalue())
+        self.assertIn("cursor: null", path.read_text(encoding="utf-8"))
+
     def test_youtube_channel_scan_preserves_routing_and_refreshes_metadata(self):
         self.source_file("youtube-channel")
         item = "yt-abcdefghijk"
@@ -106,7 +145,7 @@ class LibraryTools(unittest.TestCase):
                          ("New title", "2026-05-12", "300", "500", "New description"))
         self.assertEqual((rows["yt-bcdefghijkl"]["source"], rows["yt-bcdefghijkl"]["views"]), ("acme-source", "200"))
 
-    def test_youtube_fetch_repairs_unrecorded_capture_without_refetch_or_rewrite(self):
+    def test_youtube_fetch_refuses_to_bless_unrecorded_capture(self):
         self.source_file("youtube-selected", "  format: solo\ndefault_speaker: Example Speaker\n")
         item = "yt-abcdefghijk"
         meta = {"id": "abcdefghijk", "title": "Example", "upload_date": "20260512", "duration": 300}
@@ -119,19 +158,16 @@ class LibraryTools(unittest.TestCase):
                 contextlib.redirect_stdout(io.StringIO()):
             self.assertTrue(yt.fetch("acme", config, [item]))
         capture, = (raw / "yt").glob("*.md")
-        original = capture.read_bytes(), capture.stat().st_mtime_ns
         Path(str(capture) + ".lock").write_text("", encoding="utf-8")  # macOS/Linux leave the writer's lock file
         self.assertEqual(raw_guard.unrecorded(raw), [f"yt/{capture.name}"])
-
-        with patch.object(yt, "metadata") as metadata, contextlib.redirect_stdout(io.StringIO()):
-            self.assertFalse(yt.fetch("acme", config, [item]))
-        metadata.assert_not_called()
-        self.assertEqual((capture.read_bytes(), capture.stat().st_mtime_ns), original)
-        self.assertEqual(raw_guard.unrecorded(raw), [])
         capture.write_text("A changed capture.\n", encoding="utf-8")
-        with contextlib.redirect_stdout(io.StringIO()):
-            self.assertFalse(yt.fetch("acme", config, [item]))
-        self.assertEqual(raw_guard.check(raw), {f"yt/{capture.name}": "changed"})
+        output = io.StringIO()
+        with patch.object(yt, "metadata") as metadata, contextlib.redirect_stdout(output):
+            self.assertTrue(yt.fetch("acme", config, [item]))
+        metadata.assert_not_called()
+        self.assertIn("re-crawl", output.getvalue())
+        self.assertEqual(raw_guard.unrecorded(raw), [f"yt/{capture.name}"])
+        self.assertEqual(capture.read_text(encoding="utf-8"), "A changed capture.\n")
 
     def test_web_browser_falls_back_to_playwright_chromium_and_closes(self):
         page = Mock()
@@ -217,7 +253,7 @@ class LibraryTools(unittest.TestCase):
             self.assertEqual({str(s["last_crawled"]) for s in brainlib.load_yaml(path)["sources"]},
                              {dt.date.today().isoformat()})
 
-    def test_web_retry_repairs_hash_without_creating_another_capture(self):
+    def test_web_retry_refuses_to_bless_unrecorded_capture(self):
         self.source_file()
         url = "https://example.com/page"
         client = Mock()
@@ -227,12 +263,13 @@ class LibraryTools(unittest.TestCase):
             self.assertEqual(self.fetch(client, url), 1)
         raw = lr.pub_dir("acme") / "raw"
         capture, = (raw / "web").glob("*.md")
-        original = capture.read_bytes(), capture.stat().st_mtime_ns
+        original = capture.read_bytes().replace(b"Useful text.", b"Edited text.")
+        capture.write_bytes(original)
         client.get.reset_mock()
-        self.assertEqual(self.fetch(client, url), 0)
+        self.assertEqual(self.fetch(client, url), 1)
         client.get.assert_not_called()
-        self.assertEqual((capture.read_bytes(), capture.stat().st_mtime_ns), original)
-        self.assertEqual(raw_guard.unrecorded(raw), [])
+        self.assertEqual(capture.read_bytes(), original)
+        self.assertEqual(raw_guard.unrecorded(raw), [f"web/{capture.name}"])
 
     def test_web_same_title_and_date_preserve_both_urls(self):
         self.source_file()

@@ -3,6 +3,7 @@
 Usage: wave_report.py --brain FOLDER --batches ingest/batches.yaml [--wave KEY]
 """
 import argparse
+from functools import lru_cache
 import pathlib
 import re
 import subprocess
@@ -12,10 +13,12 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
+from library_raw import catalogue_id_for_raw, read_catalogue_file
 import wiki_edits
 
 LIBRARY = re.compile(r"^library/[^/]+/")
 PAGE_DIRS = ("sources", "examples")  # topic briefs write `page: example` items to wiki/examples/
+catalogue_rows = lru_cache(maxsize=None)(read_catalogue_file)
 
 
 def normalized(value):
@@ -47,12 +50,31 @@ def references(fm, keys):
     return result
 
 
-def stages_item(item, entry):
+@lru_cache(maxsize=None)
+def raw_catalogue_reference(workspace, raw):
+    parts = pathlib.PurePosixPath(raw).parts
+    if len(parts) < 4 or parts[0] != "library" or parts[2] != "raw" or ".." in parts:
+        return None
+    publisher = parts[1]
+    rows = catalogue_rows(workspace / "library" / publisher / "catalogue.tsv")
+    item = catalogue_id_for_raw(workspace / (raw + ".md"), rows)
+    return (publisher, item) if item else None
+
+
+def stages_item(brain, item, entry):
     if item.get("raw") and entry.get("raw"):
         return normalized(item["raw"]) == normalized(entry["raw"])
     keys = ("raw", "item", "id")
-    return any(same(wanted, staged) for wanted in references(item, keys)
-               for staged in references(entry, keys))
+    if any(same(wanted, staged) for wanted in references(item, keys)
+           for staged in references(entry, keys)):
+        return True
+    for with_raw, with_id in ((item, entry), (entry, item)):
+        if with_raw.get("raw"):
+            match = raw_catalogue_reference(brainlib.workspace(brain), normalized(with_raw["raw"]))
+            if match:
+                publisher, catalogue_id = match
+                return bool(references(with_id, ("item", "id")) & {catalogue_id, f"{publisher}/{catalogue_id}"})
+    return False
 
 
 def batch_report(brain, name, batch, pages):
@@ -85,8 +107,18 @@ def batch_report(brain, name, batch, pages):
             staged.extend(entries)
         if not staged:
             raise ValueError("expected entries in 'lessons' or 'items'")
+        if brainlib.read_frontmatter(brain / "brain.md").get("kind") == "topic":
+            if not isinstance(data.get("concepts"), list):
+                raise ValueError("topic staging requires a 'concepts' list (use [] if there are none)")
+            staged = data.get("items", [])
+            if not staged:
+                raise ValueError("topic staging requires entries in 'items'")
+            for entry in staged:
+                if not (isinstance(entry.get("page"), str) and entry["page"].strip()
+                        and isinstance(entry.get("speakers"), (dict, list))):
+                    raise ValueError("each topic staging item needs 'page' and 'speakers'")
         for item in assigned:
-            if not any(stages_item(item, entry) for entry in staged):
+            if not any(stages_item(brain, item, entry) for entry in staged):
                 problems.append(f"staging missing: {item.get('raw') or item.get('item') or item.get('id', '')}")
     except (OSError, ValueError, yaml.YAMLError) as exc:
         problems.append(f"staging: {str(exc).splitlines()[0]}")
@@ -100,6 +132,8 @@ def batch_report(brain, name, batch, pages):
 
 
 def main(argv=None):
+    catalogue_rows.cache_clear()
+    raw_catalogue_reference.cache_clear()
     ap = argparse.ArgumentParser(description=__doc__)
     brainlib.add_brain_arg(ap)
     ap.add_argument("--batches", required=True)
