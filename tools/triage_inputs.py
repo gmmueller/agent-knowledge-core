@@ -23,6 +23,7 @@ import yaml
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import brainlib
 import library_raw as lr  # noqa: E402
+from reference_sources import ReferenceSources, enabled as reference_mode
 
 COLS = ["item", "kind", "title", "published", "duration_s", "views", "description"]
 
@@ -61,6 +62,9 @@ def main() -> None:
 
     brain = brainlib.brain_dir(a.brain)
     lr.init(brainlib.workspace(brain))
+    settings = brainlib.read_frontmatter(brain / "brain.md")
+    references = ReferenceSources(brain, settings) if reference_mode(settings) else None
+    cols = COLS + ["authority", "version", "superseded"] if references is not None else COLS
     rows = list(lr.read_catalogue(a.publisher).values())
     if a.kinds:
         rows = [r for r in rows if r["kind"] in a.kinds.split(",")]
@@ -91,10 +95,13 @@ def main() -> None:
         old.unlink()
     for n, i in enumerate(range(0, len(rows), a.chunk), 1):
         part = rows[i:i + a.chunk]
-        lines = ["\t".join(COLS)]
+        lines = ["\t".join(cols)]
         for r in part:
             vals = [f"{a.publisher}/{r['id']}", r["kind"], r["title"], r.get("published", ""),
                     r.get("duration_s", ""), r.get("views", ""), (r.get("description") or "")[:200]]
+            if references is not None:
+                meta = references.metadata(a.publisher, r["id"], source=r.get("source"))
+                vals += [meta["authority"] or "unknown", meta["version"], "yes" if meta["superseded"] else "no"]
             lines.append("\t".join(lr.clean_field(v) for v in vals))
         p = out_dir / f"{a.publisher}-{n}.tsv"
         p.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")

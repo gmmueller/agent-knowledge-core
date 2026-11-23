@@ -149,6 +149,27 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 
 ---
 
+### Reference topic brains
+
+Use `kind: topic` and `evidence_model: reference` in `brain.md`. Keep `experts` only if you want to count expert consensus. Update the task loop and `skill` text to describe how the brain uses documents and cites editions. Use [document capture](documents.md) for local files.
+
+Register editions in `library/<publisher>/sources.yaml` or in the brain's `sources.yaml` for brain-local `raw/`. Match `id` to the capture's `source_id`. A library catalogue row can also point to a source through its `source` column. Use `authority: official` for the issuing body and `authority: primary` for another firsthand source you accept as authoritative. The existing `brain.md` `official` list also recognizes named issuing bodies, and raw marked `evidence: official` counts as official.
+
+```yaml
+sources:
+  - id: doc-handbook-v1
+    authority: official
+    version: "1.0"
+    published: 2024-03-01
+  - id: doc-handbook-v2
+    authority: official
+    version: "2.0"
+    published: 2026-03-01
+    supersedes: doc-handbook-v1
+```
+
+`supersedes` can be a source ID in the same file, a `publisher/source-id` for a library entry, or an ISO date (YYYY-MM-DD) matching exactly one `published` entry in the same file. Use an ID when editions share a date. A later date or higher version alone does not retire an edition. Use `stance: opposes` on dissenting rule evidence in staging, or add it after the citation on a rule quote when there is no bundle.
+
 ## Tools catalog
 
 ### Map and crawl (persona brains)
@@ -169,6 +190,7 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 | `library_yt.py` | Catalogue YouTube channels and feeds; fetch captions or audio into raw or staging |
 | `web_to_raw.py` | Catalogue and capture blogs, docs and transcript pages (`--browser` for JS-built pages; `--from-heading` / `--to-heading` select sections before capture on paragraph pages) |
 | `book_to_raw.py` | User-supplied book or paper PDF → one raw file, one block per page (`--published` accepts `YYYY`, `YYYY-MM` or `YYYY-MM-DD`; `--pages 1-12,40-55` keeps original PDF page numbers); updates `catalogue.tsv` and appends to `crawl-log.md` |
+| `doc_to_raw.py` | Capture local PDF, DOCX, PPTX, XLSX, TXT, Markdown or HTML with the local parser or a configured model command. See [document capture](documents.md) |
 | `diarize.py`, `finalize_raw.py`, `speaker_naming.md` | Speaker pass: cluster voices, name them (the naming agent's brief), write raw with speakers |
 | `example_frames.py`, `check_examples.py`, `link_examples.py` | Measure demonstration videos (cuts, frames); check that example pages cite only their own video; link examples from concept pages |
 | `library_raw.py` | Shared helpers: paths, slugs, catalogue read and write, raw writing |
@@ -182,7 +204,7 @@ See [`examples/README.md`](../examples/README.md) for a complete text-only topic
 | `wave_report.py` | Check a finished wave (`--batches`, `--wave`). Match assignments to staging and pages, run `check_wiki.py` on both, and check protected pages |
 | `requote.py` | Re-anchor quotes (timestamps, `¶N` paragraph and `p. N` page locators) after a raw file is re-crawled |
 | `merge_staging.py` (persona), `merge_topic.py` (topic) | Pool ingest staging by concept → per-concept bundles |
-| `rule_status.py` | Recount topic-brain rule status by independent voice |
+| `rule_status.py` | Recount rule status using expert evidence or current authoritative documents |
 | `skool_ingest_batches.py` | Cut a Skool brain into ingest batches (`--only-new` for refreshes) |
 
 ### Check, evaluate and generate

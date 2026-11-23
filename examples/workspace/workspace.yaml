@@ -1,0 +1,6 @@
+# Optional settings for the private workspace. Local document capture needs no configuration.
+#
+# doc_parser:
+#   command: ["python", "/path/to/your_document_parser.py"]
+#   # Suggested if you have OpenAI access. Your command chooses and calls the model.
+#   model: gpt-6.1-terra

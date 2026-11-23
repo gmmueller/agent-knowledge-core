@@ -7,7 +7,8 @@ Both tools read `experts`, `expert_aliases`, `voice_aliases` and `hosts` from br
   consensus  2+ listed experts support the rule and no listed expert opposes it
   active     2+ independent voices (rule_status: voices), otherwise 2+ publishers or 3+ items
   bench      otherwise
-Flags opposition and discrepancies on rule pages for review. Keeps `contested` and locked statuses.
+Reference brains count current authoritative sources and flag rules supported only by superseded sources.
+Keeps locked statuses and expert brains' `contested` statuses.
 Prints changes by default. --write updates status lines on unprotected pages.
 """
 import argparse
@@ -17,8 +18,10 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
+import check_wiki
 import rule_evidence
 import wiki_edits
+from reference_sources import ReferenceSources, enabled as reference_mode
 
 QUOTE_SOURCE = re.compile(r'^>\s*["“].+?["”]\s*[—–-]+\s*(.+?)\s*\(\[\[([^\]|]+)(?:\|[^\]]*)?\]\]', re.M)
 STATUS_LINE = re.compile(r"^(status:[ \t]*)[^\s#]+", re.M)
@@ -29,6 +32,7 @@ QUOTED = re.compile(r'"[^"\n]*"|“[^”\n]*”|‘[^’\n]*’|(?<!\w)\x27[^\x2
 DISSENT = re.compile(r"^#{1,6}\s+(?:dissent|contested by|official contradiction)\b([^\n]*)(.*?)(?=^#{1,6}\s|\Z)",
                      re.I | re.M | re.S)
 OPPOSES = re.compile(r"\bstance\s*:\s*[`*_]*opposes\b", re.I)
+QUOTE_STANCE = re.compile(r"\bstance\s*:\s*[\x60*_]*(supports|nuances|opposes)\b", re.I)
 OFFICIAL_CONTRADICTION = re.compile(r"\bofficial\s+(?:contradiction|(?:source|policy|guidance|rule)\s+"
                                     r"(?:contradicts|opposes|rejects))\b", re.I)
 RAW_LINK = re.compile(r"\[\[((?:raw|library)/[^\]|#]+)")
@@ -44,6 +48,22 @@ def evidence_for(brain, slug, body):
     workspace = brainlib.workspace(brain)
     return [{"speaker": speaker, "item": rule_evidence.raw_item(workspace, raw)}
             for speaker, raw in QUOTE_SOURCE.findall(body)]
+
+
+def reference_quotes(body):
+    """Read exact quotes from rule pages, including quotes credited only to a document."""
+    rows = []
+    for line in FENCED_CODE.sub("", body).splitlines():
+        cite = check_wiki.CITE.search(line)
+        if cite is None:
+            continue
+        prefix = line[:cite.start()].rstrip().removesuffix("(").rstrip()
+        quote = check_wiki.QUOTE_LINE.fullmatch(prefix)
+        if quote:
+            stance = QUOTE_STANCE.search(line[cite.end():])
+            rows.append({"speaker": quote[2].strip(), "raw": cite[1],
+                         "stance": stance[1].lower() if stance else "supports"})
+    return rows
 
 
 def report_page_warnings(brain, slug, settings, body, evidence, old, new):
@@ -96,14 +116,25 @@ def is_official_raw(brain, raw):
 
 def audit(brain, *, write):
     settings = brainlib.read_frontmatter(brain / "brain.md")
+    references = ReferenceSources(brain, settings) if reference_mode(settings) else None
     counts = {}
     protected = wiki_edits.protected_pages(brain) if write else set()
     for page in sorted((brain / "wiki" / "rules").glob("*.md")):
         text = page.read_text(encoding="utf-8")
         front, body = brainlib.split_frontmatter(text)
         old = front.get("status")
-        evidence = evidence_for(brain, page.stem, body)
-        result = rule_evidence.assess(settings, evidence, front)
+        if references is None:
+            evidence = evidence_for(brain, page.stem, body)
+            result = rule_evidence.assess(settings, evidence, front)
+        else:
+            page_evidence = reference_quotes(body)
+            evidence = evidence_for(brain, page.stem, "") or page_evidence
+            result = rule_evidence.assess(settings, evidence, front, references)
+            cited = rule_evidence.assess(settings, page_evidence, front, references)
+            if cited.superseded_only or (not page_evidence and result.superseded_only):
+                print(f"warning: {page.stem}: rule cites only superseded supporting sources")
+            elif result.superseded_only:
+                print(f"warning: {page.stem}: staged rule support is superseded; rebuild its bundle")
         new = result.status
         rule_evidence.report_opposition(page.stem, result.opposing)
         if not write:

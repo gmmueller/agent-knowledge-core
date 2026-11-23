@@ -182,6 +182,35 @@ class ExampleFixes(unittest.TestCase):
             self.call(persona, "--brain", self.brain, "--out", out)
             self.assertEqual(path.read_bytes(), default)
 
+    def test_reference_skill_cites_editions_and_only_names_existing_checks(self):
+        card = ("---\nname: my-topic\ndisplay_name: My Topic\nkind: topic\n"
+                "skill:\n  description: Consult this topic.\n  short_description: Topic sources\n"
+                "  default_prompt: Use $my-topic.\n")
+        card_path = self.brain / "brain.md"
+        self.write(card_path, card + "evidence_model: reference\n---\n")
+        out = self.root / "skills"
+        path = out / "my-topic" / "SKILL.md"
+        args = ("--brain", self.brain, "--out", out)
+        self.call(persona, *args)
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("source title, its version or publication date", text)
+        self.assertNotIn("whose method", text)
+        self.assertNotIn("rubric", text)
+        self.assertNotIn("checklist", text)
+        self.write(self.brain / "wiki/methods/inspect-output.md", "# Inspect output\n\n## Checklist\n")
+        self.call(persona, *args)
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("`inspect-output.md`", text)
+        self.assertIn("check the result against the applicable checklist", text)
+        self.assertNotIn("rubric", text)
+        self.write(card_path, card + "experts: [Sample Expert]\n---\n")
+        self.write(self.brain / "wiki/rubrics/sample.md", "# Sample rubric\n")
+        self.call(persona, *args)
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("whose method", text)
+        self.assertIn("check the result against the relevant rubric", text)
+        self.assertNotIn("checklist", text)
+
     def test_requote_paragraph_page_and_timestamp_in_markdown_and_staging(self):
         for label, old in (("¶12", "¶2"), ("p. 37", "p. 2"), ("1:30", "0:00")):
             with self.subTest(label=label):

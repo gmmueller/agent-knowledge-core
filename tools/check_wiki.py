@@ -9,10 +9,11 @@ Citation forms (paths relative to the brain folder, `.md` optional):
   ([[raw/main/m01-x/l04-y]] @ page text)   lesson page text (or a text-only lesson)
   ([[raw/community/2026-10/x]] @ post)   a Skool thread's opening post
   ([[raw/community/2026-10/x]] @ c:9d9bf4b9)  one comment in a Skool thread (its `c:<id8>` anchor)
-Library paths resolve from the workspace root; @ ¶N addresses web blocks.
+Library paths resolve from the workspace root. Documents use @ p. N, @ slide N,
+@ Sheet!A1 (or @ sheet N row M), or @ ¶N.
 For `post` / `c:` cites the quote's speaker (or the persona's default_speaker when unnamed) must be the
 author of that post or comment, so a member's words can't pass as the expert's.
-Persona quotes may omit the brain's default_speaker; topic quotes always name a speaker.
+Persona quotes may omit the brain's default_speaker. Reference topic quotes may name the document alone.
 A quote must appear verbatim (whitespace and curly quotes normalised, case-sensitive) in the cited block.
 Timestamp and PDF citations can include the previous and next blocks. Exit code 1 if anything fails.
 """
@@ -29,10 +30,14 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I drops the script dir
 import brainlib
+import document_locators
+from reference_sources import enabled as reference_mode
 
 TIMESTAMP = re.compile(r"\d+:(?:[0-5]\d:)?[0-5]\d")
+QUOTE_LOCATOR = (rf"(?:{TIMESTAMP.pattern}|{document_locators.DOCUMENT}|{document_locators.PARAGRAPH}|"
+                 rf"page text|post|c:[0-9a-f]{{8}})")
 CITE = re.compile(r"\[\[((?:raw/|library/)[^\[\]|#]+?)(?:\|[^\]]*)?\]\]\s*@\s*"
-                  rf"({TIMESTAMP.pattern}|p\.\s*\d+|¶\d+|page text|post|c:[0-9a-f]{{8}}|\d+(?:\.\d+)?s)"
+                  rf"({QUOTE_LOCATOR}|\d+(?:\.\d+)?s)"
                   r"(?![\w:]|\.\d)")
 RAW_LINK = re.compile(r"\[\[(?:raw/|library/)")
 WIKI_LINK = re.compile(r"\[\[([^\[\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
@@ -50,8 +55,7 @@ DASH = r"(?:[—–]|-{1,2})"
 QUOTE_LINE = re.compile(rf'''^\s*(?:>\s*|[-*+]\s+)["“](.+?)["”]\s*{DASH}\s*([^"“”\[]*)$''')
 QUOTE_BULLET = re.compile(r'''^\s*[-*+]\s+["“].+?["”]\s*$''')
 INLINE_QUOTE = re.compile(rf'''["“](.+?)["”](?:\s*{DASH}\s*([^"“”\[]*))?\s*$''')
-TS_BLOCK = re.compile(rf"^\*\*\[({TIMESTAMP.pattern}|¶\d+)\]\*\*\s?(.*)$")
-PAGE_BLOCK = re.compile(r"^\*\*\[p\. (\d+)\]\*\*\s*$")
+TS_BLOCK = re.compile(rf"^\*\*\[({TIMESTAMP.pattern}|{document_locators.PARAGRAPH})\]\*\*\s?(.*)$")
 THREAD_HEAD = re.compile(r"^((?:> )*)\*\*(.+?)\*\* \(@[^)]*\)(?: · \*\*\w+\*\*)? · [\d-]+ [\d:]+ · c:([0-9a-f]{8})\s*$")
 POST_HEAD = re.compile(r"^\*\*(.+?)\*\* \(@[^)]*\) · [\d-]+ [\d:]+\s*$")
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
@@ -148,17 +152,17 @@ def raw_index(brain: pathlib.Path, rel: str) -> dict | None:
             in_page_text, cur = True, None
             continue
         m = TS_BLOCK.match(line)
-        p = PAGE_BLOCK.match(line)
+        p = document_locators.BLOCK.match(line)
         if not in_page_text and m:
             content, speaker = m.group(2), None
             for name in speakers:
                 if content.startswith(name + ":"):
                     speaker, content = name, content[len(name) + 1:].lstrip()
                     break
-            cur = [m.group(1), content, speaker]
+            cur = [document_locators.normalize(m[1]), content, speaker]
             blocks.append(cur)
         elif not in_page_text and p:
-            cur = [f"p. {p.group(1)}", "", None]
+            cur = [document_locators.normalize(p[1]), p[2] or "", None]
             blocks.append(cur)
         elif in_page_text or not blocks:
             page_text.append(line)
@@ -174,7 +178,7 @@ def raw_index(brain: pathlib.Path, rel: str) -> dict | None:
         end = float(duration) if re.fullmatch(r"\d+(?:\.\d+)?", duration) else None
     idx = {"blocks": [(b[0], norm(b[1])) for b in blocks], "block_speakers": [b[2] for b in blocks],
            "speakers": speakers, "page_text": norm(" ".join(page_text)), "all": norm(body),
-           "end": end,
+           "end": end, "document": fm.get("method") == "document",
            "anchors": thread_anchors(body) if fm.get("method") == "skool-api" else {}}
     _raw_cache[key] = idx
     return idx
@@ -211,7 +215,7 @@ def ts_seconds(label: str) -> int:
 def check_cite(brain, rel, at, quote, where, errors, speaker=None) -> None:
     if quote and speaker and not any(ch.isalpha() for ch in speaker):
         errors.append(f"{where}: invalid quote speaker '{speaker}'")
-    if quote and not speaker and topic(brain):
+    if quote and not speaker and topic(brain) and not reference_mode(frontmatter(brain / "brain.md")):
         errors.append(f"{where}: topic quote missing speaker")
     example = rel.removesuffix(".yaml").removesuffix(".md")
     if EXAMPLE.match(example):
@@ -237,7 +241,7 @@ def check_cite(brain, rel, at, quote, where, errors, speaker=None) -> None:
     if idx is None:
         errors.append(f"{where}: raw file not found: {rel}")
         return
-    at = re.sub(r"p\.\s*", "p. ", at)
+    at = document_locators.normalize(at)
     if at == "post" or at.startswith("c:"):
         anchor = idx["anchors"].get(at)
         if anchor is None:
@@ -294,7 +298,8 @@ def check_cite(brain, rel, at, quote, where, errors, speaker=None) -> None:
             check_speaker(brain, idx, idx["block_speakers"][i], speaker, where, errors)
         q = norm(quote)
         blocks = idx["blocks"]
-        radius = 0 if at.startswith("¶") else 1
+        adjacent = secs is not None or at.startswith("p.")
+        radius = 1 if adjacent and not idx["document"] else 0
         start, stop = max(0, i - radius), min(len(blocks), i + radius + 1)
         neighbors = blocks[start:stop]
         if topic(brain) and idx["block_speakers"][i]:
@@ -302,7 +307,9 @@ def check_cite(brain, rel, at, quote, where, errors, speaker=None) -> None:
                          if idx["block_speakers"][k] == idx["block_speakers"][i]]
         window = " ".join(b[1] for b in neighbors)
         if q not in window:
-            locator = "paragraph" if at.startswith("¶") else "timestamp"
+            locator = "timestamp" if secs is not None else "locator"
+            if at.startswith("¶"):
+                locator = "paragraph"
             hint = f" (found elsewhere: fix the {locator})" if q in idx["all"] else ""
             errors.append(f"{where}: quote not at {at} in {rel}{hint}: \"{quote[:70]}\"")
 

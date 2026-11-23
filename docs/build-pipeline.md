@@ -130,13 +130,17 @@ Run `python -I tests/test_wiki_tools.py --scratch <workspace>/.secrets/scratch` 
 
 ## Rule status and independence
 
+For a document-based topic brain, set `evidence_model: reference` in `brain.md` and register each edition in `sources.yaml`. [Set up reference sources](agent-reference.md#reference-topic-brains) and [capture documents](documents.md). Skip the speaker pass for documents. Cite the title and version or publication date when known.
+
+One current source marked `authority: official` or `authority: primary` makes a reference rule `active`. Opposing evidence from a different current authoritative source makes it `contested`. Link its debate page. `consensus` still needs two listed experts with no opposition. Older editions named by `supersedes` do not count. `rule_status.py` warns when only superseded sources support a rule. `status_locked: true` takes precedence.
+
 Persona brains: `merge_staging.py` keeps a provisional status: one distinct lesson is `bench`, two or more are `active`. The orchestrator reviews independence before accepting a promotion. A lesson and its case-study follow-up count as one source; independent modules or courses provide stronger evidence (or three or more independently supporting lessons). Count an attachment with its lesson, and count community threads as one source kind.
 
 Topic brains count supporting points and quotes. On a rule's evidence, `stance` defaults to `supports`. Use `nuances` for partial or conditional support and `opposes` for explicit disagreement with the rule itself. Hosts are excluded. `consensus` needs support from two or more listed experts after `expert_aliases` and no opposition from a listed expert. Both tools report listed opposition as a contested candidate for review. Page writers set `contested` and link the debate page.
 
 By default, `active` needs supporting items from at least two publishers or at least three distinct supporting items. With `rule_status: voices` in `brain.md`, `active` instead needs at least two distinct supporting speakers after `expert_aliases` (a duo can count once) and `voice_aliases` (platform staff can count as the platform). The fallback status is `bench`. For a page without a bundle, the audit treats its attributed quotes as support.
 
-`merge_topic.py` and `rule_status.py` preserve existing `contested` and `status_locked: true` page statuses. Names alone cannot establish independence. Note known borrowing or citation chains in prose and lock the status with a `status_note` when the voices are dependent. Run the audit without `--write` to preview changes and spot explicit status mismatches or dissent that challenges a computed consensus. With `--write`, each update uses the wiki write guard.
+`merge_topic.py` and `rule_status.py` preserve `status_locked: true` page statuses and existing `contested` statuses in expert brains. Names alone cannot establish independence. Note known borrowing or citation chains in prose and lock the status with a `status_note` when the voices are dependent. Run the audit without `--write` to preview changes and spot explicit status mismatches or dissent that challenges a computed consensus. With `--write`, each update uses the wiki write guard.
 
 ## Lessons learned
 

@@ -7,7 +7,8 @@ Usage:
 Reads <brain>/ingest/staging/*.yaml (except examples-*.yaml) and the optional <brain>/ingest/slug-map.yaml
 ({old-slug: canonical-slug}). Every point and quote is tagged with its library item (from the raw file's
 frontmatter) and speaker. Rule status uses the same supporting evidence and brain settings as rule_status.py.
-Listed experts who oppose a rule are flagged for review. Existing locked or contested page statuses are kept.
+Listed expert opposition is flagged for review. Locked statuses and expert brains' contested statuses are kept.
+Reference brains count current authoritative documents and explicit opposition from those documents.
 Also writes _conflicts.yaml, _examples.yaml, _speaker_doubts.yaml, _findings.yaml, _tropes.yaml and _equipment.yaml pooled from all batches.
 """
 import argparse
@@ -20,6 +21,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import brainlib
 import rule_evidence
+from reference_sources import ReferenceSources, enabled as reference_mode
 
 
 def load(brain: pathlib.Path):
@@ -63,7 +65,7 @@ def load(brain: pathlib.Path):
     return concepts, extras
 
 
-def finish(b: dict, brain: pathlib.Path, settings: dict) -> dict:
+def finish(b: dict, brain: pathlib.Path, settings: dict, references=None) -> dict:
     evidence = b["points"] + b["quotes"]
     items = sorted({p["item"] for p in evidence if p["item"]})
     speakers = {p["speaker"] for p in evidence if p.get("speaker")}
@@ -75,7 +77,8 @@ def finish(b: dict, brain: pathlib.Path, settings: dict) -> dict:
            "items": items, "experts": sorted(backing), "speakers": sorted(speakers)}
     if ctype == "rule":
         page = brain / "wiki" / "rules" / f"{b['slug']}.md"
-        result = rule_evidence.assess(settings, evidence, brainlib.read_frontmatter(page) if page.is_file() else {})
+        result = rule_evidence.assess(settings, evidence, brainlib.read_frontmatter(page) if page.is_file() else {},
+                                      references)
         out.update(status=result.status, experts=sorted(result.experts))
         rule_evidence.report_opposition(b["slug"], result.opposing)
     out.update({"summaries": b["summaries"], "points": b["points"], "quotes": b["quotes"]})
@@ -90,8 +93,9 @@ def main() -> None:
     brain = brainlib.brain_dir(args.brain)
     mode = args.mode
     settings = brainlib.read_frontmatter(brain / "brain.md")
+    references = ReferenceSources(brain, settings) if reference_mode(settings) else None
     concepts, extras = load(brain)
-    bundles = {slug: finish(b, brain, settings) for slug, b in concepts.items() if slug}
+    bundles = {slug: finish(b, brain, settings, references) for slug, b in concepts.items() if slug}
     if mode == "survey":
         print(f"{'slug':48} {'type':10} items experts pts qts status")
         for s, b in sorted(bundles.items(), key=lambda kv: (kv[1]["type"], -len(kv[1]["items"]), kv[0])):

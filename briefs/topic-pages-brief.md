@@ -15,6 +15,8 @@ Read first:
 
 Core rules (self-contained): use primary sources only, cite every claim or mark it **Inference:**, back every rule with at least one verbatim quote naming its speaker, keep source text private (never paste it into external services), and cite library raw files as `([[library/<publisher>/raw/<path without .md>]] @ <where>)` where `<where>` is `@ 12:41` (transcripts), `@ ¶12` (web pages) or `@ p. 37` (books and papers).
 
+For `evidence_model: reference`, attribute quotes to the document when it has no named speaker. Give its title and edition or publication date when known, and use the exact [document locator](../docs/documents.md). Keep superseded editions as historical context and link a debate page for conflicting current authorities.
+
 ## Reading budget
 
 - Read only the files this brief lists (`brain.md`, the gold example, `ingest/page-groups.yaml`, `ingest/item-pages.tsv`, your assigned bundles and `_*.yaml` files, and only the specific source pages or raw blocks needed to check a quote's context or speaker).

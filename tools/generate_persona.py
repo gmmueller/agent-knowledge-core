@@ -21,6 +21,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # python -I drops the script dir
 import brainlib
+from reference_sources import enabled as reference_mode
 
 
 SKILL = """---
@@ -63,19 +64,19 @@ description: {description}
 
 # {display_name}
 
-A topic specialist compiled from several experts' own material ({experts}) into a cited wiki. It has no imitated voice: it applies the experts' methods and says whose method each step comes from. Its knowledge lives in the brain folder, not in this file:
+{topic_intro} Its knowledge lives in the brain folder, not in this file:
 
-- **Brain card:** `{brain_md}`: scope, experts, extraction areas, task loop and boundaries.
-- **Wiki:** `{wiki}`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/`, `rubrics/`, `debates/` and `glossary/`. Per-source pages are in `sources/`.{examples_folder}
+- **Brain card:** `{brain_md}`: scope, {topic_catalog}, extraction areas, task loop and boundaries.
+- **Wiki:** `{wiki}`. Concept pages are in `topics/`, `principles/`, `frameworks/`, `methods/`, `rules/`, {rubrics_folder}`debates/` and `glossary/`. Per-source pages are in `sources/`.{examples_folder}
 - **Library:** `{library}`. Transcripts and pages shared across brains, cited as `[[library/<publisher>/raw/...]]`.
 {tools_folder}
 ## How to use it
 
 1. **Load.** On first use in a task, read `brain.md` and the concept index `wiki/index.md`.
-2. **Look up.** Search qmd collections `{name}-wiki` and `library` when available, or grep `wiki/` and `library/*/raw/`. Read the relevant concept, rule and rubric pages{examples_lookup}, then their source pages or library transcripts for exact quotes. Open `wiki/sources-index.md` only to locate a specific source. For a broad request that needs many pages, delegate the reading to one subagent and ask for a cited answer.
-3. **Do the work** following the brain card's **Task loop**: clarify the job and context, apply the experts' methods (naming whose), check the result against the relevant rubric, and show the check.
-4. **Weigh the evidence.** Prefer `consensus` rules (several experts agree), then `active`, then `bench`. When experts disagree, present the debate page's positions instead of picking silently.
-5. **Cite** as wiki page names or `([[library/<publisher>/raw/<path>]] @ <block>)`, writing the full path every time. Quotes are exact and always name their speaker: copy them from the source or raw text, and if you paraphrase, drop the quote marks.
+2. **Look up.** Search qmd collections `{name}-wiki` and `library` when available, or grep `wiki/` and `library/*/raw/`{local_lookup}. Read the relevant {topic_lookup}{examples_lookup}, then their source pages or {topic_raw} for exact quotes. Open `wiki/sources-index.md` only to locate a specific source. For a broad request that needs many pages, delegate the reading to one subagent and ask for a cited answer.
+3. **Do the work** following the brain card's **Task loop**: clarify the job and context, {topic_action}{topic_check}.
+4. **Weigh the evidence.** {topic_evidence}
+5. **Cite** as wiki page names or `([[library/<publisher>/raw/<path>]] @ <block>)`, writing the full path every time. {topic_citation}
 6. **Stay inside the material.** Anything the wiki doesn't support is **Inference:**. Say "the material doesn't cover this" rather than inventing facts or rules.
 {guidance}
 ## Boundaries
@@ -85,6 +86,48 @@ A topic specialist compiled from several experts' own material ({experts}) into 
 - **Separate from the user's own persona skills**{own_skills}: when both are used, say which view is which.
 - **No side effects.** Advice and drafts only: no posting, spending or account changes.
 {boundaries}"""
+
+
+def topic_wording(brain, settings, experts):
+    wiki = brain / "wiki"
+    rubrics = any((wiki / "rubrics").glob("*.md"))
+    lookup = "concept, rule and rubric pages" if rubrics else "concept and rule pages"
+    check = ", check the result against the relevant rubric, and show the check" if rubrics else ""
+    if not rubrics:
+        checklists = [p.name for p in sorted((wiki / "methods").glob("*.md"))
+                      if "checklist" in p.stem.lower()
+                      or re.search(r"^#+ .*\bchecklists?\b", p.read_text(encoding="utf-8"), re.I | re.M)]
+        if checklists:
+            lookup += ", plus the applicable checklist in `methods/` (" + ", ".join(f"`{name}`" for name in checklists) + ")"
+            check = ", check the result against the applicable checklist, and show the check"
+    values = {
+        "topic_lookup": lookup,
+        "topic_check": check,
+        "rubrics_folder": "`rubrics/`, " if rubrics else "",
+    }
+    if reference_mode(settings):
+        return {**values,
+                "topic_intro": "A topic specialist compiled from reference documents into a cited wiki.",
+                "topic_catalog": "sources",
+                "local_lookup": " (also `raw/` for brain-local sources)",
+                "topic_raw": "captured documents",
+                "topic_action": "apply the current reference documents",
+                "topic_evidence": "Prefer current authoritative documents. Use `bench` rules with caution. "
+                                  "For `contested` rules, show where current sources differ.",
+                "topic_citation": "Give the source title, its version or publication date when known, and the exact "
+                                  "locator. Check source pages and `sources.yaml` for edition metadata. Copy quotes "
+                                  "verbatim from the cited source."}
+    return {**values,
+            "topic_intro": f"A topic specialist compiled from several experts' own material ({experts}) into a cited wiki. "
+                           "It has no imitated voice: it applies the experts' methods and says whose method each step comes from.",
+            "topic_catalog": "experts",
+            "local_lookup": "",
+            "topic_raw": "library transcripts",
+            "topic_action": "apply the experts' methods (naming whose)",
+            "topic_evidence": "Prefer `consensus` rules (several experts agree), then `active`, then `bench`. "
+                              "When experts disagree, present the debate page's positions instead of picking silently.",
+            "topic_citation": "Quotes are exact and always name their speaker: copy them from the source or raw text, "
+                              "and if you paraphrase, drop the quote marks."}
 
 
 def _lines(value, key):
@@ -186,6 +229,8 @@ def main() -> None:
     except ValueError as error:
         ap.error(str(error))
     template = TOPIC_SKILL if fm.get("kind") == "topic" else SKILL
+    if template == TOPIC_SKILL:
+        values.update(topic_wording(brain, fm, values["experts"]))
     rendered = template.format(**values)
     if a.relative_to is not None:
         comment = "<!-- Portable example: normal generate_persona.py use writes absolute paths for your own machine. Paths here are relative to the --relative-to root; regenerate without that flag for installation elsewhere. -->\n\n"
