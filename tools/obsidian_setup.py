@@ -21,7 +21,7 @@ APP = {"userIgnoreFilters": ["ingest/", "media/", "state/", "library/"]}
 GROUPS = [("sources", 0x6A9FB5), ("topics", 0x8FBCBB), ("principles", 0xA3BE8C),
           ("methods", 0xB48EAD), ("frameworks", 0xD08770), ("rules", 0xBF616A),
           ("glossary", 0xEBCB8B), ("debates", 0xAB7967), ("rubrics", 0x5E81AC),
-          ("examples", 0x88C0D0), ("notes", 0xD8DEE9)]
+          ("tools", 0x81A1C1), ("examples", 0x88C0D0), ("notes", 0xD8DEE9)]
 GRAPH = {"search": '(path:"wiki/" OR path:"notes/") -path:"raw/" -path:"library/"',
          "hideUnresolved": True, "showAttachments": False,
          "colorGroups": [{"query": f'path:"{folder if folder == "notes" else "wiki/" + folder}/"',

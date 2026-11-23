@@ -64,10 +64,12 @@ class WikiTools(unittest.TestCase):
     def test_corruption_in_pages_and_staging_but_not_urls(self):
         page = self.brain / "wiki/sources/main-m01-l01.md"
         valid = page.read_text(encoding="utf-8")
-        self.write("wiki/sources/main-m01-l01.md", valid.replace('" --', '" ?') + "\nhttps://example.com/?n=1?2\n")
+        self.write("wiki/sources/main-m01-l01.md", valid.replace('" --', '" ?')
+                   + "\nhttps://example.com/?n=1?2\n### How does this work ? (Help, 2026-01-01)\n"
+                   + "See https://example.com/?a=1 and don?t ignore contractions.\n")
         result = self.run_tool("check_wiki.py", "--brain", self.brain, page)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-        self.assertEqual(result.stdout.count("possible corruption"), 1)
+        self.assertEqual(result.stdout.count("possible corruption"), 2, result.stdout)
         self.assertIn("quote line needs a separator dash", result.stdout)
         self.write("ingest/staging/example.yaml", "concepts: []\n# Broken 1?2\n")
         result = self.run_tool("check_wiki.py", "--brain", self.brain, self.brain / "ingest/staging/example.yaml")
@@ -109,8 +111,12 @@ class WikiTools(unittest.TestCase):
 
     def test_eval_quote_errors_exit_nonzero(self):
         answers = self.brain / "answers.md"
+        two_on_one_line = ('If "short" is too strong for the original "term", compare '
+                           '"Practice every day to build skill." ([[raw/main/m01/l01]] @ 0:00) and then '
+                           '"Keep a record of your progress." ([[raw/main/m01/l01]] @ 0:30)')
         for text, status, message in (
             ('"Practice every day to build skill." ([[raw/main/m01/l01]] @ 0:00)', 0, "1 attributed quotes checked"),
+            (two_on_one_line, 0, "2 attributed quotes checked, 0 problems"),
             ('"Never practice until next week." ([[raw/main/m01/l01]] @ 0:00)', 1, "quote not at"),
             ('"Never practice until next week." [[rule-practice]]', 1, "1 not found verbatim"),
         ):

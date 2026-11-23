@@ -214,10 +214,26 @@ class EditGuards(unittest.TestCase):
         self.assertEqual(wiki_edits.manifest(self.brain).read_bytes(), baseline)
         self.assertEqual(wiki_edits.status(self.brain), {"index.md": "changed", "sources-index.md": "changed",
                                                        "sources/lesson.md": "changed"})
-        proposals = {p.name: p.read_text(encoding="utf-8") for p in wiki_edits.proposals(self.brain)}
-        self.assertEqual(set(proposals), {"index.md", "sources-index.md"})
-        self.assertIn("[[sources-index]]", proposals["index.md"])
-        self.assertIn("- [[lesson|My lesson]]", proposals["sources-index.md"])
+        proposals = {p.relative_to(self.brain).as_posix(): p.read_text(encoding="utf-8") for p in wiki_edits.proposals(self.brain)}
+        self.assertEqual(set(proposals), {"ingest/proposals/wiki/index.md", "ingest/proposals/wiki/sources-index.md"})
+        self.assertIn("[[sources-index]]", proposals["ingest/proposals/wiki/index.md"])
+        self.assertIn("- [[lesson|My lesson]]", proposals["ingest/proposals/wiki/sources-index.md"])
+        # A later rebuild refreshes an existing auto-generated index proposal.
+        self.write("wiki/topics/added.md", PAGE.replace("# Example", "# Added Topic"))
+        self.assertEqual(self.run_tool("build_wiki_index.py").returncode, 0)
+        refreshed = (self.brain / "ingest/proposals/wiki/index.md").read_text(encoding="utf-8")
+        self.assertIn("[[added]]", refreshed)
+        # A proposal filed with wiki_edits propose is never overwritten by a rebuild.
+        (self.brain / "ingest/proposals/wiki/index.md").unlink()  # the auto proposal was reviewed and dropped
+        mine = self.brain / "agent-index.md"
+        mine.write_text("# Agent's index proposal\n", encoding="utf-8")
+        self.assertEqual(self.run_tool("wiki_edits.py", "propose", "index.md", "--from", str(mine)).returncode, 0)
+        filed = (self.brain / "ingest/proposals/wiki/index.md").read_text(encoding="utf-8")
+        self.assertIn("# Agent's index proposal", filed)
+        result = self.run_tool("build_wiki_index.py")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("open proposal", result.stdout)
+        self.assertEqual((self.brain / "ingest/proposals/wiki/index.md").read_text(encoding="utf-8"), filed)
 
     def test_notes_are_ignored_and_index_lists_them_without_writing(self):
         self.write("notes/unstructured.md", "No frontmatter [[missing]]\n")
@@ -321,6 +337,21 @@ class EditGuards(unittest.TestCase):
         self.assertIn("2 human-edited pages; 1 open proposals", result.stdout)
         self.assertEqual(result.stdout.count("raw changed after capture: re-crawl instead of editing"), 2)
         self.assertNotIn("unrelated", result.stdout)
+
+    def test_lint_during_open_pass_distinguishes_agent_edits_from_protected_pages(self):
+        self.write("wiki/topics/agent.md", PAGE)
+        self.init_wiki()
+        self.write("wiki/topics/example.md", PAGE + "Human addition\n")
+        self.assertEqual(self.run_tool("wiki_edits.py", "begin").returncode, 0)
+        self.write("wiki/topics/agent.md", PAGE + "Agent addition\n")
+        result = self.run_tool("lint_wiki.py")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("warning: 1 protected human-edited pages; 0 open proposals", result.stdout)
+        self.assertNotIn("2 human-edited", result.stdout)
+        self.write("wiki/topics/example.md", PAGE + "Agent clobber\n")
+        failed = self.run_tool("lint_wiki.py")
+        self.assertEqual(failed.returncode, 1, failed.stdout + failed.stderr)
+        self.assertIn("error: protected page changed during pass: wiki/topics/example.md", failed.stdout)
 
     def test_known_agent_write_does_not_accept_other_edits(self):
         self.init_wiki()
