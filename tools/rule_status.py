@@ -128,7 +128,7 @@ def audit(brain, *, write):
             result = rule_evidence.assess(settings, evidence, front)
         else:
             workspace = brainlib.workspace(brain)
-            page_evidence = [dict(row, item=rule_evidence.raw_item(workspace, row["raw"]))
+            page_evidence = [dict(row, item=rule_evidence.raw_item(workspace, row["raw"], brain))
                              for row in reference_quotes(body)]
             evidence = evidence_for(brain, page.stem, "") or page_evidence
             result = rule_evidence.assess(settings, evidence, front, references)

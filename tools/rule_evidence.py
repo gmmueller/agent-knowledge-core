@@ -10,12 +10,15 @@ from reference_sources import enabled as reference_mode
 
 
 @cache
-def raw_item(workspace, raw):
-    """Resolve a raw citation to its library item, including chapters of one book."""
+def raw_item(workspace, raw, brain=None):
+    """Resolve a raw citation to its library item, including chapters of one book.
+
+    With `brain`, brain-local `raw/` citations resolve against that brain's folder.
+    """
     if not raw:
         return ""
     rel = str(raw).removesuffix(".md") + ".md"
-    path = workspace / rel
+    path = (brain if brain is not None and rel.startswith("raw/") else workspace) / rel
     front = brainlib.read_frontmatter(path) if path.is_file() else {}
     if front.get("publisher") and front.get("source_id"):
         return f"{front['publisher']}/{front['source_id']}"
